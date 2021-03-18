@@ -7,6 +7,7 @@ const login = require('../cli-core/analysis.js').login;
 const create_global_report = require('../cli-core/reportGlobal.js').create_global_report;
 const create_XLSX_report = require('../cli-core/reportExcel.js').create_XLSX_report;
 const create_html_report = require('../cli-core/reportHtml.js').create_html_report;
+const writeToInflux = require('../cli-core/influxdb.js').write;
 
 //launch core
 async function analyse_core(options) {
@@ -72,6 +73,8 @@ async function analyse_core(options) {
     let reportObj = await create_global_report(reports, options);
     if(options.format === 'html') {
         await create_html_report(reportObj, options);
+    } else if(options.influxdb) {
+        await writeToInflux(reports, options);
     } else {
         await create_XLSX_report(reportObj, options);
     }
