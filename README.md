@@ -99,6 +99,23 @@ Pour utiliser l'outil, un fichier YAML listant toutes les URL à analyser est n�
 
 - `--ci` : Log de façon traditionnelle pour assurer la compatibilité avec les environements CI.
 
+### InfluxDB
+
+- `--influxdb` : Active l'écriture des données dans une base influxdb
+- `--influxdb_hostname` : URL de la base influxdb
+- `--influxdb_login` : Login de la base influxdb
+- `--influxdb_database` : Nom de la base de données dans influxdb
+- `--influxdb_password` : Password de la base influxdb
+
+Exemple d'usage :
+```shell
+greenit analyse exampleUrl.yaml --influxdb --influxdb_hostname http://localhost:8086 --influxdb_login admin --influxdb_password admin --influxdb_database db0
+```
+
+## Grafana
+
+Un exemple de dashboard grafana est situé dans `/grafana/dashboards`.
+
 # Usage
 
 Cet outil fait appel à une API ne permettant pas son utilisation à des fins commerciales.

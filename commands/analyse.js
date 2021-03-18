@@ -6,6 +6,8 @@ const createJsonReports = require('../cli-core/analyis.js').createJsonReports;
 const login = require('../cli-core/analyis.js').login;
 const create_global_report = require('../cli-core/report.js').create_global_report;
 const create_XLSX_report = require('../cli-core/report.js').create_XLSX_report;
+const writeToInflux = require('../cli-core/influxdb.js').write;
+
 //launch core
 async function analyse_core(options) {
     const URL_YAML_FILE = path.resolve(options.yaml_input_file);
@@ -55,6 +57,9 @@ async function analyse_core(options) {
     //create report
     let reportObj = await create_global_report(reports, options);
     await create_XLSX_report(reportObj, options)
+    if(options.influxdb) {
+        await writeToInflux(reports, options)
+    }
 }
 
 //export method that handle error

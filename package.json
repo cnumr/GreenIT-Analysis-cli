@@ -15,9 +15,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.11.0",
+    "@influxdata/influxdb-client-apis": "^1.11.0",
     "axios": "^0.21.1",
     "concat-files": "^0.1.1",
-    "exceljs": "^4.2.0",
+    "exceljs": "^4.2.1",
     "glob": "^7.1.6",
     "progress": "^2.0.3",
     "puppeteer": "^5.5.0",
