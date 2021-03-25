@@ -20,7 +20,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -78,7 +78,7 @@
           "measurement": "eco_index",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT ecoIndex FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT ecoIndex FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -105,7 +105,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -183,7 +183,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT grade FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT grade FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -210,7 +210,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -272,7 +272,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT ges FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1\n",
+          "query": "SELECT ges FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1\n",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -299,7 +299,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -361,7 +361,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT water FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT water FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -386,7 +386,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -497,7 +497,7 @@
           "measurement": "eco_index",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT AddExpiresOrCacheControlHeaders FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT AddExpiresOrCacheControlHeaders FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -535,7 +535,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT CompressHttp FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT CompressHttp FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
@@ -573,7 +573,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT DomainsNumber FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT DomainsNumber FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "table",
@@ -611,7 +611,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT DontResizeImageInBrowser FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT DontResizeImageInBrowser FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "table",
@@ -649,7 +649,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT EmptySrcTag FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT EmptySrcTag FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "table",
@@ -687,7 +687,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT ExternalizeCss FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT ExternalizeCss FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "table",
@@ -725,7 +725,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT ExternalizeJs FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT ExternalizeJs FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "table",
@@ -763,7 +763,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT HttpError FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT HttpError FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "H",
           "resultFormat": "table",
@@ -801,7 +801,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT HttpRequests FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT HttpRequests FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "I",
           "resultFormat": "table",
@@ -839,7 +839,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT ImageDownloadedNotDisplayed FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT ImageDownloadedNotDisplayed FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "J",
           "resultFormat": "table",
@@ -877,7 +877,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT JsValidate FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT JsValidate FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "K",
           "resultFormat": "table",
@@ -915,7 +915,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT MaxCookiesLength FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT MaxCookiesLength FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "L",
           "resultFormat": "table",
@@ -953,7 +953,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT MinifiedCss FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT MinifiedCss FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "M",
           "resultFormat": "table",
@@ -991,7 +991,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT MinifiedJs FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT MinifiedJs FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "N",
           "resultFormat": "table",
@@ -1029,7 +1029,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT NoCookiesForStaticRessources FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT NoCookiesForStaticRessources FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "O",
           "resultFormat": "table",
@@ -1067,7 +1067,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT NoRedirect FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT NoRedirect FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "P",
           "resultFormat": "table",
@@ -1105,7 +1105,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT OptimizeBitmapImages FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT OptimizeBitmapImages FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "Q",
           "resultFormat": "table",
@@ -1143,7 +1143,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT OptimizeSvg FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT OptimizeSvg FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "R",
           "resultFormat": "table",
@@ -1181,7 +1181,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT Plugins FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT Plugins FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "S",
           "resultFormat": "table",
@@ -1219,7 +1219,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT PrintStyleSheet FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT PrintStyleSheet FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "T",
           "resultFormat": "table",
@@ -1257,7 +1257,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT SocialNetworkButton FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT SocialNetworkButton FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "U",
           "resultFormat": "table",
@@ -1295,7 +1295,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT StyleSheets FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT StyleSheets FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "V",
           "resultFormat": "table",
@@ -1333,7 +1333,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT USeETags FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT USeETags FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "W",
           "resultFormat": "table",
@@ -1371,7 +1371,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT UseStarndardTypefaces FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT UseStarndardTypefaces FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "X",
           "resultFormat": "table",
@@ -1402,7 +1402,7 @@
       "type": "table"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1464,7 +1464,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT domSize FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT domSize FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1489,7 +1489,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1555,7 +1555,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT pageSize FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT pageSize FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1580,7 +1580,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1646,7 +1646,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT responsesSize FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT responsesSize FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1671,7 +1671,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1737,7 +1737,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT nbRequest FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT nbRequest FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1762,7 +1762,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1828,7 +1828,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT nbPlugins FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT nbPlugins FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1853,7 +1853,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1919,7 +1919,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT inlineJsScriptsNumber FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT inlineJsScriptsNumber FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1944,7 +1944,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2010,7 +2010,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT cssInlineNumber FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT cssInlineNumber FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -2035,7 +2035,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2101,7 +2101,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT cssFilesNumber FROM \"eco_index\"  ORDER BY ASC LIMIT 1",
+          "query": "SELECT cssFilesNumber FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -2126,7 +2126,7 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": "InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2192,7 +2192,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT emptySrcTagNumber FROM \"eco_index\" WHERE \"url\" = '$url' ORDER BY ASC LIMIT 1",
+          "query": "SELECT emptySrcTagNumber FROM eco_index WHERE url = '$url' ORDER BY ASC LIMIT 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -2230,8 +2230,8 @@
           "text": "https://collectif.greenit.fr/",
           "value": "https://collectif.greenit.fr/"
         },
-        "datasource": null,
-        "definition": "SELECT url FROM \"eco_index\"  ",
+        "datasource": "InfluxDB",
+        "definition": "SELECT url FROM eco_index",
         "description": null,
         "error": null,
         "hide": 0,
@@ -2240,38 +2240,8 @@
         "multi": false,
         "name": "url",
         "options": [
-          {
-            "selected": false,
-            "text": "https://collectif.greenit.fr/",
-            "value": "https://collectif.greenit.fr/"
-          },
-          {
-            "selected": false,
-            "text": "https://collectif.greenit.fr/outils.html",
-            "value": "https://collectif.greenit.fr/outils.html"
-          },
-          {
-            "selected": false,
-            "text": "https://www.arkea.com/fr/",
-            "value": "https://www.arkea.com/fr/"
-          },
-          {
-            "selected": false,
-            "text": "https://www.amazon.fr/",
-            "value": "https://www.amazon.fr/"
-          },
-          {
-            "selected": true,
-            "text": "https://www.nike.com/fr/",
-            "value": "https://www.nike.com/fr/"
-          },
-          {
-            "selected": false,
-            "text": "https://www.lowtechmagazine.com/",
-            "value": "https://www.lowtechmagazine.com/"
-          }
         ],
-        "query": "SELECT url FROM \"eco_index\"  ",
+        "query": "SELECT url FROM eco_index",
         "refresh": 0,
         "regex": "",
         "skipUrlSync": false,
