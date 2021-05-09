@@ -18,7 +18,7 @@ yargs(hideBin(process.argv))
       .option('timeout', {
         alias: 't',
         type: 'number',
-        description: 'Timout for an analysis of a URL in ms',
+        description: 'Timeout for an analysis of a URL in ms',
         default: 180000
       })
       .option('retry', {

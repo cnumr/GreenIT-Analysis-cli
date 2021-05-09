@@ -16,7 +16,7 @@ function worstPagesHandler(number){
         }
         let addObj = {
             nb : obj.nb,
-            url : obj.url,
+            url : obj.pageInformations.url,
             grade : obj.grade,
             ecoIndex : obj.ecoIndex
         }
@@ -73,7 +73,7 @@ async function create_global_report(reports,options){
     //Creating one report sheet per file
     reports.forEach((file)=>{
         let obj = JSON.parse(fs.readFileSync(file.path).toString());
-        if (!hostname) hostname = obj.url.split('/')[2]
+        if (!hostname) hostname = obj.pageInformations.url.split('/')[2]
         obj.nb = parseInt(file.name);
         //handle potential failed analyse
         if (obj.success) {
@@ -85,11 +85,11 @@ async function create_global_report(reports,options){
             }
         } else{
             err.push({
-            nb : obj.nb,
-            url : obj.url,
-            grade : obj.grade,
-            ecoIndex : obj.ecoIndex
-            })
+                nb : obj.nb,
+                url : obj.pageInformations.url,
+                grade : obj.grade,
+                ecoIndex : obj.ecoIndex
+            });
         }
         if (progressBar) progressBar.tick()
     })
@@ -201,7 +201,7 @@ async function create_XLSX_report(reportObject,options){
 
         // Prepare data
         let sheet_data = [
-            [ "URL", obj.url],
+            [ "URL", obj.pageInformations.url],
             [ "Grade", obj.grade],
             [ "EcoIndex", obj.ecoIndex],
             [ "Eau (cl)", obj.waterConsumption],

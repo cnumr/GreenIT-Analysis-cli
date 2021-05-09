@@ -4,6 +4,7 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
 # Sommaire
 - [Principe de l'outil](#principe-de-loutil)
 - [Utiliser l'outil](#utiliser-loutil)
+  - [Fichier d'input : url.yaml](#fichier-dinput--urlyaml)
   - [Node.js](#nodejs)
     - [Prérequis](#prérequis)
     - [Installation](#installation)
@@ -18,13 +19,38 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
 - [Usage](#usage)
 
 # Principe de l'outil
-Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes dans Chromium en passant par Puppeteer pour récuperer les résultats.
+Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes dans Chromium en passant par Puppeteer pour récuperer les résultats. 
+
+Le système de cache est désactivé pour fiabiliser l'analyse d'une page.
+
+Cet outil utilise par défaut la fonction `page.waitForNavigation({waitUntil: 'networkidle2'})` de Puppeteer afin d'attendre la fin de chargement d'une page.
 
 # Utiliser l'outil
-Pour utiliser l'outil, un fichier YAML listant toutes les URL à analyser est nécéssaire.
+
+## Fichier d'input : url.yaml
+
+Pour utiliser l'outil, un fichier YAML listant toutes les URL à analyser est nécéssaire. 
+
+Sa structure est la suivante :
+
+| Paramètre         | Type   | Obligatoire | Description                                                         |
+| ----------------- | ------ | ----------- | ------------------------------------------------------------------- |
+| `url`             | string | Oui         | URL de la page à analyser                                           |
+| `waitForSelector` | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
+| `waitForXPath`    | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
+
+Exemple de fichier `url.yaml` : 
 ```yaml
-- https://collectif.greenit.fr/
-- https://collectif.greenit.fr/outils.html
+# Analyse l'URL collectif.greenit.fr 
+- url : 'https://collectif.greenit.fr/'
+
+# Analyse l'URL collectif.greenit.fr/outils.html en spécifiant une condition d'attente via un sélecteur CSS
+- url : 'https://collectif.greenit.fr/outils.html'
+  waitForSelector: '#header'
+
+# Analyse l'URL collectif.greenit.fr/index_en.html en spécifiant une condition d'attente via un XPath
+- url : 'https://collectif.greenit.fr/index_en.html'
+  waitForXPath: '//section[2]/div/h2'
 ```
 
 ## Node.js

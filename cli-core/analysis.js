@@ -8,9 +8,8 @@ const sizes = require('../sizes.js');
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname,'../results');
 
-
 //Analyse a webpage
-async function analyseURL(browser, url, options) {
+async function analyseURL(browser, pageInformations, options) {
     let result = {};
 
     const TIMEOUT = options.timeout
@@ -21,11 +20,19 @@ async function analyseURL(browser, url, options) {
     try {
         const page = await browser.newPage();
         await page.setViewport(sizes[DEVICE]);
+
+        // disabling cache
+        await page.setCacheEnabled(false);    
+
         //get har file
         const pptrHar = new PuppeteerHar(page);
         await pptrHar.start();
-        //go to ulr
-        await page.goto(url, {timeout : TIMEOUT});
+        //go to url
+        await page.goto(pageInformations.url, {timeout : TIMEOUT});
+
+        // waiting for page to load
+        await waitPageLoading(page, pageInformations, TIMEOUT);
+
         let harObj = await pptrHar.stop();
         //get ressources
         const client = await page.target().createCDPSession();
@@ -46,12 +53,22 @@ async function analyseURL(browser, url, options) {
         page.close();
         result.success = true;
     } catch (error) {
-        result.url = url;
         result.success = false;
     }
+    result.pageInformations = pageInformations;
     result.tryNb = TRY_NB;
     result.tabId = TAB_ID;
     return result;
+}
+
+async function waitPageLoading(page, pageInformations, TIMEOUT){
+    if (pageInformations.waitForSelector) {
+        await page.waitForSelector(pageInformations.waitForSelector, {visible: true, timeout: TIMEOUT})
+    } else if (pageInformations.waitForXPath) {
+        await page.waitForXPath(pageInformations.waitForXPath, {visible: true, timeout: TIMEOUT})
+    } else {
+        await page.waitForNavigation({waitUntil: 'networkidle2', timeout: TIMEOUT});
+    }
 }
 
 //handle login
@@ -74,7 +91,7 @@ async function login(browser,loginInformations) {
 }
 
 //Core
-async function createJsonReports(browser, urlTable, options) {
+async function createJsonReports(browser, pagesInformations, options) {
     //Timeout for an analysis
     const TIMEOUT = options.timeout;
     //Concurent tab
@@ -91,7 +108,7 @@ async function createJsonReports(browser, urlTable, options) {
             complete: '=',
             incomplete: ' ',
             width: 40,
-            total: urlTable.length+2
+            total: pagesInformations.length+2
         });
         progressBar.tick();
     } else {
@@ -117,49 +134,49 @@ async function createJsonReports(browser, urlTable, options) {
     }
     fs.mkdirSync(SUBRESULTS_DIRECTORY);
     //Asynchronous analysis with MAX_TAB open simultaneously to json
-    for (let i = 0; i < MAX_TAB && index < urlTable.length; i++) {
-        asyncFunctions.push(analyseURL(browser,urlTable[index],{
+    for (let i = 0; i < MAX_TAB && index < pagesInformations.length; i++) {
+        asyncFunctions.push(analyseURL(browser,pagesInformations[index],{
             device: DEVICE,
             timeout:TIMEOUT,
             tabId: i
         }));
         index++;
-        //console.log(`Start of analysis #${index}/${urlTable.length}`)
+        //console.log(`Start of analysis #${index}/${pagesInformations.length}`)
     }
 
     while (asyncFunctions.length != 0) {
         results = await Promise.race(asyncFunctions);
         if (!results.success && results.tryNb <= RETRY) {
-            asyncFunctions.splice(convert[results.tabId],1,analyseURL(browser,results.url,{
+            asyncFunctions.splice(convert[results.tabId],1,analyseURL(browser,results.pageInformations,{
                 device: DEVICE,
                 timeout:TIMEOUT,
                 tabId: results.tabId,
                 tryNb: results.tryNb + 1
-            })); // convert is NEEDED, varialbe size array
+            })); // convert is NEEDED, variable size array
         }else{
             let filePath = path.resolve(SUBRESULTS_DIRECTORY,`${resultId}.json`)
             writeList.push(fs.promises.writeFile(filePath, JSON.stringify(results)));
             reports.push({name:`${resultId}`, path: filePath});
-            //console.log(`End of an analysis (${resultId}/${urlTable.length}). Results will be saved in ${filePath}`);
+            //console.log(`End of an analysis (${resultId}/${pagesInformations.length}). Results will be saved in ${filePath}`);
             if (progressBar){
                 progressBar.tick()
             } else {
-                console.log(`${resultId}/${urlTable.length}`);
+                console.log(`${resultId}/${pagesInformations.length}`);
             }
             resultId++;
-            if (index == (urlTable.length)){
+            if (index == (pagesInformations.length)){
                 asyncFunctions.splice(convert[results.tabId],1); // convert is NEEDED, varialbe size array
                 for (let i = results.tabId+1; i < convert.length; i++) {
                     convert[i] = convert[i]-1;
                 }
             } else {
-                asyncFunctions.splice(results.tabId,1,analyseURL(browser,urlTable[index],{
+                asyncFunctions.splice(results.tabId,1,analyseURL(browser,pagesInformations[index],{
                     device: DEVICE,
                     timeout:TIMEOUT,
                     tabId: results.tabId
                 })); // No need for convert, fixed size array
                 index++;
-                //console.log(`Start of analysis #${index}/${urlTable.length}`)
+                //console.log(`Start of analysis #${index}/${pagesInformations.length}`)
             }
         }
     }
