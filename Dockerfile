@@ -17,5 +17,7 @@ RUN npm i \
     && chown -R pptruser:pptruser /home/pptruser \
     && chown -R pptruser:pptruser /app/
 USER pptruser
+# To avoid "Error: ENOENT: no such file or directory, open '/app/dist/bundle.js'"
+RUN npm i
 
 CMD ["greenit","analyse", "url.yaml", "results/results.xlsx"]
