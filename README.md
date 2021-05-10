@@ -3,20 +3,21 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
 
 # Sommaire
 - [Principe de l'outil](#principe-de-loutil)
-- [Utiliser l'outil](#utiliser-loutil)
-  - [Fichier d'input : url.yaml](#fichier-dinput--urlyaml)
+- [Pour commencer](#pour-commencer)
   - [Node.js](#nodejs)
     - [Prérequis](#prérequis)
     - [Installation](#installation)
   - [Docker](#docker)
     - [Prérequis](#prérequis-1)
     - [Utilisation](#utilisation)
-- [Commandes](#commandes)
-  - [`analyse [yaml_input_file] [xlsx_output_file]`](#analyse-yaml_input_file-xlsx_output_file)
-    - [Flags](#flags)
-  - [`parseSitemap <sitemap_url> [yaml_output_file]`](#parsesitemap-sitemap_url-yaml_output_file)
-  - [Flags généraux](#flags-généraux)
 - [Usage](#usage)
+  - [Analyse](#analyse)
+    - [Prérequis](#prérequis-2)
+    - [Commande](#commande)
+    - [Usage avec Docker](#usage-avec-docker)
+  - [ParseSiteMap](#parsesitemap)
+  - [Flags généraux](#flags-généraux)
+- [Conditions d'utilisation](#conditions-dutilisation)
 
 # Principe de l'outil
 Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes dans Chromium en passant par Puppeteer pour récuperer les résultats. 
@@ -25,11 +26,71 @@ Le système de cache est désactivé pour fiabiliser l'analyse d'une page.
 
 Cet outil utilise par défaut la fonction `page.waitForNavigation({waitUntil: 'networkidle2'})` de Puppeteer afin d'attendre la fin de chargement d'une page.
 
-# Utiliser l'outil
+# Pour commencer
 
-## Fichier d'input : url.yaml
+Pour utiliser l'outil, il faut au préalable vérifier les prérequis et réaliser les étapes d'installation.
 
-Pour utiliser l'outil, un fichier YAML listant toutes les URL à analyser est nécéssaire. 
+Pour cela, deux manières différentes de pouvoir l'utiliser :
+- Soit en passant par une installation manuelle de Node.js
+- Soit en passant par Docker
+
+## Node.js
+
+### Prérequis
+ - Node.js
+
+### Installation 
+1. Récupérer le code source : 
+```
+git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
+```
+2. Installer les packages NPM :
+```
+npm install
+```
+3. Créer le lien symbolique pour faciliter l'usage de l'outil : 
+```
+npm link
+```
+
+## Docker
+
+### Prérequis
+ - Docker
+
+### Installation
+
+1. Créer le dossier `/<path>/input` qui vous permettra de mettre à disposition le fichier `<yaml_input_file>` au conteneur :
+ ```
+ mkdir -p /<path>/input
+ ```
+2. Autoriser tous les utilisateurs à lire dans le dossier `/<path>/input` :
+ ```
+ chmod 755 /<path>/input
+ ```
+3. Créer le dossier `/<path>/output` qui vous permettra de récupérer les rapports générés par le conteneur :
+ ```
+ mkdir -p /<path>/output
+ ```
+4. Autoriser tous les utilisateurs à écrire dans le dossier `/<path>/output` :
+ ```
+ chmod 777 /<path>/input
+ ```
+5. Récupérer le code source : 
+ ```
+ git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
+ ```
+6. Construire l'image Docker : 
+ ```
+ docker build -t imageName .
+ ```
+# Usage
+
+## Analyse
+
+### Prérequis
+
+Construire le fichier `<yaml_input_file>` qui liste les URL à analyser. Le fichier est au format YAML.
 
 Sa structure est la suivante :
 
@@ -56,40 +117,17 @@ Exemple de fichier `url.yaml` :
   waitForXPath: '//section[2]/div/h2'
 ```
 
-## Node.js
+### Commande 
 
-### Prérequis
- - Node.js
+```
+greenit analyse <yaml_input_file> <xlsx_output_file>
+```
 
-### Installation 
-1. `npm install`
-2. `npm link`
-3. `greenit <command>`
-
-## Docker
-
-### Prérequis
- - Docker
- - Le fichier YAML nommée "url.yaml" à la racine du projet.
-
-### Utilisation
-1. `docker build -t imageName .`
-2. Lancement du cli :
-    - Pour tester sans récupperer les résultats : `docker run -it --init --rm --cap-add=SYS_ADMIN --name containerName imageName`
-    - Pour récupérer les résultats :
-        1. `docker volume create volumeName`
-        2. `docker run -it -v volumeName:/app/results --init --rm --cap-add=SYS_ADMIN --name containerName imageName`
-        3. `docker volume inspect volumeName` pour récupérer le chemin vers les fichiers créés
-
-# Commandes
-
-## `analyse [yaml_input_file] [xlsx_output_file]`
-
+Paramètres obligatoires :
 - `yaml_input_file` : Chemin vers le fichier YAML listant toutes les URL à analyser. (Valeur par défaut : "url.yaml")
 - `xlsx_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
 
-### Flags
-
+Paramètres optionnels :
 - `--timeout , -t` : Nombre de millisecondes maximal pour charger une url. (Valeur par défaut : 180000)
 - `--max_tab` : Nombre d'URL analysées en "simultané" (asynchronicité). (Valeur par défaut : 40)
 - `--retry , -r` : Nombre d'essais supplémentaires d'analyse en cas d'echec. (Valeur par défaut : 2)
@@ -119,8 +157,38 @@ Exemple de fichier `url.yaml` :
   - iPhone8Plus
   - iPhoneX
   - iPad
-## `parseSitemap <sitemap_url> [yaml_output_file]`
 
+### Usage avec Docker
+1. Déposer le fichier `<yaml_input_file>` dans le dossier `/<path>/input`.
+2. Lancer l'analyse :
+```
+docker run -it --init --rm --cap-add=SYS_ADMIN \
+  -v /<path>/input:/app/input \
+  -v /<path>/output:/app/output  \
+  --name containerName \
+  imageName
+```
+3. Récupérer les résultats dans votre dossier `/<path>/output`
+
+Remarque : vous pouvez surcharger la commande renseignée par défaut dans le Dockerfile.
+
+Exemple : 
+```
+docker run -it --init --rm --cap-add=SYS_ADMIN \
+  -v /<path>/input:/app/input \
+  -v /<path>/output:/app/output  \
+  --name containerName \
+  imageName \
+  greenit analyse /app/input/url.yaml /app/output/results.xlsx --max_tab=1 --timeout=15000 --retry=5
+```
+
+## ParseSiteMap
+
+```
+greenit parseSitemap <sitemap_url> <yaml_output_file>
+```
+
+Paramètres obligatoires :
 - `sitemap_url` : URL de la sitemap à transformer.
 - `yaml_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "url.yaml")
 
@@ -128,6 +196,6 @@ Exemple de fichier `url.yaml` :
 
 - `--ci` : Log de façon traditionnelle pour assurer la compatibilité avec les environements CI.
 
-# Usage
+# Conditions d'utilisation
 
 Cet outil fait appel à une API ne permettant pas son utilisation à des fins commerciales.
