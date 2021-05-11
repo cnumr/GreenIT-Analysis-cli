@@ -30,8 +30,15 @@ async function analyseURL(browser, pageInformations, options) {
         //go to url
         await page.goto(pageInformations.url, {timeout : TIMEOUT});
 
-        // waiting for page to load
-        await waitPageLoading(page, pageInformations, TIMEOUT);
+        try {
+            // waiting for page to load
+            await waitPageLoading(page, pageInformations, TIMEOUT);
+        } finally {
+            // Take screenshot (even if the page fails to load)
+            if (pageInformations.screenshot) {
+                await takeScreenshot(page, pageInformations.screenshot);
+            }
+        }
 
         let harObj = await pptrHar.stop();
         //get ressources
@@ -69,6 +76,20 @@ async function waitPageLoading(page, pageInformations, TIMEOUT){
     } else {
         await page.waitForNavigation({waitUntil: 'networkidle2', timeout: TIMEOUT});
     }
+}
+
+async function takeScreenshot(page, screenshotPath) {
+    // create screenshot folder if not exists
+    const folder = path.dirname(screenshotPath);
+    if (!fs.existsSync(folder)){
+        fs.mkdirSync(folder, { recursive: true });
+    }
+    // remove old screenshot
+    if (fs.existsSync(screenshotPath)) {
+        fs.unlinkSync(screenshotPath);
+    }
+    // take screenshot
+    await page.screenshot({path: screenshotPath});
 }
 
 //handle login

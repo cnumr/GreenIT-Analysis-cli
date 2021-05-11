@@ -38,6 +38,7 @@ Sa structure est la suivante :
 | `url`             | string | Oui         | URL de la page à analyser                                           |
 | `waitForSelector` | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
 | `waitForXPath`    | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
+| `screenshot`      | string | Non         | Réalise une capture d'écran de la page à analyser. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si le chargement de la page est en erreur. |
 
 Exemple de fichier `url.yaml` : 
 ```yaml
@@ -45,8 +46,10 @@ Exemple de fichier `url.yaml` :
 - url : 'https://collectif.greenit.fr/'
 
 # Analyse l'URL collectif.greenit.fr/outils.html en spécifiant une condition d'attente via un sélecteur CSS
+# Réalise une capture d'écran de la page
 - url : 'https://collectif.greenit.fr/outils.html'
   waitForSelector: '#header'
+  screenshot: 'screenshots/outils.png'
 
 # Analyse l'URL collectif.greenit.fr/index_en.html en spécifiant une condition d'attente via un XPath
 - url : 'https://collectif.greenit.fr/index_en.html'
