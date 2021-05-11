@@ -170,7 +170,23 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
 ```
 3. Récupérer les résultats dans votre dossier `/<path>/output`
 
-Remarque : vous pouvez surcharger la commande renseignée par défaut dans le Dockerfile.
+#### Redéfinir les variables `URL_PATH` et `RESULTS_PATH` 
+
+Vous pouvez redéfinir les variables `URL_PATH` et `RESULTS_PATH` si vous souhaitez changer le nom des fichiers ou leur emplacement.
+
+Exemple :
+```
+docker run -it --init --rm --cap-add=SYS_ADMIN \
+  -v /<path>/input:/app/input \
+  -v /<path>/output:/app/output  \
+  -e "URL_PATH=/app/input/myapp_url.yaml" \
+  -e "RESULTS_PATH=/app/output/results_20210101.xlsx" \
+  --name containerName \
+  imageName
+```
+
+#### Surcharger l'instruction CMD définie dans le Dockerfile 
+Vous pouvez surcharger la commande renseignée par défaut dans le Dockerfile.
 
 Exemple : 
 ```
