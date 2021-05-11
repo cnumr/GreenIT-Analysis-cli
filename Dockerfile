@@ -1,5 +1,13 @@
 # See : https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker
 FROM node:14-slim
+
+# Uncomment if you need to configure proxy. 
+# You can init these variables by using --build-args during docker build
+# Example : docker build [...] --build-args http_proxy=http://<user>:<password>@<host>:<port>
+#ENV HTTP_PROXY=$http_proxy
+#ENV HTTPS_PROXY=$https_proxy
+#ENV NO_PROXY=$no_proxy
+
 RUN apt-get update \
     && apt-get install -y wget gnupg \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -10,13 +18,19 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY . .
+
+# Uncomment if you need to configure proxy. 
+#RUN npm config set proxy $HTTP_PROXY 
+
 RUN npm i \
     && npm link \
     && groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser \
     && chown -R pptruser:pptruser /app/
+
 USER pptruser
+
 # To avoid "Error: ENOENT: no such file or directory, open '/app/dist/bundle.js'"
 RUN npm i
 
