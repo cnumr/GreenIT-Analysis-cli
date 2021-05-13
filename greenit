@@ -72,6 +72,22 @@ yargs(hideBin(process.argv))
     type: 'boolean',
     description: 'Disable progress bar to work with GitLab CI'
   })
+  .option('influxdb', {
+    type: 'boolean',
+    description: 'Write result in influxdb'
+  })
+  .option('influxdb_hostname', {
+    type: 'string'
+  })
+  .option('influxdb_login', {
+    type: 'string'
+  })
+  .option('influxdb_password', {
+    type: 'string'
+  })
+  .option('influxdb_database', {
+    type: 'string'
+  })
   .strict()
   .demandCommand()
   .help()
