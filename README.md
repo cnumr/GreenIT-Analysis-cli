@@ -74,7 +74,7 @@ npm link
  ```
 4. Autoriser tous les utilisateurs à écrire dans le dossier `/<path>/output` :
  ```
- chmod 777 /<path>/input
+ chmod 777 /<path>/output
  ```
 5. Récupérer le code source : 
  ```
