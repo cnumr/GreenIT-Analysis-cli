@@ -71,10 +71,20 @@ async function analyseURL(browser, pageInformations, options) {
 
         page.close();
         result.success = true;
+        result.nbBestPracticesToCorrect = 0;
+
+        // Compute number of times where best practices are not respected
+        for (let key in result.bestPractices) {
+            if((result.bestPractices[key].complianceLevel || "A") !== "A") {
+                result.nbBestPracticesToCorrect++;
+            }
+        }
     } catch (error) {
         result.success = false;
-        console.error(error);
+        console.error(`Error while analyzing URL ${pageInformations.url} : `, error);
     }
+    const date = new Date();
+    result.date = `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`;
     result.pageInformations = pageInformations;
     result.tryNb = TRY_NB;
     result.tabId = TAB_ID;
@@ -138,7 +148,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy) {
     //initialise progress bar
     let progressBar;
     if (!options.ci){
-        progressBar = new ProgressBar(' Analysing            [:bar] :percent     Remaining: :etas     Time: :elapseds', {
+        progressBar = new ProgressBar(' Analysing                [:bar] :percent     Remaining: :etas     Time: :elapseds', {
             complete: '=',
             incomplete: ' ',
             width: 40,

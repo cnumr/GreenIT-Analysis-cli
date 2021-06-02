@@ -4,17 +4,19 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const createJsonReports = require('../cli-core/analysis.js').createJsonReports;
 const login = require('../cli-core/analysis.js').login;
-const create_global_report = require('../cli-core/report.js').create_global_report;
-const create_XLSX_report = require('../cli-core/report.js').create_XLSX_report;
+const create_global_report = require('../cli-core/reportGlobal.js').create_global_report;
+const create_XLSX_report = require('../cli-core/reportExcel.js').create_XLSX_report;
+const create_html_report = require('../cli-core/reportHtml.js').create_html_report;
+
 //launch core
 async function analyse_core(options) {
-    const URL_YAML_FILE = path.resolve(options.yaml_input_file);
+    const URL_YAML_FILE = path.resolve(options.url_input_file);
     //Get list of pages to analyze and its informations
     let pagesInformations;
     try {
         pagesInformations = YAML.parse(fs.readFileSync(URL_YAML_FILE).toString());
     } catch (error) {
-        throw ` yaml_input_file : "${URL_YAML_FILE}" is not a valid YAML file.`
+        throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file.`
     }
 
     let browserArgs = [
@@ -71,12 +73,16 @@ async function analyse_core(options) {
     }
     //create report
     let reportObj = await create_global_report(reports, options);
-    await create_XLSX_report(reportObj, options)
+    if(options.format === 'html') {
+        await create_html_report(reportObj, options);
+    } else {
+        await create_XLSX_report(reportObj, options);
+    }
 }
 
 //export method that handle error
 function analyse(options) {
-    analyse_core(options).catch(e=>console.error("ERROR : \n" + e))
+    analyse_core(options).catch(e=>console.error("ERROR : \n", e))
 }
 
 module.exports = analyse;

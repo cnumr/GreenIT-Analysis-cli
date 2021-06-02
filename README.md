@@ -61,7 +61,7 @@ npm link
 
 ### Installation
 
-1. Créer le dossier `/<path>/input` qui vous permettra de mettre à disposition le fichier `<yaml_input_file>` au conteneur :
+1. Créer le dossier `/<path>/input` qui vous permettra de mettre à disposition le fichier `<url_input_file>` au conteneur :
  ```
  mkdir -p /<path>/input
  ```
@@ -122,7 +122,7 @@ docker build -t imageName \
 
 ### Prérequis
 
-Construire le fichier `<yaml_input_file>` qui liste les URL à analyser. Le fichier est au format YAML.
+Construire le fichier `<url_input_file>` qui liste les URL à analyser. Le fichier est au format YAML.
 
 Sa structure est la suivante :
 
@@ -152,12 +152,12 @@ Exemple de fichier `url.yaml` :
 ### Commande 
 
 ```
-greenit analyse <yaml_input_file> <xlsx_output_file>
+greenit analyse <url_input_file> <report_output_file>
 ```
 
 Paramètres obligatoires :
-- `yaml_input_file` : Chemin vers le fichier YAML listant toutes les URL à analyser. (Valeur par défaut : "url.yaml")
-- `xlsx_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
+- `url_input_file` : Chemin vers le fichier YAML listant toutes les URL à analyser. (Valeur par défaut : "url.yaml")
+- `report_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
 
 Paramètres optionnels :
 - `--timeout , -t` : Nombre de millisecondes maximal pour charger une url. (Valeur par défaut : 180000)
@@ -200,7 +200,7 @@ Paramètres optionnels :
   ```
 
 ### Usage avec Docker
-1. Déposer le fichier `<yaml_input_file>` dans le dossier `/<path>/input`.
+1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
 2. Lancer l'analyse :
 ```
 docker run -it --init --rm --cap-add=SYS_ADMIN \
