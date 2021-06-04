@@ -16,6 +16,8 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
     - [Prérequis](#prérequis-2)
     - [Commande](#commande)
     - [Usage avec Docker](#usage-avec-docker)
+    - [Usage avec Docker](#usage-avec-docker)
+    - [Formats des rapports](#formats-des-rapports)
   - [ParseSiteMap](#parsesitemap)
   - [Flags généraux](#flags-généraux)
 - [Conditions d'utilisation](#conditions-dutilisation)
@@ -129,6 +131,7 @@ Sa structure est la suivante :
 | Paramètre         | Type   | Obligatoire | Description                                                         |
 | ----------------- | ------ | ----------- | ------------------------------------------------------------------- |
 | `url`             | string | Oui         | URL de la page à analyser                                           |
+| `name`            | string | Non         | Nom de la page à analyser affiché dans le rapport                   |
 | `waitForSelector` | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
 | `waitForXPath`    | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
 | `screenshot`      | string | Non         | Réalise une capture d'écran de la page à analyser. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si le chargement de la page est en erreur. |
@@ -136,11 +139,13 @@ Sa structure est la suivante :
 Exemple de fichier `url.yaml` : 
 ```yaml
 # Analyse l'URL collectif.greenit.fr 
-- url : 'https://collectif.greenit.fr/'
+- name : 'Collectif GreenIT.fr'
+  url : 'https://collectif.greenit.fr/'
 
 # Analyse l'URL collectif.greenit.fr/outils.html en spécifiant une condition d'attente via un sélecteur CSS
 # Réalise une capture d'écran de la page
-- url : 'https://collectif.greenit.fr/outils.html'
+- name : 'Les outils du collectif GreenIT.fr'
+  url : 'https://collectif.greenit.fr/outils.html'
   waitForSelector: '#header'
   screenshot: 'screenshots/outils.png'
 
@@ -181,7 +186,7 @@ Paramètres optionnels :
 
 - `--device , -d` : Emulation du terminal d'affichage. (Valeur par défaut : "desktop")
   
-  Choix:
+  Choix :
   - desktop
   - galaxyS9
   - galaxyS20
@@ -198,6 +203,12 @@ Paramètres optionnels :
   user: "<username>"
   password: "<password>"
   ```
+
+- `--format , -f` : Format du rapport. (Valeur par défaut : "xlsx")
+
+Choix :
+- xlsx 
+- html
 
 ### Usage avec Docker
 1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
@@ -248,6 +259,56 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   imageName \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --proxy=/app/input/proxy.yaml
 ```
+
+### Formats des rapports
+
+#### Excel (xlsx)
+
+Prérequis : le fichier de sortie doit avoir l'extension `.xlsx`.
+
+Exemple de commande : 
+
+```
+greenit analyse /app/input/url.yaml /app/output/results.xlsx --format=xlsx
+```
+
+Le rapport Excel est composé :
+- D'un onglet représentant le rapport global : moyenne de l'ecoindex de toutes les URL analysées, les URL prioritaires à corriger, les règles prioritaires à corriger, ...
+- D'un onglet par URL analysée : l'ecoindex de l'URL et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
+
+Exemple d'un rapport :
+- Onglet global :
+
+![Onglet global du rapport Excel](./docs/rapport-xlsx-global.png)
+
+- Onglet pour une URL analysée :
+
+![Onglet d'une URL analysée dans le rapport Excel](./docs/rapport-xlsx-detail-page.png)
+
+#### HTML
+
+Prérequis : 
+- le fichier de sortie doit avoir l'extension `.html`
+- le paramètre `--format=html` ou `-f=html` doit être utilisé 
+
+Exemple de commande : 
+
+```
+greenit analyse /app/input/url.yaml /app/output/global.html --format=html
+```
+
+Le rapport HTML est composé :
+- D'une page résumé : moyenne de l'ecoindex de toutes les pages analysées, nombre total de règles à corriger, tableau de toutes les pages analysées avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger) et les règles prioritaires à corriger. Pour accéder au rapport détaillé d'une URL analysée, il suffit de cliquer sur le nom de la page.
+- D'une page par URL analysée  : l'ecoindex de l'URL et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
+
+Exemple d'un rapport :
+- Page globale :
+
+![Page globale du rapport HTML](./docs/rapport-html-global.png)
+
+- Page pour une URL analysée :
+
+![Page d'une URL analysée dans le rapport HTML](./docs/rapport-html-detail-page.png)
 
 ## ParseSiteMap
 
