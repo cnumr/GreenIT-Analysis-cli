@@ -53,6 +53,11 @@ yargs(hideBin(process.argv))
         choices:Object.keys(sizes),
         default: "desktop"
       })
+      .option('proxy', {
+        alias: 'p',
+        type: 'string',
+        description: 'Path to YAML file with proxy configuration to apply in Chromium'
+      })
   }, (argv) => {
       require("./commands/analyse.js")(argv)
   })

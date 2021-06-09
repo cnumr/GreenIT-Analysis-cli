@@ -17,15 +17,32 @@ async function analyse_core(options) {
         throw ` yaml_input_file : "${URL_YAML_FILE}" is not a valid YAML file.`
     }
 
+    let browserArgs = [
+        "--no-sandbox",                 // can't run inside docker without
+        "--disable-setuid-sandbox"      // but security issues
+    ]
+
+    // Add proxy conf in browserArgs
+    let proxy = {};
+    if(options.proxy) {
+        const PROXY_FILE = path.resolve(options.proxy);
+        try {
+            proxy = YAML.parse(fs.readFileSync(PROXY_FILE).toString());
+            if (!proxy.server || !proxy.user || !proxy.password) {
+                throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`
+            }
+            browserArgs.push(`--proxy-server=${proxy.server}`);
+        } catch (error) {
+            throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file.`
+        }
+    }
+
     //start browser
     const browser = await puppeteer.launch({
-        headless:true,
-        args :[
-            "--no-sandbox",                 // can't run inside docker without
-            "--disable-setuid-sandbox"      // but security issues
-        ],
+        headless: true,
+        args: browserArgs,
         // Keep gpu horsepower in headless
-        ignoreDefaultArgs:[
+        ignoreDefaultArgs: [
             '--disable-gpu'
         ]
     });
@@ -45,7 +62,7 @@ async function analyse_core(options) {
             await login(browser, loginInfos)
         }
         //analyse
-        reports = await createJsonReports(browser, pagesInformations, options);
+        reports = await createJsonReports(browser, pagesInformations, options, proxy);
     } finally {
         //close browser
         let pages = await browser.pages();

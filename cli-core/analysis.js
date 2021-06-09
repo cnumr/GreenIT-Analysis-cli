@@ -16,9 +16,13 @@ async function analyseURL(browser, pageInformations, options) {
     const TAB_ID = options.tabId
     const TRY_NB =  options.tryNb || 1
     const DEVICE = options.device || "desktop"
+    const PROXY = options.proxy
 
     try {
         const page = await browser.newPage();
+        if (PROXY) {
+            await page.authenticate({ username: PROXY.user, password: PROXY.password });
+        }
         await page.setViewport(sizes[DEVICE]);
 
         // disabling cache
@@ -112,7 +116,7 @@ async function login(browser,loginInformations) {
 }
 
 //Core
-async function createJsonReports(browser, pagesInformations, options) {
+async function createJsonReports(browser, pagesInformations, options, proxy) {
     //Timeout for an analysis
     const TIMEOUT = options.timeout;
     //Concurent tab
@@ -159,7 +163,8 @@ async function createJsonReports(browser, pagesInformations, options) {
         asyncFunctions.push(analyseURL(browser,pagesInformations[index],{
             device: DEVICE,
             timeout:TIMEOUT,
-            tabId: i
+            tabId: i,
+            proxy: proxy
         }));
         index++;
         //console.log(`Start of analysis #${index}/${pagesInformations.length}`)
@@ -172,7 +177,8 @@ async function createJsonReports(browser, pagesInformations, options) {
                 device: DEVICE,
                 timeout:TIMEOUT,
                 tabId: results.tabId,
-                tryNb: results.tryNb + 1
+                tryNb: results.tryNb + 1,
+                proxy: proxy
             })); // convert is NEEDED, variable size array
         }else{
             let filePath = path.resolve(SUBRESULTS_DIRECTORY,`${resultId}.json`)
@@ -194,7 +200,8 @@ async function createJsonReports(browser, pagesInformations, options) {
                 asyncFunctions.splice(results.tabId,1,analyseURL(browser,pagesInformations[index],{
                     device: DEVICE,
                     timeout:TIMEOUT,
-                    tabId: results.tabId
+                    tabId: results.tabId,
+                    proxy: proxy
                 })); // No need for convert, fixed size array
                 index++;
                 //console.log(`Start of analysis #${index}/${pagesInformations.length}`)

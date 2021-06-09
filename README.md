@@ -10,6 +10,7 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
   - [Docker](#docker)
     - [Prérequis](#prérequis-1)
     - [Utilisation](#utilisation)
+    - [Configurer un proxy](#configurer-un-proxy)
 - [Usage](#usage)
   - [Analyse](#analyse)
     - [Prérequis](#prérequis-2)
@@ -84,6 +85,37 @@ npm link
  ```
  docker build -t imageName .
  ```
+
+### Configurer un proxy
+Si vous avez besoin de configurer un proxy, il faut :
+
+1. Modifier le Dockerfile 
+
+```
+# Uncomment if you need to configure proxy. 
+# You can init these variables by using --build-arg during docker build
+# Example : docker build [...] --build-arg http_proxy=http://<user>:<password>@<host>:<port>
+ENV HTTP_PROXY=$http_proxy
+ENV HTTPS_PROXY=$https_proxy
+ENV NO_PROXY=$no_proxy
+
+[...]
+
+# Uncomment if you need to configure proxy. 
+#RUN npm config set proxy $HTTP_PROXY 
+```
+
+2. Construire l'image en passant les informations du proxy en paramètres
+
+Exemple :
+```
+docker build -t imageName \
+  --build-arg http_proxy=http://<user>:<password>@<host>:<port> \
+  --build-arg https_proxy=https://<user>:<password>@<host>:<port> \
+  --build-arg no_proxy=<no_proxy> \
+  .
+```
+
 # Usage
 
 ## Analyse
@@ -158,6 +190,15 @@ Paramètres optionnels :
   - iPhoneX
   - iPad
 
+- `--proxy , -p` : Chemin vers le fichier YAML contenant les informations de configuration du proxy.
+
+  Exemple de proxy.yaml :
+  ```yaml
+  server: "<host>:<port>"
+  user: "<username>"
+  password: "<password>"
+  ```
+
 ### Usage avec Docker
 1. Déposer le fichier `<yaml_input_file>` dans le dossier `/<path>/input`.
 2. Lancer l'analyse :
@@ -171,7 +212,6 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
 3. Récupérer les résultats dans votre dossier `/<path>/output`
 
 #### Redéfinir les variables `URL_PATH` et `RESULTS_PATH` 
-
 Vous pouvez redéfinir les variables `URL_PATH` et `RESULTS_PATH` si vous souhaitez changer le nom des fichiers ou leur emplacement.
 
 Exemple :
@@ -196,6 +236,17 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   --name containerName \
   imageName \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --max_tab=1 --timeout=15000 --retry=5
+```
+
+#### Lancer l'analyse avec la configuration d'un proxy
+Vous pouvez déposer le fichier `proxy.yaml` dans le dossier `/<path>/input` et lancer le conteneur :
+```
+docker run -it --init --rm --cap-add=SYS_ADMIN \
+  -v /<path>/input:/app/input \
+  -v /<path>/output:/app/output  \
+  --name containerName \
+  imageName \
+  greenit analyse /app/input/url.yaml /app/output/results.xlsx --proxy=/app/input/proxy.yaml
 ```
 
 ## ParseSiteMap
