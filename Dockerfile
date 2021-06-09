@@ -1,4 +1,5 @@
-FROM node
+# See : https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker
+FROM node:14-slim
 RUN apt-get update \
     && apt-get install -y wget gnupg \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -16,5 +17,9 @@ RUN npm i \
     && chown -R pptruser:pptruser /home/pptruser \
     && chown -R pptruser:pptruser /app/
 USER pptruser
+# To avoid "Error: ENOENT: no such file or directory, open '/app/dist/bundle.js'"
+RUN npm i
 
-CMD ["greenit","analyse", "url.yaml", "results/results.xlsx"]
+ENV URL_PATH="/app/input/url.yaml"
+ENV RESULTS_PATH="/app/output/results.xlsx"
+CMD greenit analyse $URL_PATH $RESULTS_PATH
