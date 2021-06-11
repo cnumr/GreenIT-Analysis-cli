@@ -217,9 +217,13 @@ Choix :
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   --name containerName \
   imageName
 ```
+
+Remarque : il faut définir la variable d'environnement `TZ` pour définir votre timezone afin d'afficher correctement les dates dans les rapports. Exemple de timezone : `TZ=Europe/Paris`.
+
 3. Récupérer les résultats dans votre dossier `/<path>/output`
 
 #### Redéfinir les variables `URL_PATH` et `RESULTS_PATH` 
@@ -230,6 +234,7 @@ Exemple :
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   -e "URL_PATH=/app/input/myapp_url.yaml" \
   -e "RESULTS_PATH=/app/output/results_20210101.xlsx" \
   --name containerName \
@@ -244,6 +249,7 @@ Exemple :
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   --name containerName \
   imageName \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --max_tab=1 --timeout=15000 --retry=5
@@ -255,6 +261,7 @@ Vous pouvez déposer le fichier `proxy.yaml` dans le dossier `/<path>/input` et 
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   --name containerName \
   imageName \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --proxy=/app/input/proxy.yaml
