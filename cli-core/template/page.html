@@ -72,7 +72,7 @@
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1" style="font-size: 1rem;" thjs:utext="${header}">GreenIT-Analysis report > <a class="text-white" href="http://10.132.7.169:81/conso/supervision/supervision/suivi-traitements">RPT | Données patrimoniales réseau</a></span>
             <div class="d-flex flex-row-reverse">
-                <div thjs:text="${date}">05/05/2021 10:03:12</div>
+                <div id="date" thjs:text="${date}">05/05/2021 10:03:12</div>
             </div>
         </div>
     </nav>
@@ -83,7 +83,7 @@
                     <div class="card mb-4 border-success" style="max-width: 18rem;">
                         <div class="card-header bg-success text-white">Ecoindex</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" style="height: 45px;" thjs:utext="${bigEcoIndex}">51 <span class="grade big-grade C">C</span></h1>
+                            <h1 id="ecoIndex" class="card-title" style="height: 45px;" thjs:utext="${bigEcoIndex}">51 <span class="grade big-grade C">C</span></h1>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                     <div class="card mb-4 border-success" style="max-width: 18rem;">
                         <div class="card-header bg-success text-white">Eau (cl)</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${waterConsumption}">3.24</h1>
+                            <h1 id="waterConsumption" class="card-title" thjs:text="${waterConsumption}">3.24</h1>
                         </div>
                     </div>
                 </div>
@@ -101,7 +101,7 @@
                     <div class="card mb-4 border-success" style="max-width: 18rem;">
                         <div class="card-header bg-success text-white">GES (gCO2e)</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${greenhouseGasesEmission}">2.16</h1>
+                            <h1 id="greenhouseGasesEmission" class="card-title" thjs:text="${greenhouseGasesEmission}">2.16</h1>
                         </div>
                     </div>
                 </div>
@@ -111,7 +111,7 @@
                     <div class="card mb-4 border-success" style="max-width: 18rem;">
                         <div class="card-header bg-success text-white">Requêtes</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${nbRequest}">18</h1>
+                            <h1 id="nbRequest" class="card-title" thjs:text="${nbRequest}">18</h1>
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                     <div class="card mb-4 border-success" style="max-width: 18rem;">
                         <div class="card-header bg-success text-white">Taille de la page (Ko)</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${pageSize}">3791 (3787)</h1>
+                            <h1 id="pageSize" class="card-title" thjs:text="${pageSize}">3791 (3787)</h1>
                         </div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
                     <div class="card mb-4 border-success" style="max-width: 18rem;">
                         <div class="card-header bg-success text-white">Taille du DOM</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${domSize}">951</h1>
+                            <h1 id="domSize" class="card-title" thjs:text="${domSize}">951</h1>
                         </div>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
             <h5 class="mb-3">Bonnes pratiques</h5>
             <div class="row">
                 <div class="col col-md-12">
-                    <table class="table table-sm">
+                    <table id="tabBestPractices" class="table table-sm">
                         <thead class="table-light">
                             <th scope="col">Règle</th>
                             <th scope="col">Résultat</th>

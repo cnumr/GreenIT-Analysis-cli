@@ -84,10 +84,10 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td thjs:text="${date}">2021-05-06 09:12:41</td>
-                        <td thjs:text="${hostname}">hostname:port</td>
-                        <td thjs:text="${device}">Desktop</td>
-                        <td thjs:text="${connection}">Filaire</td>
+                        <td id="date" thjs:text="${date}">2021-05-06 09:12:41</td>
+                        <td id="hostname" thjs:text="${hostname}">hostname:port</td>
+                        <td id="device" thjs:text="${device}">Desktop</td>
+                        <td id="connection" thjs:text="${connection}">Filaire</td>
                     </tr>
                 </tbody>
             </table>
@@ -98,7 +98,7 @@
                     <div class="card mb-3 border-success" style="max-width: 18rem;">
                         <div class="card-header bg-success text-white">Ecoindex</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" style="height: 45px;" thjs:utext="${ecoIndex}">51 <span class="grade big-grade C">C</span></h1>
+                            <h1 id="ecoIndex" class="card-title" style="height: 45px;" thjs:utext="${ecoIndex}">51 <span class="grade big-grade C">C</span></h1>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                     <div class="card mb-3 border-warning" style="max-width: 18rem;">
                         <div class="card-header bg-warning text-white">Règles à corriger</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${nbBestPracticesToCorrect}">25</h1>
+                            <h1 id="nbBestPracticesToCorrect" class="card-title" thjs:text="${nbBestPracticesToCorrect}">25</h1>
                         </div>
                     </div>
                 </div>
@@ -116,7 +116,7 @@
                     <div class="card mb-3 border-primary" style="max-width: 18rem;">
                         <div class="card-header bg-primary text-white">Pages</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${nbPages}">17</h1>
+                            <h1 id="nbPages" class="card-title" thjs:text="${nbPages}">17</h1>
                         </div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                     <div class="card mb-3 border-danger" style="max-width: 18rem;">
                         <div class="card-header bg-danger text-white">Erreur(s)</div>
                         <div class="card-body text-dark">
-                            <h1 class="card-title" thjs:text="${nbErrors}">2</h1>
+                            <h1 id="nbErrors" class="card-title" thjs:text="${nbErrors}">2</h1>
                         </div>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
         <div class="container my-3">
             <div class="row">
                 <div class="col" thjs:classappend="${cssTablePagesSize}">
-                    <table class="table table-sm">
+                    <table id="tabPages" class="table table-sm">
                         <thead class="table-light">
                             <th scope="col">Page</th>
                             <th scope="col">Ecoindex</th>
@@ -156,7 +156,7 @@
                     </table>
                 </div>
                 <div class="col col-md-3" thjs:if="${worstRulesHeader}">
-                    <table class="table table-bordered">
+                    <table id="tabWorstRules" class="table table-bordered">
                         <thead>
                             <tr class="bg-dark text-white">
                               <th scope="col" thjs:text="${worstRulesHeader}">Top 5 des règles à corriger</th>
