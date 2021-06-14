@@ -16,7 +16,6 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
     - [Prérequis](#prérequis-2)
     - [Commande](#commande)
     - [Usage avec Docker](#usage-avec-docker)
-    - [Usage avec Docker](#usage-avec-docker)
     - [Formats des rapports](#formats-des-rapports)
   - [ParseSiteMap](#parsesitemap)
   - [Flags généraux](#flags-généraux)
