@@ -31,9 +31,11 @@ async function analyseURL(browser, pageInformations, options) {
         //get har file
         const pptrHar = new PuppeteerHar(page);
         await pptrHar.start();
-        //go to url
-        await page.goto(pageInformations.url, {timeout : TIMEOUT});
+        
         try {
+            //go to url
+            await page.goto(pageInformations.url, {timeout : TIMEOUT});
+
             // waiting for page to load
             await waitPageLoading(page, pageInformations, TIMEOUT);
         } finally {
@@ -96,9 +98,17 @@ async function waitPageLoading(page, pageInformations, TIMEOUT){
         await page.waitForSelector(pageInformations.waitForSelector, {visible: true, timeout: TIMEOUT})
     } else if (pageInformations.waitForXPath) {
         await page.waitForXPath(pageInformations.waitForXPath, {visible: true, timeout: TIMEOUT})
-    } else {
-        await page.waitForNavigation({waitUntil: 'networkidle2', timeout: TIMEOUT});
+    } else if (isValidWaitForNavigation(pageInformations.waitForNavigation)) {
+        await page.waitForNavigation({waitUntil: pageInformations.waitForNavigation, timeout: TIMEOUT});
     }
+}
+
+function isValidWaitForNavigation(waitUntilParam) {
+    return waitUntilParam && 
+            ("load" === waitUntilParam ||
+            "domcontentloaded" === waitUntilParam ||
+            "networkidle0" === waitUntilParam ||
+            "networkidle2" === waitUntilParam);
 }
 
 async function takeScreenshot(page, screenshotPath) {

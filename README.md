@@ -26,7 +26,7 @@ Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes
 
 Le système de cache est désactivé pour fiabiliser l'analyse d'une page.
 
-Cet outil utilise par défaut la fonction `page.waitForNavigation({waitUntil: 'networkidle2'})` de Puppeteer afin d'attendre la fin de chargement d'une page.
+Selon les pages à analyser, il peut être nécessaire de mettre en place une condition afin d'attendre la fin du chargement de la page (voir les [Prérequis](#prérequis-2) de l'analyse).
 
 # Pour commencer
 
@@ -127,13 +127,24 @@ Construire le fichier `<url_input_file>` qui liste les URL à analyser. Le fichi
 
 Sa structure est la suivante :
 
-| Paramètre         | Type   | Obligatoire | Description                                                         |
-| ----------------- | ------ | ----------- | ------------------------------------------------------------------- |
-| `url`             | string | Oui         | URL de la page à analyser                                           |
-| `name`            | string | Non         | Nom de la page à analyser affiché dans le rapport                   |
-| `waitForSelector` | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
-| `waitForXPath`    | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
-| `screenshot`      | string | Non         | Réalise une capture d'écran de la page à analyser. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si le chargement de la page est en erreur. |
+| Paramètre           | Type   | Obligatoire | Description                                                         |
+| ------------------- | ------ | ----------- | ------------------------------------------------------------------- |
+| `url`               | string | Oui         | URL de la page à analyser                                           |
+| `name`              | string | Non         | Nom de la page à analyser affiché dans le rapport                   |
+| `waitForSelector`   | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
+| `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
+| `waitForNavigation` | string | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+| `screenshot`        | string | Non         | Réalise une capture d'écran de la page à analyser. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si le chargement de la page est en erreur. |
+
+Le paramètre `waitForNavigation` exploite les fonctionnalités de Puppeteer pour détecter la fin de chargement d'une page sans passer par un sélecteur CSS ou un XPath :
+- `load` : considère que la navigation est terminée lorsque l'événement `load` est déclenché.
+- `domcontentloaded` : considère que la navigation est terminée lorsque l'événement `DOMContentLoaded` est déclenché.
+- `networkidle0` : considère que la navigation est terminée lorsqu'il n'y a pas plus de 0 connexion réseau pendant au moins 500 ms.
+- `networkidle2` : considère que la navigation est terminée lorsqu'il n'y a pas plus de 2 connexions réseau pendant au moins 500 ms.
+
+Plus de détails ici : https://github.com/puppeteer/puppeteer/blob/main/docs/api.md
+
+Par défaut, si aucun des paramètres de type `waitFor` n'est défini, alors l'outil considère que la navigation est terminée lorsque l'événement `load` est déclenché.
 
 Exemple de fichier `url.yaml` : 
 ```yaml
