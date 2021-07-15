@@ -5,14 +5,14 @@ const { hideBin } = require('yargs/helpers')
 const sizes = require('./sizes.js');
 
 yargs(hideBin(process.argv))
-  .command('analyse [yaml_input_file] [xlsx_output_file]', 'Run the analysis', (yargs) => {
+  .command('analyse [url_input_file] [report_output_file]', 'Run the analysis', (yargs) => {
     yargs
-      .positional('yaml_input_file', {
+      .positional('url_input_file', {
         describe: 'YAML file path listing all URL',
         default: "url.yaml"
       })
-      .positional('xlsx_output_file', {
-        describe: 'Output file path',
+      .positional('report_output_file', {
+        describe: 'Report output file path',
         default: "results.xlsx"
       })
       .option('timeout', {
@@ -57,6 +57,12 @@ yargs(hideBin(process.argv))
         alias: 'p',
         type: 'string',
         description: 'Path to YAML file with proxy configuration to apply in Chromium'
+      })
+      .option('format', {
+        alias: 'f',
+        type: 'string',
+        description: 'Report format : Possible choices : excel (default), html',
+        default: 'excel'
       })
   }, (argv) => {
       require("./commands/analyse.js")(argv)
