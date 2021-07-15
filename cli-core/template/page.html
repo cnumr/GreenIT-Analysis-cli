@@ -62,6 +62,51 @@
             background-color: #ED2124;
             color: #fff;
         }
+
+        .checkmark-success {
+            display: inline-block;
+            transform: rotate(45deg);
+            height: 18px;
+            width: 10px;
+            border-bottom: 5px solid #78b13f;
+            border-right: 5px solid #78b13f;
+        }
+
+        .close-warning,
+        .close-error {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            padding-left: 20px;
+        }
+        .close-warning:before, 
+        .close-warning:after,
+        .close-error:before, 
+        .close-error:after {
+            position: absolute;
+            content: ' ';
+            height: 22px;
+            width: 4px;
+        }
+        .close-warning:before,
+        .close-error:before {
+            transform: rotate(45deg);
+        }
+        .close-warning:after,
+        .close-error:after {
+            transform: rotate(-45deg);
+        }
+
+        .close-warning:before,
+        .close-warning:after {
+            background-color: orange;
+        }
+
+        .close-error:before,
+        .close-error:after {
+            background-color: red;
+        }
+
         </style>
 
     <title>GreenIT-Analysis report</title>
@@ -150,7 +195,7 @@
                             <tr>
                                 <td thjs:text=${bestPractice.name}>Ajouter des expires ou cache-control headers (>= 95%)</td>
                                 <td thjs:text=${bestPractice.comment}>0% ressources cachées</td>
-                                <td><img thjs:src="${bestPractice.iconGrade}" src="icons/A.png"></td>
+                                <td class="text-center"><div thjs:class="${bestPractice.note}"></div></td>
                             </tr>
                         </tbody>
                     </table>
