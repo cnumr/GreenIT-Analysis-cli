@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path');
 const ProgressBar = require('progress');
 const sizes = require('../sizes.js');
-
+const translator = require('./translator.js').translator;
 
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname,'../results');
@@ -31,10 +31,11 @@ async function analyseURL(browser, pageInformations, options) {
         //get har file
         const pptrHar = new PuppeteerHar(page);
         await pptrHar.start();
-        //go to url
-        await page.goto(pageInformations.url, {timeout : TIMEOUT});
-
+        
         try {
+            //go to url
+            await page.goto(pageInformations.url, {timeout : TIMEOUT});
+
             // waiting for page to load
             await waitPageLoading(page, pageInformations, TIMEOUT);
         } finally {
@@ -50,22 +51,42 @@ async function analyseURL(browser, pageInformations, options) {
         let ressourceTree = await client.send('Page.getResourceTree');
         await client.detach()
     
-        //get rid of chrome.i18n.getMessage not declared
-        await page.evaluate(x=>(chrome = { "i18n" : {"getMessage" : function () {return undefined}}}));
+        // replace chrome.i18n.getMessage call by i18n custom implementation working in page 
+        // fr is default catalog
+        await page.evaluate(language_array =>(chrome = { "i18n" : {"getMessage" : function (message, parameters = []) {
+            return language_array[message].replace(/%s/g, function() {
+                // parameters is string or array
+                return Array.isArray(parameters) ? parameters.shift() : parameters;
+            });
+        }}}), translator.getCatalog());
+        
         //add script, get run, then remove it to not interfere with the analysis
         let script = await page.addScriptTag({ path: path.join(__dirname,'../dist/bundle.js')});
         await script.evaluate(x=>(x.remove()));
+        
         //pass node object to browser
         await page.evaluate(x=>(har = x), harObj.log);
         await page.evaluate(x=>(resources = x), ressourceTree.frameTree.resources);
     
         //launch analyse
         result = await page.evaluate(()=>(launchAnalyse()));
+
         page.close();
         result.success = true;
+        result.nbBestPracticesToCorrect = 0;
+
+        // Compute number of times where best practices are not respected
+        for (let key in result.bestPractices) {
+            if((result.bestPractices[key].complianceLevel || "A") !== "A") {
+                result.nbBestPracticesToCorrect++;
+            }
+        }
     } catch (error) {
         result.success = false;
+        console.error(`Error while analyzing URL ${pageInformations.url} : `, error);
     }
+    const date = new Date();
+    result.date = `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`;
     result.pageInformations = pageInformations;
     result.tryNb = TRY_NB;
     result.tabId = TAB_ID;
@@ -77,9 +98,17 @@ async function waitPageLoading(page, pageInformations, TIMEOUT){
         await page.waitForSelector(pageInformations.waitForSelector, {visible: true, timeout: TIMEOUT})
     } else if (pageInformations.waitForXPath) {
         await page.waitForXPath(pageInformations.waitForXPath, {visible: true, timeout: TIMEOUT})
-    } else {
-        await page.waitForNavigation({waitUntil: 'networkidle2', timeout: TIMEOUT});
+    } else if (isValidWaitForNavigation(pageInformations.waitForNavigation)) {
+        await page.waitForNavigation({waitUntil: pageInformations.waitForNavigation, timeout: TIMEOUT});
     }
+}
+
+function isValidWaitForNavigation(waitUntilParam) {
+    return waitUntilParam && 
+            ("load" === waitUntilParam ||
+            "domcontentloaded" === waitUntilParam ||
+            "networkidle0" === waitUntilParam ||
+            "networkidle2" === waitUntilParam);
 }
 
 async function takeScreenshot(page, screenshotPath) {
@@ -129,7 +158,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy) {
     //initialise progress bar
     let progressBar;
     if (!options.ci){
-        progressBar = new ProgressBar(' Analysing            [:bar] :percent     Remaining: :etas     Time: :elapseds', {
+        progressBar = new ProgressBar(' Analysing                [:bar] :percent     Remaining: :etas     Time: :elapseds', {
             complete: '=',
             incomplete: ' ',
             width: 40,
