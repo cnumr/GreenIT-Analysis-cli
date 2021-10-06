@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+
+    <style type="text/css"> 
+        .grade {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #f00;
+            font-size: 14px;
+            font-weight: 650;
+            line-height: 24px;
+        }
+
+        .grade.big-grade {
+            width: 42px;
+            height: 42px;
+            font-size: 28px;
+            line-height: 42px;
+        }
+
+        .grade.A {
+            background-color: #349A47;
+            color: #fff;
+        }
+    
+        .grade.B {
+            background-color: #51B84B;
+            color: #fff;
+        }
+    
+        .grade.C {
+            background-color: #CADB2A;
+            color: #fff;
+        }
+    
+        .grade.D {
+            background-color: #F6EB15;
+        }
+    
+        .grade.E {
+            background-color: #FECD06;
+        }
+    
+        .grade.F {
+            background-color: #F99839;
+            color: #fff;
+        }
+    
+        .grade.G {
+            background-color: #ED2124;
+            color: #fff;
+        }
+        </style>
+
+    <title>GreenIT-Analysis report</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-success bg-success text-white mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1" style="font-size: 1rem;">GreenIT-Analysis report</span>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="container">
+            <table id="tabInformations" class="table table-bordered text-center my-3">
+                <thead class="table-light">
+                    <th scope="col">Date d'exécution</th>
+                    <th scope="col">Hostname</th>
+                    <th scope="col">Plateforme</th>
+                    <th scope="col">Type de connexion</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="date" thjs:text="${date}">2021-05-06 09:12:41</td>
+                        <td id="hostname" thjs:text="${hostname}">hostname:port</td>
+                        <td id="device" thjs:text="${device}">Desktop</td>
+                        <td id="connection" thjs:text="${connection}">Filaire</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="container my-5">
+            <div class="row text-center">
+                <div class="col col-md-3">
+                    <div class="card mb-3 border-success" style="max-width: 18rem;">
+                        <div class="card-header bg-success text-white">Ecoindex</div>
+                        <div class="card-body text-dark">
+                            <h1 id="ecoIndex" class="card-title" style="height: 45px;" thjs:utext="${ecoIndex}">51 <span class="grade big-grade C">C</span></h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-md-3">
+                    <div class="card mb-3 border-warning" style="max-width: 18rem;">
+                        <div class="card-header bg-warning text-white">Règles à corriger</div>
+                        <div class="card-body text-dark">
+                            <h1 id="nbBestPracticesToCorrect" class="card-title" thjs:text="${nbBestPracticesToCorrect}">25</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-md-3">
+                    <div class="card mb-3 border-primary" style="max-width: 18rem;">
+                        <div class="card-header bg-primary text-white">Pages</div>
+                        <div class="card-body text-dark">
+                            <h1 id="nbPages" class="card-title" thjs:text="${nbPages}">17</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-md-3">
+                    <div class="card mb-3 border-danger" style="max-width: 18rem;">
+                        <div class="card-header bg-danger text-white">Erreur(s)</div>
+                        <div class="card-body text-dark">
+                            <h1 id="nbErrors" class="card-title" thjs:text="${nbErrors}">2</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container my-3">
+            <div class="row">
+                <div class="col" thjs:classappend="${cssTablePagesSize}">
+                    <table id="tabPages" class="table table-sm">
+                        <thead class="table-light">
+                            <th scope="col">Page</th>
+                            <th scope="col">Ecoindex</th>
+                            <th scope="col">Eau (cl)</th>
+                            <th scope="col">GES (gCO2e)</th>
+                            <th scope="col">Règles à corriger</th>
+                        </thead>
+                        <tbody thjs:each="page: ${allReportsVariables}">
+                            <tr thjs:class="${page.cssRowError}">
+                                <td thjs:utext="${page.link}">Nom d'une URL analysée</a></td>
+                                <td colspan="4" thjs:if="${!page.success}"> Erreur</td>
+                                <td thjs:if="${page.success}" thjs:utext="${page.smallEcoIndex}">31 <span class="grade A">A</span></td>
+                                <td thjs:if="${page.success}" thjs:text="${page.waterConsumption}">2.3</td>
+                                <td thjs:if="${page.success}" thjs:text="${page.greenhouseGasesEmission}">232</td>
+                                <td thjs:if="${page.success}" thjs:text="${page.nbBestPracticesToCorrect}">4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col col-md-3" thjs:if="${worstRulesHeader}">
+                    <table id="tabWorstRules" class="table table-bordered">
+                        <thead>
+                            <tr class="bg-dark text-white">
+                              <th scope="col" thjs:text="${worstRulesHeader}">Top 5 des règles à corriger</th>
+                            </tr>
+                        </thead>
+                        <tbody thjs:each="worstRule: ${worstRules}">
+                            <tr>
+                                <td thjs:text="${worstRule}">#1 Ajouter des expires ou caches-control headers (>= 95%)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

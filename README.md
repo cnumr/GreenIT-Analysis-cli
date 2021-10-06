@@ -16,6 +16,7 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
     - [Prérequis](#prérequis-2)
     - [Commande](#commande)
     - [Usage avec Docker](#usage-avec-docker)
+    - [Formats des rapports](#formats-des-rapports)
   - [ParseSiteMap](#parsesitemap)
   - [Flags généraux](#flags-généraux)
 - [Conditions d'utilisation](#conditions-dutilisation)
@@ -25,7 +26,7 @@ Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes
 
 Le système de cache est désactivé pour fiabiliser l'analyse d'une page.
 
-Cet outil utilise par défaut la fonction `page.waitForNavigation({waitUntil: 'networkidle2'})` de Puppeteer afin d'attendre la fin de chargement d'une page.
+Selon les pages à analyser, il peut être nécessaire de mettre en place une condition afin d'attendre la fin du chargement de la page (voir les [Prérequis](#prérequis-2) de l'analyse).
 
 # Pour commencer
 
@@ -61,7 +62,7 @@ npm link
 
 ### Installation
 
-1. Créer le dossier `/<path>/input` qui vous permettra de mettre à disposition le fichier `<yaml_input_file>` au conteneur :
+1. Créer le dossier `/<path>/input` qui vous permettra de mettre à disposition le fichier `<url_input_file>` au conteneur :
  ```
  mkdir -p /<path>/input
  ```
@@ -122,25 +123,39 @@ docker build -t imageName \
 
 ### Prérequis
 
-Construire le fichier `<yaml_input_file>` qui liste les URL à analyser. Le fichier est au format YAML.
+Construire le fichier `<url_input_file>` qui liste les URL à analyser. Le fichier est au format YAML.
 
 Sa structure est la suivante :
 
-| Paramètre         | Type   | Obligatoire | Description                                                         |
-| ----------------- | ------ | ----------- | ------------------------------------------------------------------- |
-| `url`             | string | Oui         | URL de la page à analyser                                           |
-| `waitForSelector` | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
-| `waitForXPath`    | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
-| `screenshot`      | string | Non         | Réalise une capture d'écran de la page à analyser. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si le chargement de la page est en erreur. |
+| Paramètre           | Type   | Obligatoire | Description                                                         |
+| ------------------- | ------ | ----------- | ------------------------------------------------------------------- |
+| `url`               | string | Oui         | URL de la page à analyser                                           |
+| `name`              | string | Non         | Nom de la page à analyser affiché dans le rapport                   |
+| `waitForSelector`   | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
+| `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
+| `waitForNavigation` | string | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+| `screenshot`        | string | Non         | Réalise une capture d'écran de la page à analyser. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si le chargement de la page est en erreur. |
+
+Le paramètre `waitForNavigation` exploite les fonctionnalités de Puppeteer pour détecter la fin de chargement d'une page sans passer par un sélecteur CSS ou un XPath :
+- `load` : considère que la navigation est terminée lorsque l'événement `load` est déclenché.
+- `domcontentloaded` : considère que la navigation est terminée lorsque l'événement `DOMContentLoaded` est déclenché.
+- `networkidle0` : considère que la navigation est terminée lorsqu'il n'y a pas plus de 0 connexion réseau pendant au moins 500 ms.
+- `networkidle2` : considère que la navigation est terminée lorsqu'il n'y a pas plus de 2 connexions réseau pendant au moins 500 ms.
+
+Plus de détails ici : https://github.com/puppeteer/puppeteer/blob/main/docs/api.md
+
+Par défaut, si aucun des paramètres de type `waitFor` n'est défini, alors l'outil considère que la navigation est terminée lorsque l'événement `load` est déclenché.
 
 Exemple de fichier `url.yaml` : 
 ```yaml
 # Analyse l'URL collectif.greenit.fr 
-- url : 'https://collectif.greenit.fr/'
+- name : 'Collectif GreenIT.fr'
+  url : 'https://collectif.greenit.fr/'
 
 # Analyse l'URL collectif.greenit.fr/outils.html en spécifiant une condition d'attente via un sélecteur CSS
 # Réalise une capture d'écran de la page
-- url : 'https://collectif.greenit.fr/outils.html'
+- name : 'Les outils du collectif GreenIT.fr'
+  url : 'https://collectif.greenit.fr/outils.html'
   waitForSelector: '#header'
   screenshot: 'screenshots/outils.png'
 
@@ -152,12 +167,12 @@ Exemple de fichier `url.yaml` :
 ### Commande 
 
 ```
-greenit analyse <yaml_input_file> <xlsx_output_file>
+greenit analyse <url_input_file> <report_output_file>
 ```
 
 Paramètres obligatoires :
-- `yaml_input_file` : Chemin vers le fichier YAML listant toutes les URL à analyser. (Valeur par défaut : "url.yaml")
-- `xlsx_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
+- `url_input_file` : Chemin vers le fichier YAML listant toutes les URL à analyser. (Valeur par défaut : "url.yaml")
+- `report_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
 
 Paramètres optionnels :
 - `--timeout , -t` : Nombre de millisecondes maximal pour charger une url. (Valeur par défaut : 180000)
@@ -181,7 +196,7 @@ Paramètres optionnels :
 
 - `--device , -d` : Emulation du terminal d'affichage. (Valeur par défaut : "desktop")
   
-  Choix:
+  Choix :
   - desktop
   - galaxyS9
   - galaxyS20
@@ -199,16 +214,26 @@ Paramètres optionnels :
   password: "<password>"
   ```
 
+- `--format , -f` : Format du rapport. (Valeur par défaut : "xlsx")
+
+Choix :
+- xlsx 
+- html
+
 ### Usage avec Docker
-1. Déposer le fichier `<yaml_input_file>` dans le dossier `/<path>/input`.
+1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
 2. Lancer l'analyse :
 ```
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   --name containerName \
   imageName
 ```
+
+Remarque : il faut définir la variable d'environnement `TZ` pour définir votre timezone afin d'afficher correctement les dates dans les rapports. Exemple de timezone : `TZ=Europe/Paris`.
+
 3. Récupérer les résultats dans votre dossier `/<path>/output`
 
 #### Redéfinir les variables `URL_PATH` et `RESULTS_PATH` 
@@ -219,6 +244,7 @@ Exemple :
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   -e "URL_PATH=/app/input/myapp_url.yaml" \
   -e "RESULTS_PATH=/app/output/results_20210101.xlsx" \
   --name containerName \
@@ -233,6 +259,7 @@ Exemple :
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   --name containerName \
   imageName \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --max_tab=1 --timeout=15000 --retry=5
@@ -244,10 +271,61 @@ Vous pouvez déposer le fichier `proxy.yaml` dans le dossier `/<path>/input` et 
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
+  -e TZ=<timezone> \
   --name containerName \
   imageName \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --proxy=/app/input/proxy.yaml
 ```
+
+### Formats des rapports
+
+#### Excel (xlsx)
+
+Prérequis : le fichier de sortie doit avoir l'extension `.xlsx`.
+
+Exemple de commande : 
+
+```
+greenit analyse /app/input/url.yaml /app/output/results.xlsx --format=xlsx
+```
+
+Le rapport Excel est composé :
+- D'un onglet représentant le rapport global : moyenne de l'ecoindex de toutes les URL analysées, les URL prioritaires à corriger, les règles prioritaires à corriger, ...
+- D'un onglet par URL analysée : l'ecoindex de l'URL et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
+
+Exemple d'un rapport :
+- Onglet global :
+
+![Onglet global du rapport Excel](./docs/rapport-xlsx-global.png)
+
+- Onglet pour une URL analysée :
+
+![Onglet d'une URL analysée dans le rapport Excel](./docs/rapport-xlsx-detail-page.png)
+
+#### HTML
+
+Prérequis : 
+- le fichier de sortie doit avoir l'extension `.html`
+- le paramètre `--format=html` ou `-f=html` doit être utilisé 
+
+Exemple de commande : 
+
+```
+greenit analyse /app/input/url.yaml /app/output/global.html --format=html
+```
+
+Le rapport HTML est composé :
+- D'une page résumé : moyenne de l'ecoindex de toutes les pages analysées, nombre total de règles à corriger, tableau de toutes les pages analysées avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger) et les règles prioritaires à corriger. Pour accéder au rapport détaillé d'une URL analysée, il suffit de cliquer sur le nom de la page.
+- D'une page par URL analysée  : l'ecoindex de l'URL et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
+
+Exemple d'un rapport :
+- Page globale :
+
+![Page globale du rapport HTML](./docs/rapport-html-global.png)
+
+- Page pour une URL analysée :
+
+![Page d'une URL analysée dans le rapport HTML](./docs/rapport-html-detail-page.png)
 
 ## ParseSiteMap
 

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+
+    <style type="text/css"> 
+        .grade {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #f00;
+            font-size: 14px;
+            font-weight: 650;
+            line-height: 24px;
+        }
+
+        .grade.big-grade {
+            width: 42px;
+            height: 42px;
+            font-size: 28px;
+            line-height: 42px;
+        }
+
+        .grade.A {
+            background-color: #349A47;
+            color: #fff;
+        }
+    
+        .grade.B {
+            background-color: #51B84B;
+            color: #fff;
+        }
+    
+        .grade.C {
+            background-color: #CADB2A;
+            color: #fff;
+        }
+    
+        .grade.D {
+            background-color: #F6EB15;
+        }
+    
+        .grade.E {
+            background-color: #FECD06;
+        }
+    
+        .grade.F {
+            background-color: #F99839;
+            color: #fff;
+        }
+    
+        .grade.G {
+            background-color: #ED2124;
+            color: #fff;
+        }
+
+        .checkmark-success {
+            display: inline-block;
+            transform: rotate(45deg);
+            height: 18px;
+            width: 10px;
+            border-bottom: 5px solid #78b13f;
+            border-right: 5px solid #78b13f;
+        }
+
+        .close-warning,
+        .close-error {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            padding-left: 20px;
+        }
+        .close-warning:before, 
+        .close-warning:after,
+        .close-error:before, 
+        .close-error:after {
+            position: absolute;
+            content: ' ';
+            height: 22px;
+            width: 4px;
+        }
+        .close-warning:before,
+        .close-error:before {
+            transform: rotate(45deg);
+        }
+        .close-warning:after,
+        .close-error:after {
+            transform: rotate(-45deg);
+        }
+
+        .close-warning:before,
+        .close-warning:after {
+            background-color: orange;
+        }
+
+        .close-error:before,
+        .close-error:after {
+            background-color: red;
+        }
+
+        </style>
+
+    <title>GreenIT-Analysis report</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-success bg-success text-white mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1" style="font-size: 1rem;" thjs:utext="${header}">GreenIT-Analysis report > <a class="text-white" href="http://10.132.7.169:81/conso/supervision/supervision/suivi-traitements">RPT | Données patrimoniales réseau</a></span>
+            <div class="d-flex flex-row-reverse">
+                <div id="date" thjs:text="${date}">05/05/2021 10:03:12</div>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="container my-5">
+            <div class="row text-center">
+                <div class="col col-md-4">
+                    <div class="card mb-4 border-success" style="max-width: 18rem;">
+                        <div class="card-header bg-success text-white">Ecoindex</div>
+                        <div class="card-body text-dark">
+                            <h1 id="ecoIndex" class="card-title" style="height: 45px;" thjs:utext="${bigEcoIndex}">51 <span class="grade big-grade C">C</span></h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-md-4">
+                    <div class="card mb-4 border-success" style="max-width: 18rem;">
+                        <div class="card-header bg-success text-white">Eau (cl)</div>
+                        <div class="card-body text-dark">
+                            <h1 id="waterConsumption" class="card-title" thjs:text="${waterConsumption}">3.24</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-md-4">
+                    <div class="card mb-4 border-success" style="max-width: 18rem;">
+                        <div class="card-header bg-success text-white">GES (gCO2e)</div>
+                        <div class="card-body text-dark">
+                            <h1 id="greenhouseGasesEmission" class="card-title" thjs:text="${greenhouseGasesEmission}">2.16</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col col-md-4">
+                    <div class="card mb-4 border-success" style="max-width: 18rem;">
+                        <div class="card-header bg-success text-white">Requêtes</div>
+                        <div class="card-body text-dark">
+                            <h1 id="nbRequest" class="card-title" thjs:text="${nbRequest}">18</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-md-4">
+                    <div class="card mb-4 border-success" style="max-width: 18rem;">
+                        <div class="card-header bg-success text-white">Taille de la page (Ko)</div>
+                        <div class="card-body text-dark">
+                            <h1 id="pageSize" class="card-title" thjs:text="${pageSize}">3791 (3787)</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-md-4">
+                    <div class="card mb-4 border-success" style="max-width: 18rem;">
+                        <div class="card-header bg-success text-white">Taille du DOM</div>
+                        <div class="card-body text-dark">
+                            <h1 id="domSize" class="card-title" thjs:text="${domSize}">951</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container my-3">
+            <h5 class="mb-3">Bonnes pratiques</h5>
+            <div class="row">
+                <div class="col col-md-12">
+                    <table id="tabBestPractices" class="table table-sm">
+                        <thead class="table-light">
+                            <th scope="col">Règle</th>
+                            <th scope="col">Résultat</th>
+                            <th scope="col">Note</th>
+                        </thead>
+                        <tbody thjs:each="bestPractice: ${bestPractices}">
+                            <tr>
+                                <td thjs:text=${bestPractice.name}>Ajouter des expires ou cache-control headers (>= 95%)</td>
+                                <td thjs:text=${bestPractice.comment}>0% ressources cachées</td>
+                                <td class="text-center"><div thjs:class="${bestPractice.note}"></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
