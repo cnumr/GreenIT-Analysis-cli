@@ -27,16 +27,13 @@ async function analyse_core(options) {
     // Add proxy conf in browserArgs
     let proxy = {};
     if(options.proxy) {
-        const PROXY_FILE = path.resolve(options.proxy);
-        try {
-            proxy = YAML.parse(fs.readFileSync(PROXY_FILE).toString());
-            if (!proxy.server || !proxy.user || !proxy.password) {
-                throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`
-            }
-            browserArgs.push(`--proxy-server=${proxy.server}`);
-        } catch (error) {
-            throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file.`
-        }
+        proxy = readProxy(options.proxy);
+    }
+
+    // Read headers http file
+    let headers;
+    if (options.headers) {
+        headers = readHeaders(options.headers);
     }
 
     //start browser
@@ -64,7 +61,7 @@ async function analyse_core(options) {
             await login(browser, loginInfos)
         }
         //analyse
-        reports = await createJsonReports(browser, pagesInformations, options, proxy);
+        reports = await createJsonReports(browser, pagesInformations, options, proxy, headers);
     } finally {
         //close browser
         let pages = await browser.pages();
@@ -78,6 +75,32 @@ async function analyse_core(options) {
     } else {
         await create_XLSX_report(reportObj, options);
     }
+}
+
+function readProxy(proxyFile) {
+    const PROXY_FILE = path.resolve(proxyFile);
+    let proxy;
+    try {
+        proxy = YAML.parse(fs.readFileSync(PROXY_FILE).toString());
+        if (!proxy.server || !proxy.user || !proxy.password) {
+            throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`
+        }
+        browserArgs.push(`--proxy-server=${proxy.server}`);
+    } catch (error) {
+        throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file.`
+    }
+    return proxy;
+}
+
+function readHeaders(headersFile) {
+    const HEADERS_YAML_FILE = path.resolve(headersFile);
+    let headers;
+    try {
+        headers = YAML.parse(fs.readFileSync(HEADERS_YAML_FILE).toString());
+    } catch (error) {
+        throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file.`
+    }
+    return headers;
 }
 
 //export method that handle error

@@ -220,6 +220,15 @@ Choix :
 - xlsx 
 - html
 
+- `--headers , -h` : Chemin vers le fichier YAML contenant les headers HTTP configurés pour accéder aux URL à analyser.
+
+  Exemple de headers.yaml :
+  ```yaml
+  accept: 'text/html,application/xhtml+xml,application/xml'
+  accept-encoding: 'gzip, deflate, br'
+  accept-language: 'en-US,en;q=0.9,en;q=0.8'
+  ```
+
 ### Usage avec Docker
 1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
 2. Lancer l'analyse :
