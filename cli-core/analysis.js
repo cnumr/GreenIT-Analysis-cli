@@ -20,9 +20,17 @@ async function analyseURL(browser, pageInformations, options) {
 
     try {
         const page = await browser.newPage();
+
+        // configure proxy in page browser
         if (PROXY) {
             await page.authenticate({ username: PROXY.user, password: PROXY.password });
         }
+
+        // configure headers http
+        if (options.headers) {
+            await page.setExtraHTTPHeaders(options.headers);
+        }
+
         await page.setViewport(sizes[DEVICE]);
 
         // disabling cache
@@ -145,7 +153,7 @@ async function login(browser,loginInformations) {
 }
 
 //Core
-async function createJsonReports(browser, pagesInformations, options, proxy) {
+async function createJsonReports(browser, pagesInformations, options, proxy, headers) {
     //Timeout for an analysis
     const TIMEOUT = options.timeout;
     //Concurent tab
@@ -193,7 +201,8 @@ async function createJsonReports(browser, pagesInformations, options, proxy) {
             device: DEVICE,
             timeout:TIMEOUT,
             tabId: i,
-            proxy: proxy
+            proxy: proxy,
+            headers: headers
         }));
         index++;
         //console.log(`Start of analysis #${index}/${pagesInformations.length}`)
@@ -207,7 +216,8 @@ async function createJsonReports(browser, pagesInformations, options, proxy) {
                 timeout:TIMEOUT,
                 tabId: results.tabId,
                 tryNb: results.tryNb + 1,
-                proxy: proxy
+                proxy: proxy,
+                headers: headers
             })); // convert is NEEDED, variable size array
         }else{
             let filePath = path.resolve(SUBRESULTS_DIRECTORY,`${resultId}.json`)
@@ -230,7 +240,8 @@ async function createJsonReports(browser, pagesInformations, options, proxy) {
                     device: DEVICE,
                     timeout:TIMEOUT,
                     tabId: results.tabId,
-                    proxy: proxy
+                    proxy: proxy,
+                    headers: headers
                 })); // No need for convert, fixed size array
                 index++;
                 //console.log(`Start of analysis #${index}/${pagesInformations.length}`)

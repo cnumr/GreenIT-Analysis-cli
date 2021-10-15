@@ -64,6 +64,11 @@ yargs(hideBin(process.argv))
         description: 'Report format : Possible choices : excel (default), html',
         default: 'excel'
       })
+      .option('headers', {
+        alias: 'h',
+        type: 'string',
+        description: 'Headers HTTP to configure to analyze url',
+      })
   }, (argv) => {
       require("./commands/analyse.js")(argv)
   })
