@@ -13,7 +13,7 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
     - [Configurer un proxy](#configurer-un-proxy)
 - [Usage](#usage)
   - [Analyse](#analyse)
-    - [Prérequis](#prérequis-2)
+    - [Construction du fichier d'entrée](#construction-du-fichier-dentrée)
     - [Commande](#commande)
     - [Usage avec Docker](#usage-avec-docker)
     - [Formats des rapports](#formats-des-rapports)
@@ -26,7 +26,7 @@ Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes
 
 Le système de cache est désactivé pour fiabiliser l'analyse d'une page.
 
-Selon les pages à analyser, il peut être nécessaire de mettre en place une condition afin d'attendre la fin du chargement de la page (voir les [Prérequis](#prérequis-2) de l'analyse).
+Selon les pages à analyser, il peut être nécessaire de mettre en place une condition afin d'attendre la fin du chargement de la page (voir le paragraphe [Construction du fichier d'entrée](#construction-du-fichier-dentrée) de l'analyse).
 
 # Pour commencer
 
@@ -121,7 +121,7 @@ docker build -t imageName \
 
 ## Analyse
 
-### Prérequis
+### Construction du fichier d'entrée
 
 Construire le fichier `<url_input_file>` qui liste les URL à analyser. Le fichier est au format YAML.
 
@@ -135,7 +135,9 @@ Sa structure est la suivante :
 | `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
 | `waitForNavigation` | string | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
 | `screenshot`        | string | Non         | Réalise une capture d'écran de la page à analyser. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si le chargement de la page est en erreur. |
+| `actions`           | list   | Non         | Réalise une suite d'actions avant d'analyser la page                |
 
+#### Conditions d'attente
 Le paramètre `waitForNavigation` exploite les fonctionnalités de Puppeteer pour détecter la fin de chargement d'une page sans passer par un sélecteur CSS ou un XPath :
 - `load` : considère que la navigation est terminée lorsque l'événement `load` est déclenché.
 - `domcontentloaded` : considère que la navigation est terminée lorsque l'événement `DOMContentLoaded` est déclenché.
@@ -162,6 +164,83 @@ Exemple de fichier `url.yaml` :
 # Analyse l'URL collectif.greenit.fr/index_en.html en spécifiant une condition d'attente via un XPath
 - url : 'https://collectif.greenit.fr/index_en.html'
   waitForXPath: '//section[2]/div/h2'
+```
+
+#### Actions
+Les actions permettent de définir un parcours utilisateur plus complexe avant de lancer l'analyse. 
+
+Il est possible de définir une liste d'actions à travers le champ `actions` qui est de type liste. La forme d'une action est la suivante :
+
+| Paramètre           | Type   | Obligatoire | Description                                                         |
+| ------------------- | ------ | ----------- | ------------------------------------------------------------------- |
+| `name`              | string | Non         | Non de l'action                                                     |
+| `type`              | string | Oui         | Type de l'action : `click`, `text`, `select`                        |
+| `element`           | string | Oui         | Element du DOM sur lequel l'action doit être exécutée. De type CSS selector |
+| `timeoutBefore`     | string | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes)          |
+| `waitForSelector`   | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
+| `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
+| `waitForNavigation` | string | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+
+Les conditions de type `waitFor` peuvent être réutilisées afin de définir une condition d'attente après l'exécution de l'action. Elle reste optionnelle.
+
+Des paramètres supplémentaires peuvent être nécessaires selon le type de l'action.
+
+##### click
+Ce type d'action permet de simuler un clic sur un élément de la page.
+
+Ce type d'action n'a pas de paramètre supplémentaire.
+
+Exemple :
+```yaml
+- name : 'Collectif GreenIT.fr écoindex'
+  url : 'https://collectif.greenit.fr/'
+  actions:
+    - name : 'Clic sur Découvrez nos outils'
+      type: 'click'
+      element : 'a[title="Nos outils"]'
+      timeoutBefore: 1000
+      waitForSelector: '#header'
+```
+
+##### text
+Ce type d'action permet de simuler la saisie d'un texte dans un champ d'un formulaire par exemple.
+
+Ce type d'action nécessite les paramètres supplémentaires :
+
+| Paramètre | Type   | Obligatoire | Description               |
+| --------- | ------ | ----------- | ------------------------- |
+| `content` | string | Oui         | Contenu du texte à saisir |
+
+Exemple :
+```yaml
+- name : 'Collectif GreenIT.fr écoindex'
+  url : 'https://collectif.greenit.fr/'
+  actions:
+    - name : 'Remplir l'email dans le formulaire de contact'
+      type : 'text'
+      element: '#form_email'
+      content: 'john.doe@mail.com'
+      timeoutBefore: 1000
+```
+
+##### select
+Ce type d'action permet de simuler la sélection d'une ou plusieurs valeurs dans une liste déroulante.
+
+Ce type d'action nécessite les paramètres supplémentaires :
+
+| Paramètre | Type | Obligatoire | Description                      |
+| --------- | ---- | ----------- | -------------------------------- |
+| `values`  | list | Oui         | Liste des valeurs à sélectionner |
+
+Exemple :
+```yaml
+- name : 'ecoconceptionweb.com'
+  url : 'https://ecoconceptionweb.com/'
+  actions:
+    - name : "Saisie du choix Proposer dans le select Sujet"
+      type : 'select'
+      element : '#subject'
+      values: ['proposer']
 ```
 
 ### Commande 
