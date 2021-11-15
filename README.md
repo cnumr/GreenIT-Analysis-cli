@@ -171,24 +171,28 @@ Les actions permettent de définir un parcours utilisateur plus complexe avant d
 
 Il est possible de définir une liste d'actions à travers le champ `actions` qui est de type liste. La forme d'une action est la suivante :
 
-| Paramètre           | Type   | Obligatoire | Description                                                         |
-| ------------------- | ------ | ----------- | ------------------------------------------------------------------- |
-| `name`              | string | Non         | Non de l'action                                                     |
-| `type`              | string | Oui         | Type de l'action : `click`, `text`, `select`                        |
-| `element`           | string | Oui         | Element du DOM sur lequel l'action doit être exécutée. De type CSS selector |
-| `timeoutBefore`     | string | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes)          |
-| `waitForSelector`   | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible |
-| `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible         |
+| Paramètre           | Type   | Obligatoire | Description                                                                 |
+| ------------------- | ------ | ----------- | --------------------------------------------------------------------------- |
+| `name`              | string | Non         | Non de l'action                                                             |
+| `type`              | string | Oui         | Type de l'action : `click`, `scroll`, `select`, `text`                      |
+| `element`           | string | Non         | Element du DOM sur lequel l'action doit être exécutée. De type CSS selector |
+| `timeoutBefore`     | string | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes)                  |
+| `waitForSelector`   | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible         |
+| `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible                 |
 | `waitForNavigation` | string | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
 
-Les conditions de type `waitFor` peuvent être réutilisées afin de définir une condition d'attente après l'exécution de l'action. Elle reste optionnelle.
+Les conditions de type `waitFor` peuvent être réutilisées afin de définir une condition d'attente après l'exécution de l'action. Elles restent optionnelles.
 
 Des paramètres supplémentaires peuvent être nécessaires selon le type de l'action.
 
 ##### click
 Ce type d'action permet de simuler un clic sur un élément de la page.
 
-Ce type d'action n'a pas de paramètre supplémentaire.
+Ce type d'action nécessite les paramètres supplémentaires :
+
+| Paramètre | Type   | Obligatoire | Description                                                         |
+| --------- | ------ | ----------- | ------------------------------------------------------------------- |
+| `element` | string | Oui         | Element du DOM sur lequel le clic est réalisé. De type CSS selector |
 
 Exemple :
 ```yaml
@@ -202,14 +206,50 @@ Exemple :
       waitForSelector: '#header'
 ```
 
+##### scroll
+Ce type d'action permet de simuler un utilisateur qui scroll vers le bas de la page.
+
+Ce type d'action n'a pas de paramètre supplémentaire.
+
+Exemple :
+```yaml
+- name : 'ecoconceptionweb.com'
+  url : 'https://ecoconceptionweb.com/'
+  actions:
+    - name : "Scroll auto vers le bas de la page"
+      type : 'scroll'
+```
+
+##### select
+Ce type d'action permet de simuler la sélection d'une ou plusieurs valeurs dans une liste déroulante.
+
+Ce type d'action nécessite les paramètres supplémentaires :
+
+| Paramètre | Type   | Obligatoire | Description                                                           |
+| --------- | ------ | ----------- | --------------------------------------------------------------------- |
+| `element` | string | Oui         | Element du DOM représentant la liste déroulante. De type CSS selector |
+| `values`  | list   | Oui         | Liste des valeurs à sélectionner                                      |
+
+Exemple :
+```yaml
+- name : 'ecoconceptionweb.com'
+  url : 'https://ecoconceptionweb.com/'
+  actions:
+    - name : "Saisie du choix Proposer dans le select Sujet"
+      type : 'select'
+      element : '#subject'
+      values: ['proposer']
+```
+
 ##### text
 Ce type d'action permet de simuler la saisie d'un texte dans un champ d'un formulaire par exemple.
 
 Ce type d'action nécessite les paramètres supplémentaires :
 
-| Paramètre | Type   | Obligatoire | Description               |
-| --------- | ------ | ----------- | ------------------------- |
-| `content` | string | Oui         | Contenu du texte à saisir |
+| Paramètre | Type   | Obligatoire | Description                                                         |
+| --------- | ------ | ----------- | ------------------------------------------------------------------- |
+| `element` | string | Oui         | Element du DOM dans lequel le texte est saisi. De type CSS selector |
+| `content` | string | Oui         | Contenu du texte à saisir                                           |
 
 Exemple :
 ```yaml
@@ -221,26 +261,6 @@ Exemple :
       element: '#form_email'
       content: 'john.doe@mail.com'
       timeoutBefore: 1000
-```
-
-##### select
-Ce type d'action permet de simuler la sélection d'une ou plusieurs valeurs dans une liste déroulante.
-
-Ce type d'action nécessite les paramètres supplémentaires :
-
-| Paramètre | Type | Obligatoire | Description                      |
-| --------- | ---- | ----------- | -------------------------------- |
-| `values`  | list | Oui         | Liste des valeurs à sélectionner |
-
-Exemple :
-```yaml
-- name : 'ecoconceptionweb.com'
-  url : 'https://ecoconceptionweb.com/'
-  actions:
-    - name : "Saisie du choix Proposer dans le select Sujet"
-      type : 'select'
-      element : '#subject'
-      values: ['proposer']
 ```
 
 ### Commande 

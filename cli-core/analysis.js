@@ -147,10 +147,32 @@ async function startActions(page, actions, TIMEOUT) {
             // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
             await page.select.apply(page, args);
             await waitPageLoading(page, action, TIMEOUT);
+        } else if (action.type === "scroll") {
+            await scrollToBottom(page);
+            await waitPageLoading(page, action, TIMEOUT);
         } else {
             console.log("Unknown action for '" + actionName + "' : " + action.type);
         }
     }
+}
+
+async function scrollToBottom(page){
+    await page.evaluate(async () => {
+        await new Promise((resolve, reject) => {
+            var distance = 400;
+            var timeoutBetweenScroll = 1500;
+            var totalHeight = 0;
+            var timer = setInterval(() => {
+                var scrollHeight = document.body.scrollHeight;
+                window.scrollBy(0, distance);
+                totalHeight += distance;
+                if(totalHeight >= scrollHeight){
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, timeoutBetweenScroll);
+        });
+    });
 }
 
 async function takeScreenshot(page, screenshotPath) {
