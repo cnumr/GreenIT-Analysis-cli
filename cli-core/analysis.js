@@ -46,6 +46,13 @@ async function analyseURL(browser, pageInformations, options) {
 
             // waiting for page to load
             await waitPageLoading(page, pageInformations, TIMEOUT);
+
+            if(pageInformations.actions) {
+                // Execute actions on page (click, text, ...)
+                await startActions(page, pageInformations.actions, TIMEOUT);
+            }
+
+
         } finally {
             // Take screenshot (even if the page fails to load)
             if (pageInformations.screenshot) {
@@ -117,6 +124,55 @@ function isValidWaitForNavigation(waitUntilParam) {
             "domcontentloaded" === waitUntilParam ||
             "networkidle0" === waitUntilParam ||
             "networkidle2" === waitUntilParam);
+}
+
+async function startActions(page, actions, TIMEOUT) {
+    for (let index = 0; index < actions.length; index++) {
+        let action = actions[index];
+        let actionName = action.name || index+1;
+        //console.log("Action : " + actionName);
+        if(action.timeoutBefore) {
+            let timeout = action.timeoutBefore > 0 ? action.timeoutBefore : 0;
+            await page.waitForTimeout(timeout);
+        }
+
+        if (action.type === "click") {
+            await page.click(action.element);
+            await waitPageLoading(page, action, TIMEOUT);
+        } else if (action.type === "text") {
+            await page.type(action.element, action.content, {delay: 100});
+            await waitPageLoading(page, action, TIMEOUT);
+        } else if (action.type === "select") {
+            let args = [action.element].concat(action.values);
+            // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
+            await page.select.apply(page, args);
+            await waitPageLoading(page, action, TIMEOUT);
+        } else if (action.type === "scroll") {
+            await scrollToBottom(page);
+            await waitPageLoading(page, action, TIMEOUT);
+        } else {
+            console.log("Unknown action for '" + actionName + "' : " + action.type);
+        }
+    }
+}
+
+async function scrollToBottom(page){
+    await page.evaluate(async () => {
+        await new Promise((resolve, reject) => {
+            var distance = 400;
+            var timeoutBetweenScroll = 1500;
+            var totalHeight = 0;
+            var timer = setInterval(() => {
+                var scrollHeight = document.body.scrollHeight;
+                window.scrollBy(0, distance);
+                totalHeight += distance;
+                if(totalHeight >= scrollHeight){
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, timeoutBetweenScroll);
+        });
+    });
 }
 
 async function takeScreenshot(page, screenshotPath) {
