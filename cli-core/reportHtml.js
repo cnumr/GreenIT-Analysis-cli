@@ -77,7 +77,7 @@ function readAllReports(fileList) {
                 waterConsumption: report_data.waterConsumption,
                 greenhouseGasesEmission: report_data.greenhouseGasesEmission,
                 nbRequest: report_data.nbRequest,
-                pageSize: `${Math.round(report_data.responsesSizeUncompress / 1000)} (${Math.round(report_data.responsesSize / 1000)})`,
+                pageSize: `${Math.round(report_data.responsesSize / 1000)} (${Math.round(report_data.responsesSizeUncompress / 1000)})`,
                 domSize: report_data.domSize,
                 nbBestPracticesToCorrect: report_data.nbBestPracticesToCorrect,
                 bestPractices
