@@ -105,6 +105,7 @@ async function analyseURL(browser, pageInformations, options) {
     result.pageInformations = pageInformations;
     result.tryNb = TRY_NB;
     result.tabId = TAB_ID;
+    result.index = options.index;
     return result;
 }
 
@@ -258,7 +259,8 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
             timeout:TIMEOUT,
             tabId: i,
             proxy: proxy,
-            headers: headers
+            headers: headers,
+            index: index
         }));
         index++;
         //console.log(`Start of analysis #${index}/${pagesInformations.length}`)
@@ -273,7 +275,8 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
                 tabId: results.tabId,
                 tryNb: results.tryNb + 1,
                 proxy: proxy,
-                headers: headers
+                headers: headers,
+                index: results.index
             })); // convert is NEEDED, variable size array
         }else{
             let filePath = path.resolve(SUBRESULTS_DIRECTORY,`${resultId}.json`)
@@ -297,7 +300,8 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
                     timeout:TIMEOUT,
                     tabId: results.tabId,
                     proxy: proxy,
-                    headers: headers
+                    headers: headers,
+                    index
                 })); // No need for convert, fixed size array
                 index++;
                 //console.log(`Start of analysis #${index}/${pagesInformations.length}`)

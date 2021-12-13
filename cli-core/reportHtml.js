@@ -59,7 +59,7 @@ function readAllReports(fileList) {
     fileList.forEach((file)=>{
         let report_data = JSON.parse(fs.readFileSync(file.path).toString());
         const pageName = report_data.pageInformations.name || report_data.pageInformations.url;
-        const pageFilename = report_data.pageInformations.name ? `${removeForbiddenCharacters(report_data.pageInformations.name)}.html` : `${report_data.tabId}.html`;
+        const pageFilename = report_data.pageInformations.name ? `${removeForbiddenCharacters(report_data.pageInformations.name)}.html` : `${report_data.index}.html`;
 
         if (report_data.success) {
             let bestPractices = extractBestPractices(report_data.bestPractices);
