@@ -3,7 +3,9 @@ const fs = require('fs')
 const path = require('path');
 const ProgressBar = require('progress');
 const sizes = require('../sizes.js');
-const translator = require('./translator.js').translator;
+const jsdom = require("jsdom");
+const {JSDOM} = jsdom;
+const launchAnalyse = require('../greenit-core/greenpanel.js').launchAnalyse;
 
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname,'../results');
@@ -65,26 +67,15 @@ async function analyseURL(browser, pageInformations, options) {
         const client = await page.target().createCDPSession();
         let ressourceTree = await client.send('Page.getResourceTree');
         await client.detach()
-    
-        // replace chrome.i18n.getMessage call by i18n custom implementation working in page 
-        // fr is default catalog
-        await page.evaluate(language_array =>(chrome = { "i18n" : {"getMessage" : function (message, parameters = []) {
-            return language_array[message].replace(/%s/g, function() {
-                // parameters is string or array
-                return Array.isArray(parameters) ? parameters.shift() : parameters;
-            });
-        }}}), translator.getCatalog());
-        
-        //add script, get run, then remove it to not interfere with the analysis
-        let script = await page.addScriptTag({ path: path.join(__dirname,'../dist/bundle.js')});
-        await script.evaluate(x=>(x.remove()));
-        
-        //pass node object to browser
-        await page.evaluate(x=>(har = x), harObj.log);
-        await page.evaluate(x=>(resources = x), ressourceTree.frameTree.resources);
-    
+
+        //retrieve page content
+        const pageContent = await page.content();
+
+        // Building in memory Page DOM
+        const dom = new JSDOM(pageContent);
+
         //launch analyse
-        result = await page.evaluate(()=>(launchAnalyse()));
+        result = await launchAnalyse(dom.window.document, harObj.log, ressourceTree.frameTree.resources);
 
         page.close();
         result.success = true;
@@ -323,4 +314,4 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
 module.exports = {
     createJsonReports,
     login
-}
+};
