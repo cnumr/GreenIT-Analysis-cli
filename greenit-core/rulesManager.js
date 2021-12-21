@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-rulesManager = new RulesManager();
-
 function RulesManager() {
 
   let rulesId = [];
@@ -79,3 +77,7 @@ function RulesManager() {
     }
   }
 }
+
+module.exports = {
+  RulesManager
+};
