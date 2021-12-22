@@ -162,7 +162,7 @@ function extractBestPractices(bestPracticesFromReport) {
 }
 
 function writeGlobalReport(templateEngine, globalReportVariables, outputFile) {
-    templateEngine.processFile('cli-core/template/global.html', globalReportVariables)
+    templateEngine.processFile(__dirname + "/template/global.html", globalReportVariables)
     .then(globalReportHtml => {
         fs.writeFileSync(outputFile, globalReportHtml);
     })
@@ -173,7 +173,7 @@ function writeGlobalReport(templateEngine, globalReportVariables, outputFile) {
 
 function writeAllReports(templateEngine, allReportsVariables, outputFolder) {
     allReportsVariables.forEach(reportVariables => {
-        templateEngine.processFile('cli-core/template/page.html', reportVariables)
+        templateEngine.processFile(__dirname + "/template/page.html", reportVariables)
         .then(singleReportHtml => {
             fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, singleReportHtml);
         })

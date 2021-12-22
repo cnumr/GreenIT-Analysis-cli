@@ -364,3 +364,27 @@ function debug(lazyString) {
   const message = typeof lazyString === 'function' ? lazyString() : lazyString;
   console.log(`GreenIT-Analysis [DEBUG] ${message}\n`);
 }
+
+module.exports = {
+    debug,
+    isFontResource,
+    isMinified,
+    isDataResource,
+    isNetworkResource,
+    isHttpRedirectCode,
+    isResourceCompressed,
+    isRessourceUsingETag,
+    isStaticRessource,
+    isSvgUrl,
+    isSvgOptimized,
+    getOfficialSocialButtonFormUrl,
+    getMinOptimisationGainsForImage,
+    getImageTypeFromResource,
+    getCookiesLength,
+    getResponseHeaderFromResource,
+    getHeaderWithName,
+    getDomainFromUrl,
+    hasValidCacheHeaders,
+    computeNumberOfErrorsInJSCode,
+    isCompressibleResource
+}

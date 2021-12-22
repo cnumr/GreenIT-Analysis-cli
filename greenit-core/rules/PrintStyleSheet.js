@@ -1,13 +1,25 @@
-rulesManager.registerRule({
-    complianceLevel: 'C',
-    id: "PrintStyleSheet",
-    comment: "",
-    detailComment: "",
-  
-    check: function (measures) {
-      if (measures.printStyleSheetsNumber > 0) {
-        this.complianceLevel = 'A';
-        this.comment = chrome.i18n.getMessage("rule_PrintStyleSheet_Comment", String(measures.printStyleSheetsNumber));
-      }
-    }
-  }, "frameMeasuresReceived");
+const { chrome } = require("../chrome")
+
+function registerPrintStyleSheet(rulesManager) {
+
+
+    rulesManager.registerRule({
+        complianceLevel: 'C',
+        id: "PrintStyleSheet",
+        comment: "",
+        detailComment: "",
+
+        check: function (measures) {
+
+            if (measures.printStyleSheetsNumber > 0) {
+                this.complianceLevel = 'A';
+                this.comment = chrome.i18n.getMessage("rule_PrintStyleSheet_Comment", String(measures.printStyleSheetsNumber));
+            }
+        }
+    }, "frameMeasuresReceived");
+
+}
+
+module.exports = {
+    registerPrintStyleSheet
+}

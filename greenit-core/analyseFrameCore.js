@@ -132,3 +132,7 @@ function getImagesResizedInBrowser() {
   });
   return imagesResized;
 }
+
+module.exports = {
+  start_analyse_core
+}

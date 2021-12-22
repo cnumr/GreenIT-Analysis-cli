@@ -65,3 +65,10 @@ function computeWaterConsumptionfromEcoIndex(ecoIndex)
 	return (Math.round(100 * (3 + 3 * (50 - ecoIndex) / 100)) / 100);
 }
 
+module.exports = {
+	computeEcoIndex,
+	computeWaterConsumptionfromEcoIndex,
+	computeGreenhouseGasesEmissionfromEcoIndex,
+	computeQuantile,
+	getEcoIndexGrade
+}

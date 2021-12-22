@@ -6,3 +6,5 @@ results/
 results_test/
 *.xlsx
 *.yaml
+tmp/
+.idea/

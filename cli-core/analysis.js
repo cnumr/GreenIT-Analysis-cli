@@ -3,18 +3,21 @@ const fs = require('fs')
 const path = require('path');
 const ProgressBar = require('progress');
 const sizes = require('../sizes.js');
-const translator = require('./translator.js').translator;
+const jsdom = require("jsdom");
+const {JSDOM} = jsdom;
+const launchAnalyse = require('../greenit-core/greenpanel.js').launchAnalyse;
 
 //Path to the url file
-const SUBRESULTS_DIRECTORY = path.join(__dirname,'../results');
+const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
 
 //Analyse a webpage
 async function analyseURL(browser, pageInformations, options) {
+
     let result = {};
 
     const TIMEOUT = options.timeout
     const TAB_ID = options.tabId
-    const TRY_NB =  options.tryNb || 1
+    const TRY_NB = options.tryNb || 1
     const DEVICE = options.device || "desktop"
     const PROXY = options.proxy
 
@@ -23,7 +26,7 @@ async function analyseURL(browser, pageInformations, options) {
 
         // configure proxy in page browser
         if (PROXY) {
-            await page.authenticate({ username: PROXY.user, password: PROXY.password });
+            await page.authenticate({username: PROXY.user, password: PROXY.password});
         }
 
         // configure headers http
@@ -34,24 +37,24 @@ async function analyseURL(browser, pageInformations, options) {
         await page.setViewport(sizes[DEVICE]);
 
         // disabling cache
-        await page.setCacheEnabled(false);    
+        await page.setCacheEnabled(false);
 
         //get har file
         const pptrHar = new PuppeteerHar(page);
         await pptrHar.start();
-        
+
         try {
             //go to url
-            await page.goto(pageInformations.url, {timeout : TIMEOUT});
+
+            await page.goto(pageInformations.url, {timeout: TIMEOUT});
 
             // waiting for page to load
             await waitPageLoading(page, pageInformations, TIMEOUT);
 
-            if(pageInformations.actions) {
+            if (pageInformations.actions) {
                 // Execute actions on page (click, text, ...)
                 await startActions(page, pageInformations.actions, TIMEOUT);
             }
-
 
         } finally {
             // Take screenshot (even if the page fails to load)
@@ -65,26 +68,15 @@ async function analyseURL(browser, pageInformations, options) {
         const client = await page.target().createCDPSession();
         let ressourceTree = await client.send('Page.getResourceTree');
         await client.detach()
-    
-        // replace chrome.i18n.getMessage call by i18n custom implementation working in page 
-        // fr is default catalog
-        await page.evaluate(language_array =>(chrome = { "i18n" : {"getMessage" : function (message, parameters = []) {
-            return language_array[message].replace(/%s/g, function() {
-                // parameters is string or array
-                return Array.isArray(parameters) ? parameters.shift() : parameters;
-            });
-        }}}), translator.getCatalog());
-        
-        //add script, get run, then remove it to not interfere with the analysis
-        let script = await page.addScriptTag({ path: path.join(__dirname,'../dist/bundle.js')});
-        await script.evaluate(x=>(x.remove()));
-        
-        //pass node object to browser
-        await page.evaluate(x=>(har = x), harObj.log);
-        await page.evaluate(x=>(resources = x), ressourceTree.frameTree.resources);
-    
+
+        //retrieve page content
+        const pageContent = await page.content();
+
+        // Building in memory Page DOM
+        const dom = new JSDOM(pageContent);
+
         //launch analyse
-        result = await page.evaluate(()=>(launchAnalyse()));
+        result = await launchAnalyse(dom.window.document, harObj.log, ressourceTree.frameTree.resources);
 
         page.close();
         result.success = true;
@@ -92,7 +84,7 @@ async function analyseURL(browser, pageInformations, options) {
 
         // Compute number of times where best practices are not respected
         for (let key in result.bestPractices) {
-            if((result.bestPractices[key].complianceLevel || "A") !== "A") {
+            if ((result.bestPractices[key].complianceLevel || "A") !== "A") {
                 result.nbBestPracticesToCorrect++;
             }
         }
@@ -106,10 +98,11 @@ async function analyseURL(browser, pageInformations, options) {
     result.tryNb = TRY_NB;
     result.tabId = TAB_ID;
     result.index = options.index;
+
     return result;
 }
 
-async function waitPageLoading(page, pageInformations, TIMEOUT){
+async function waitPageLoading(page, pageInformations, TIMEOUT) {
     if (pageInformations.waitForSelector) {
         await page.waitForSelector(pageInformations.waitForSelector, {visible: true, timeout: TIMEOUT})
     } else if (pageInformations.waitForXPath) {
@@ -120,8 +113,8 @@ async function waitPageLoading(page, pageInformations, TIMEOUT){
 }
 
 function isValidWaitForNavigation(waitUntilParam) {
-    return waitUntilParam && 
-            ("load" === waitUntilParam ||
+    return waitUntilParam &&
+        ("load" === waitUntilParam ||
             "domcontentloaded" === waitUntilParam ||
             "networkidle0" === waitUntilParam ||
             "networkidle2" === waitUntilParam);
@@ -130,14 +123,15 @@ function isValidWaitForNavigation(waitUntilParam) {
 async function startActions(page, actions, TIMEOUT) {
     for (let index = 0; index < actions.length; index++) {
         let action = actions[index];
-        let actionName = action.name || index+1;
-        //console.log("Action : " + actionName);
-        if(action.timeoutBefore) {
+        let actionName = action.name || index + 1;
+
+        if (action.timeoutBefore) {
             let timeout = action.timeoutBefore > 0 ? action.timeoutBefore : 0;
             await page.waitForTimeout(timeout);
         }
 
         if (action.type === "click") {
+
             await page.click(action.element);
             await waitPageLoading(page, action, TIMEOUT);
         } else if (action.type === "text") {
@@ -157,7 +151,7 @@ async function startActions(page, actions, TIMEOUT) {
     }
 }
 
-async function scrollToBottom(page){
+async function scrollToBottom(page) {
     await page.evaluate(async () => {
         await new Promise((resolve, reject) => {
             var distance = 400;
@@ -167,7 +161,7 @@ async function scrollToBottom(page){
                 var scrollHeight = document.body.scrollHeight;
                 window.scrollBy(0, distance);
                 totalHeight += distance;
-                if(totalHeight >= scrollHeight){
+                if (totalHeight >= scrollHeight) {
                     clearInterval(timer);
                     resolve();
                 }
@@ -179,8 +173,8 @@ async function scrollToBottom(page){
 async function takeScreenshot(page, screenshotPath) {
     // create screenshot folder if not exists
     const folder = path.dirname(screenshotPath);
-    if (!fs.existsSync(folder)){
-        fs.mkdirSync(folder, { recursive: true });
+    if (!fs.existsSync(folder)) {
+        fs.mkdirSync(folder, {recursive: true});
     }
     // remove old screenshot
     if (fs.existsSync(screenshotPath)) {
@@ -191,7 +185,7 @@ async function takeScreenshot(page, screenshotPath) {
 }
 
 //handle login
-async function login(browser,loginInformations) {
+async function login(browser, loginInformations) {
     //use the tab that opens with the browser
     const page = (await browser.pages())[0];
     //go to login page
@@ -201,7 +195,7 @@ async function login(browser,loginInformations) {
     //complete fields
     for (let index = 0; index < loginInformations.fields.length; index++) {
         let field = loginInformations.fields[index]
-        await page.type(field.selector, field.value)  
+        await page.type(field.selector, field.value)
     }
     //click login button
     await page.click(loginInformations.loginButtonSelector);
@@ -213,21 +207,23 @@ async function login(browser,loginInformations) {
 async function createJsonReports(browser, pagesInformations, options, proxy, headers) {
     //Timeout for an analysis
     const TIMEOUT = options.timeout;
+
     //Concurent tab
     const MAX_TAB = options.max_tab;
     //Nb of retry before dropping analysis
     const RETRY = options.retry;
+
     //Device to emulate
     const DEVICE = options.device;
 
     //initialise progress bar
     let progressBar;
-    if (!options.ci){
+    if (!options.ci) {
         progressBar = new ProgressBar(' Analysing                [:bar] :percent     Remaining: :etas     Time: :elapseds', {
             complete: '=',
             incomplete: ' ',
             width: 40,
-            total: pagesInformations.length+2
+            total: pagesInformations.length + 2
         });
         progressBar.tick();
     } else {
@@ -248,12 +244,12 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
     }
 
     //create directory for subresults
-    if (fs.existsSync(SUBRESULTS_DIRECTORY)){
-        fs.rmdirSync(SUBRESULTS_DIRECTORY, { recursive: true });
+    if (fs.existsSync(SUBRESULTS_DIRECTORY)) {
+        fs.rmdirSync(SUBRESULTS_DIRECTORY, {recursive: true});
     }
     fs.mkdirSync(SUBRESULTS_DIRECTORY);
     //Asynchronous analysis with MAX_TAB open simultaneously to json
-    for (let i = 0; i < MAX_TAB && index < pagesInformations.length; i++) {
+    for (let i = 0; i < pagesInformations.length; i++) {
         asyncFunctions.push(analyseURL(browser,pagesInformations[index],{
             device: DEVICE,
             timeout:TIMEOUT,
@@ -312,7 +308,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
     //wait for all file to be written
     await Promise.all(writeList);
     //results to xlsx file
-    if (progressBar){
+    if (progressBar) {
         progressBar.tick()
     } else {
         console.log("Analyse done");
