@@ -2,6 +2,7 @@ const fs = require('fs');
 const YAML = require('yaml');
 const path = require('path');
 const puppeteer = require('puppeteer');
+const {create_json_report} = require("../cli-core/reportJson");
 const createJsonReports = require('../cli-core/analysis.js').createJsonReports;
 const login = require('../cli-core/analysis.js').login;
 const create_global_report = require('../cli-core/reportGlobal.js').create_global_report;
@@ -72,6 +73,8 @@ async function analyse_core(options) {
     let reportObj = await create_global_report(reports, options);
     if(options.format === 'html') {
         await create_html_report(reportObj, options);
+    } if(options.format === 'json') {
+        await create_json_report(reportObj, options);
     } else {
         await create_XLSX_report(reportObj, options);
     }

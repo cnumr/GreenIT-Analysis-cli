@@ -8,3 +8,4 @@ results_test/
 *.yaml
 tmp/
 .idea/
+.DS_Store
