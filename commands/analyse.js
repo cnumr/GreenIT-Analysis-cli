@@ -57,8 +57,8 @@ async function analyse_core(options) {
             } catch (error) {
                 throw ` --login : "${LOGIN_YAML_FILE}" is not a valid YAML file.`
             }
-            console.log(loginInfos)
-            await login(browser, loginInfos)
+            //console.log(loginInfos)
+            await login(browser, loginInfos, options)
         }
         //analyse
         reports = await createJsonReports(browser, pagesInformations, options, proxy, headers);

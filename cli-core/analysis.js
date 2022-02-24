@@ -46,17 +46,22 @@ async function analyseURL(browser, pageInformations, options) {
 
             // waiting for page to load
             await waitPageLoading(page, pageInformations, TIMEOUT);
-
-            if(pageInformations.actions) {
-                // Execute actions on page (click, text, ...)
-                await startActions(page, pageInformations.actions, TIMEOUT);
-            }
-
-
         } finally {
             // Take screenshot (even if the page fails to load)
             if (pageInformations.screenshot) {
                 await takeScreenshot(page, pageInformations.screenshot);
+            }
+        }
+
+        try {
+            if (pageInformations.actions) {
+                // Execute actions on page (click, text, ...)
+                await startActions(page, pageInformations.actions, TIMEOUT);
+            }
+        } finally {
+            // Take screenshot (even if the action fails)
+            if (pageInformations.actions && pageInformations.actions.screenshot) {
+                await takeScreenshot(page, pageInformations.actions.screenshot);
             }
         }
 
@@ -131,7 +136,7 @@ async function startActions(page, actions, TIMEOUT) {
     for (let index = 0; index < actions.length; index++) {
         let action = actions[index];
         let actionName = action.name || index+1;
-        //console.log("Action : " + actionName);
+
         if(action.timeoutBefore) {
             let timeout = action.timeoutBefore > 0 ? action.timeoutBefore : 0;
             await page.waitForTimeout(timeout);
@@ -191,7 +196,7 @@ async function takeScreenshot(page, screenshotPath) {
 }
 
 //handle login
-async function login(browser,loginInformations) {
+async function login(browser,loginInformations, options) {
     //use the tab that opens with the browser
     const page = (await browser.pages())[0];
     //go to login page
@@ -205,8 +210,13 @@ async function login(browser,loginInformations) {
     }
     //click login button
     await page.click(loginInformations.loginButtonSelector);
+
+    if(loginInformations.screenshot) {
+        await takeScreenshot(page, loginInformations.screenshot);
+    }
     //make sure to not wait for the full authentification procedure
-    await page.waitForNavigation();
+    // waiting for page to load
+    await waitPageLoading(page, loginInformations, options.timeout);
 }
 
 //Core
