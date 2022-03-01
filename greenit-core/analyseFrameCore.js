@@ -16,20 +16,20 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function start_analyse_core() {
+function start_analyse_core(document, analyseBestPractices) {
   const analyseStartingTime = Date.now();
   const dom_size = document.getElementsByTagName("*").length;
   let pageAnalysis;
 
   if (analyseBestPractices) {
     // test with http://www.wickham43.net/flashvideo.php
-    const pluginsNumber = getPluginsNumber();
-    const printStyleSheetsNumber = getPrintStyleSheetsNumber();
-    const inlineStyleSheetsNumber = getInlineStyleSheetsNumber();
-    const emptySrcTagNumber = getEmptySrcTagNumber();
-    const inlineJsScript = getInlineJsScript();
-    const inlineJsScriptsNumber = getInlineJsScriptsNumber();
-    const imagesResizedInBrowser = getImagesResizedInBrowser();
+    const pluginsNumber = getPluginsNumber(document);
+    const printStyleSheetsNumber = getPrintStyleSheetsNumber(document);
+    const inlineStyleSheetsNumber = getInlineStyleSheetsNumber(document);
+    const emptySrcTagNumber = getEmptySrcTagNumber(document);
+    const inlineJsScript = getInlineJsScript(document);
+    const inlineJsScriptsNumber = getInlineJsScriptsNumber(document);
+    const imagesResizedInBrowser = getImagesResizedInBrowser(document);
 
 
     pageAnalysis = {
@@ -55,26 +55,26 @@ function start_analyse_core() {
 
 }
 
-function getPluginsNumber() {
+function getPluginsNumber(document) {
   const plugins = document.querySelectorAll('object,embed');
   return (plugins === undefined) ? 0 : plugins.length;
 }
 
 
 
-function getEmptySrcTagNumber() {
+function getEmptySrcTagNumber(document) {
   return document.querySelectorAll('img[src=""]').length
     + document.querySelectorAll('script[src=""]').length
     + document.querySelectorAll('link[rel=stylesheet][href=""]').length;
 }
 
 
-function getPrintStyleSheetsNumber() {
+function getPrintStyleSheetsNumber(document) {
   return document.querySelectorAll('link[rel=stylesheet][media~=print]').length
     + document.querySelectorAll('style[media~=print]').length;
 }
 
-function getInlineStyleSheetsNumber() {
+function getInlineStyleSheetsNumber(document) {
   let styleSheetsArray = Array.from(document.styleSheets);
   let inlineStyleSheetsNumber = 0;
   styleSheetsArray.forEach(styleSheet => {
@@ -90,7 +90,7 @@ return inlineStyleSheetsNumber;
 }
 
 
-function getInlineJsScript() {
+function getInlineJsScript(document) {
   let scriptArray = Array.from(document.scripts);
   let scriptText = "";
   scriptArray.forEach(script => {
@@ -100,7 +100,7 @@ function getInlineJsScript() {
   return scriptText;
 }
 
-function getInlineJsScriptsNumber() {
+function getInlineJsScriptsNumber(document) {
   let scriptArray = Array.from(document.scripts);
   let inlineScriptNumber = 0;
   scriptArray.forEach(script => {
@@ -111,7 +111,7 @@ function getInlineJsScriptsNumber() {
 }
 
 
-function getImagesResizedInBrowser() {
+function getImagesResizedInBrowser(document) {
   const imgArray = Array.from(document.querySelectorAll('img'));
   let imagesResized = [];
   imgArray.forEach(img => {
@@ -132,3 +132,7 @@ function getImagesResizedInBrowser() {
   });
   return imagesResized;
 }
+
+module.exports = {
+  start_analyse_core
+};

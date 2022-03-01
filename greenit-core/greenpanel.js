@@ -16,17 +16,48 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const utils = require('./utils.js');
+const {start_analyse_core} = require("./analyseFrameCore");
+const {
+    computeEcoIndex, computeWaterConsumptionfromEcoIndex, computeGreenhouseGasesEmissionfromEcoIndex,
+    getEcoIndexGrade
+} = require("./ecoIndex");
+const {isNetworkResource, isDataResource} = require("./utils");
+const {registerAddExpiresOrCacheControlHeaders} = require("./rules/AddExpiresOrCacheControlHeaders");
+const {registerCompressHttp} = require("./rules/CompressHttp");
+const {registerDontResizeImageInBrowser} = require("./rules/DontResizeImageInBrowser");
+const {registerDomainsNumber} = require("./rules/DomainsNumber");
+const {registerEmptySrcTag} = require("./rules/EmptySrcTag");
+const {registerExternalizeCss} = require("./rules/ExternalizeCss");
+const {registerExternalizeJs} = require("./rules/ExternalizeJs");
+const {registerHttpError} = require("./rules/HttpError");
+const {registerHttpRequests} = require("./rules/HttpRequests");
+const {registerImageDownloadedNotDisplayed} = require("./rules/ImageDownloadedNotDisplayed");
+const {registerJsValidate} = require("./rules/JsValidate");
+const {registerMaxCookiesLength} = require("./rules/MaxCookiesLength");
+const {registerMinifiedCss} = require("./rules/MinifiedCss");
+const {registerMinifiedJs} = require("./rules/MinifiedJs");
+const {registerNoCookieForStaticRessources} = require("./rules/NoCookieForStaticRessources");
+const {registerNoRedirect} = require("./rules/NoRedirect");
+const {registerOptimizeBitmapImages} = require("./rules/OptimizeBitmapImages");
+const {registerOptimizeSvg} = require("./rules/OptimizeSvg");
+const {registerPlugins} = require("./rules/Plugins");
+const {registerPrintStyleSheet} = require("./rules/PrintStyleSheet");
+const {registerSocialNetworkButton} = require("./rules/SocialNetworkButton");
+const {registerStyleSheets} = require("./rules/StyleSheets");
+const {registerUseETags} = require("./rules/UseETags");
+const {registerUseStandardTypefaces} = require("./rules/UseStandardTypefaces");
+const RulesManager = require('./rulesManager.js').RulesManager
+
 let backgroundPageConnection;
 let currentRulesChecker;
 let lastAnalyseStartingTime = 0;
 let measuresAcquisition;
 let analyseBestPractices = true;
-let har;
-let resources;
 
 function handleResponseFromBackground(frameMeasures) {
   if (isOldAnalyse(frameMeasures.analyseStartingTime)) {
-    debug(() => `Analyse is too old for url ${frameMeasures.url} , time = ${frameMeasures.analyseStartingTime}`);
+    utils.debug(() => `Analyse is too old for url ${frameMeasures.url} , time = ${frameMeasures.analyseStartingTime}`);
     return;
   }
   measuresAcquisition.aggregateFrameMeasures(frameMeasures);
@@ -41,21 +72,42 @@ function computeEcoIndexMeasures(measures) {
   measures.grade = getEcoIndexGrade(measures.ecoIndex);
 }
 
+function registerRules(rulesManager) {
+    registerAddExpiresOrCacheControlHeaders(rulesManager)
+    registerCompressHttp(rulesManager)
+    registerDontResizeImageInBrowser(rulesManager)
+    registerDomainsNumber(rulesManager)
+    registerEmptySrcTag(rulesManager)
+    registerExternalizeCss(rulesManager)
+    registerExternalizeJs(rulesManager)
+    registerHttpError(rulesManager)
+    registerHttpRequests(rulesManager)
+    registerImageDownloadedNotDisplayed(rulesManager)
+    registerJsValidate(rulesManager)
+    registerMaxCookiesLength(rulesManager)
+    registerMinifiedCss(rulesManager)
+    registerMinifiedJs(rulesManager)
+    registerNoCookieForStaticRessources(rulesManager)
+    registerNoRedirect(rulesManager)
+    registerOptimizeBitmapImages(rulesManager)
+    registerOptimizeSvg(rulesManager)
+    registerPlugins(rulesManager)
+    registerPrintStyleSheet(rulesManager)
+    registerSocialNetworkButton(rulesManager)
+    registerStyleSheets(rulesManager)
+    registerUseETags(rulesManager)
+    registerUseStandardTypefaces(rulesManager)
+}
 
-function launchAnalyse() {
-  let now = Date.now();
-
-  // To avoid parallel analyse , force 1 secondes between analysis 
-  if (now - lastAnalyseStartingTime < 1000) {
-    debug(() => "Ignore click");
-    return;
-  }
-  lastAnalyseStartingTime = now;
+async function launchAnalyse(document, har, resources) {
+  lastAnalyseStartingTime = Date.now();
+  let rulesManager = new RulesManager()
+  registerRules(rulesManager);
   currentRulesChecker = rulesManager.getNewRulesChecker();
   measuresAcquisition = new MeasuresAcquisition(currentRulesChecker);
   measuresAcquisition.initializeMeasures();
-  measuresAcquisition.aggregateFrameMeasures(start_analyse_core())
-  measuresAcquisition.startMeasuring();
+  measuresAcquisition.aggregateFrameMeasures(start_analyse_core(document, analyseBestPractices))
+  measuresAcquisition.startMeasuring(har, resources);
   let returnObj = measuresAcquisition.getMeasures();
   returnObj.bestPractices = measuresAcquisition.getBestPractices()
   return returnObj;
@@ -88,9 +140,9 @@ function MeasuresAcquisition(rules) {
     };
   }
 
-  this.startMeasuring = function () {
-    getNetworkMeasure();
-    if (analyseBestPractices) getResourcesMeasure();
+  this.startMeasuring = function (har, resources) {
+    getNetworkMeasure(har);
+    if (analyseBestPractices) getResourcesMeasure(resources);
   }
 
   this.getMeasures = () => measures;
@@ -126,18 +178,18 @@ function MeasuresAcquisition(rules) {
 
 
 
-  const getNetworkMeasure = () => {
-    
+  const getNetworkMeasure = (har) => {
+
     console.log("Start network measure...");
     // only account for network traffic, filtering resources embedded through data urls
     let entries = har.entries.filter(entry => isNetworkResource(entry));
 
-    // Get the "mother" url 
+    // Get the "mother" url
     if (entries.length > 0) measures.url = entries[0].request.url;
     else {
-      // Bug with firefox  when we first get har.entries when starting the plugin , we need to ask again to have it 
+      // Bug with firefox  when we first get har.entries when starting the plugin , we need to ask again to have it
       if (nbGetHarTry < 1) {
-        debug(() => 'No entries, try again to get HAR in 1s');
+        utils.debug(() => 'No entries, try again to get HAR in 1s');
         nbGetHarTry++;
         setTimeout(getNetworkMeasure, 1000);
       }
@@ -170,7 +222,7 @@ function MeasuresAcquisition(rules) {
     }
   }
 
-  function getResourcesMeasure() {
+  function getResourcesMeasure(resources) {
     resources.forEach(resource => {
       if (resource.url.startsWith("file") || resource.url.startsWith("http")) {
         if ((resource.type === 'script') || (resource.type === 'stylesheet') || (resource.type === 'image')) {
@@ -234,3 +286,7 @@ function storeAnalysisInHistory() {
 
   localStorage.setItem("analyse_history", JSON.stringify(analyse_history));
 }
+
+module.exports = {
+    launchAnalyse
+};
