@@ -46,11 +46,15 @@ Pour cela, deux manières différentes de pouvoir l'utiliser :
 ```
 git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
 ```
-2. Installer les packages NPM :
+2. Se positionner dans le répertoire GreenIT-Analysis-cli :
+ ```
+ cd GreenIT-Analysis-cli
+ ```
+3. Installer les packages NPM :
 ```
 npm install
 ```
-3. Créer le lien symbolique pour faciliter l'usage de l'outil : 
+4. Créer le lien symbolique pour faciliter l'usage de l'outil : 
 ```
 npm link
 ```
@@ -82,7 +86,11 @@ npm link
  ```
  git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
  ```
-6. Construire l'image Docker : 
+6. Se positionner dans le répertoire GreenIT-Analysis-cli :
+ ```
+ cd GreenIT-Analysis-cli
+ ```
+7. Construire l'image Docker : 
  ```
  docker build -t imageName .
  ```
