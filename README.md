@@ -264,7 +264,7 @@ Exemple :
 - name : 'Collectif GreenIT.fr écoindex'
   url : 'https://collectif.greenit.fr/'
   actions:
-    - name : 'Remplir l'email dans le formulaire de contact'
+    - name : "Remplir l'email dans le formulaire de contact"
       type : 'text'
       element: '#form_email'
       content: 'john.doe@mail.com'
