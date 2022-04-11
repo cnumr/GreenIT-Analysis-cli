@@ -167,7 +167,7 @@ Exemple de fichier `url.yaml` :
 - name : 'Les outils du collectif GreenIT.fr'
   url : 'https://collectif.greenit.fr/outils.html'
   waitForSelector: '#header'
-  screenshot: 'screenshots/outils.png'
+  screenshot: 'output/screenshots/outils.png'
 
 # Analyse l'URL collectif.greenit.fr/index_en.html en spécifiant une condition d'attente via un XPath
 - url : 'https://collectif.greenit.fr/index_en.html'
@@ -348,7 +348,9 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   imageName
 ```
 
-Remarque : il faut définir la variable d'environnement `TZ` pour définir votre timezone afin d'afficher correctement les dates dans les rapports. Exemple de timezone : `TZ=Europe/Paris`.
+📝 Remarque : il faut définir la variable d'environnement `TZ` pour définir votre timezone afin d'afficher correctement les dates dans les rapports. Exemple de timezone : `TZ=Europe/Paris`.
+
+💡 Astuce : afin de consulter les captures d'écran prises par l'outil, vous pouvez soit les enregistrer dans le dossier `/app/output` et bénéficier ainsi du point de montage existant, soit créer un point de montage dédié aux captures d'écran.
 
 3. Récupérer les résultats dans votre dossier `/<path>/output`
 
