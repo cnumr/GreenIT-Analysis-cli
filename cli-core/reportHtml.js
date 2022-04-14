@@ -15,12 +15,7 @@ const cssBestPractices = {
 
 //create html report for all the analysed pages and recap on the first sheet
 async function create_html_report(reportObject,options){
-    //Path of the output file
     const OUTPUT_FILE = path.resolve(options.report_output_file);
-    if (!OUTPUT_FILE.toLowerCase().endsWith('.html')) {
-        throw ` report_output_file : File "${OUTPUT_FILE}" does not end with the ".html" extension.`
-    }
-
     const fileList = reportObject.reports;
     const globalReport = reportObject.globalReport;
 

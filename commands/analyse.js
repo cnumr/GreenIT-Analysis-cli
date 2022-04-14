@@ -36,6 +36,12 @@ async function analyse_core(options) {
         headers = readHeaders(options.headers);
     }
 
+    // Get and check report format
+    const reportFormat = getReportFormat(options.format, options.report_output_file);
+    if (!reportFormat) {
+        throw 'Format not supported. Use --format option or report file extension to define a supported extension.'
+    }
+
     //start browser
     const browser = await puppeteer.launch({
         headless: true,
@@ -70,7 +76,7 @@ async function analyse_core(options) {
     }
     //create report
     let reportObj = await create_global_report(reports, options);
-    if(options.format === 'html') {
+    if (reportFormat === 'html') {
         await create_html_report(reportObj, options);
     } else {
         await create_XLSX_report(reportObj, options);
@@ -101,6 +107,22 @@ function readHeaders(headersFile) {
         throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file.`
     }
     return headers;
+}
+
+function getReportFormat(format, filename) {
+    // Check if format is defined
+    const formats = ['xlsx', 'html'];
+    if (format && formats.includes(format.toLowerCase())) {
+        return format.toLowerCase();
+    }
+
+    // Else, check extension
+    const filenameLC = filename.toLowerCase();
+    const extensionFormat = formats.find(format => filenameLC.endsWith(`.${format}`));
+    if (extensionFormat) {
+        console.log(`No output format specified, defaulting to ${extensionFormat} based on output file name.`);
+    }
+    return extensionFormat;
 }
 
 //export method that handle error

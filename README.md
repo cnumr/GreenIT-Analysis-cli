@@ -313,7 +313,7 @@ Paramètres optionnels :
   password: "<password>"
   ```
 
-- `--format , -f` : Format du rapport. (Valeur par défaut : "xlsx")
+- `--format , -f` : Format du rapport. Ce paramètre est optionnel : s'il n'est pas défini, alors le format sera déduit en fonction de l'extension du fichier du rapport. Lorsqu'il est défini, le paramètre format est prioritaire vis-à-vis de l'extension.
 
 Choix :
 - xlsx 
@@ -389,7 +389,9 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
 
 #### Excel (xlsx)
 
-Prérequis : le fichier de sortie doit avoir l'extension `.xlsx`.
+Prérequis : 
+- Soit le paramètre suivant est définit : `--format=xlsx` ou `-f=xlsx`
+- Soit le fichier de sortie doit avoir l'extension `.xlsx`
 
 Exemple de commande : 
 
@@ -413,8 +415,9 @@ Exemple d'un rapport :
 #### HTML
 
 Prérequis : 
-- le fichier de sortie doit avoir l'extension `.html`
-- le paramètre `--format=html` ou `-f=html` doit être utilisé 
+Prérequis : 
+- Soit le paramètre suivant est définit : `--format=html` ou `-f=html`
+- Soit le fichier de sortie doit avoir l'extension `.html`
 
 Exemple de commande : 
 
