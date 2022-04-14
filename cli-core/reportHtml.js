@@ -46,11 +46,11 @@ async function create_html_report(reportObject,options){
 
     // write global report
     const templateEngine = new TemplateEngine.TemplateEngine(); 
-    writeGlobalReport(templateEngine, globalReportVariables, OUTPUT_FILE);
+    writeGlobalReport(templateEngine, globalReportVariables, OUTPUT_FILE, progressBar);
 
     // write all reports
     const outputFolder = path.dirname(OUTPUT_FILE);
-    writeAllReports(templateEngine, allReportsVariables, outputFolder)
+    writeAllReports(templateEngine, allReportsVariables, outputFolder, progressBar);
 }
 
 function readAllReports(fileList) {
@@ -161,21 +161,31 @@ function extractBestPractices(bestPracticesFromReport) {
     return bestPractices;
 }
 
-function writeGlobalReport(templateEngine, globalReportVariables, outputFile) {
+function writeGlobalReport(templateEngine, globalReportVariables, outputFile, progressBar) {
     templateEngine.processFile(path.join(__dirname, 'template/global.html'), globalReportVariables)
     .then(globalReportHtml => {
         fs.writeFileSync(outputFile, globalReportHtml);
+        if (progressBar){
+            progressBar.tick();
+        } else {
+            console.log(`Global report : ${outputFile} created`);
+        }
     })
     .catch(error => {
         console.log("Error while reading HTML global template : ", error)
     });
 }
 
-function writeAllReports(templateEngine, allReportsVariables, outputFolder) {
+function writeAllReports(templateEngine, allReportsVariables, outputFolder, progressBar) {
     allReportsVariables.forEach(reportVariables => {
         templateEngine.processFile(path.join(__dirname, 'template/page.html'), reportVariables)
         .then(singleReportHtml => {
             fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, singleReportHtml);
+            if (progressBar){
+                progressBar.tick();
+            } else {
+                console.log(`Single report : ${reportVariables.filename} created`);
+            }
         })
         .catch(error => {
             console.log(`Error while reading HTML template ${reportVariables.filename} : `, error)
