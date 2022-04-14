@@ -46,11 +46,15 @@ Pour cela, deux manières différentes de pouvoir l'utiliser :
 ```
 git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
 ```
-2. Installer les packages NPM :
+2. Se positionner dans le répertoire GreenIT-Analysis-cli :
+ ```
+ cd GreenIT-Analysis-cli
+ ```
+3. Installer les packages NPM :
 ```
 npm install
 ```
-3. Créer le lien symbolique pour faciliter l'usage de l'outil : 
+4. Créer le lien symbolique pour faciliter l'usage de l'outil : 
 ```
 npm link
 ```
@@ -82,7 +86,11 @@ npm link
  ```
  git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
  ```
-6. Construire l'image Docker : 
+6. Se positionner dans le répertoire GreenIT-Analysis-cli :
+ ```
+ cd GreenIT-Analysis-cli
+ ```
+7. Construire l'image Docker : 
  ```
  docker build -t imageName .
  ```
@@ -159,7 +167,7 @@ Exemple de fichier `url.yaml` :
 - name : 'Les outils du collectif GreenIT.fr'
   url : 'https://collectif.greenit.fr/outils.html'
   waitForSelector: '#header'
-  screenshot: 'screenshots/outils.png'
+  screenshot: 'output/screenshots/outils.png'
 
 # Analyse l'URL collectif.greenit.fr/index_en.html en spécifiant une condition d'attente via un XPath
 - url : 'https://collectif.greenit.fr/index_en.html'
@@ -256,7 +264,7 @@ Exemple :
 - name : 'Collectif GreenIT.fr écoindex'
   url : 'https://collectif.greenit.fr/'
   actions:
-    - name : 'Remplir l'email dans le formulaire de contact'
+    - name : "Remplir l'email dans le formulaire de contact"
       type : 'text'
       element: '#form_email'
       content: 'john.doe@mail.com'
@@ -340,7 +348,9 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   imageName
 ```
 
-Remarque : il faut définir la variable d'environnement `TZ` pour définir votre timezone afin d'afficher correctement les dates dans les rapports. Exemple de timezone : `TZ=Europe/Paris`.
+📝 Remarque : il faut définir la variable d'environnement `TZ` pour définir votre timezone afin d'afficher correctement les dates dans les rapports. Exemple de timezone : `TZ=Europe/Paris`.
+
+💡 Astuce : afin de consulter les captures d'écran prises par l'outil, vous pouvez soit les enregistrer dans le dossier `/app/output` et bénéficier ainsi du point de montage existant, soit créer un point de montage dédié aux captures d'écran.
 
 3. Récupérer les résultats dans votre dossier `/<path>/output`
 
