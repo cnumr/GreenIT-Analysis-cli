@@ -61,8 +61,7 @@ yargs(hideBin(process.argv))
       .option('format', {
         alias: 'f',
         type: 'string',
-        description: 'Report format : Possible choices : excel (default), html',
-        default: 'excel'
+        description: 'Report format : Possible choices : xlsx (excel), html'
       })
       .option('headers', {
         alias: 'h',

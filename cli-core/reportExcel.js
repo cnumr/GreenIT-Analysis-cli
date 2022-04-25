@@ -5,12 +5,7 @@ const ProgressBar = require('progress');
 
 //create xlsx report for all the analysed pages and recap on the first sheet
 async function create_XLSX_report(reportObject, options){
-    //Path of the output file
     const OUTPUT_FILE = path.resolve(options.report_output_file);
-    if (!OUTPUT_FILE.toLowerCase().endsWith('.xlsx')) {
-        throw ` report_output_file : File "${OUTPUT_FILE}" does not end with the ".xlsx" extension.`
-    }
-
     const fileList = reportObject.reports;
     const globalReport = reportObject.globalReport;
 
