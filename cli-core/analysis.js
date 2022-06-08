@@ -53,16 +53,9 @@ async function analyseURL(browser, pageInformations, options) {
             }
         }
 
-        try {
-            if (pageInformations.actions) {
-                // Execute actions on page (click, text, ...)
-                await startActions(page, pageInformations.actions, TIMEOUT);
-            }
-        } finally {
-            // Take screenshot (even if the action fails)
-            if (pageInformations.actions && pageInformations.actions.screenshot) {
-                await takeScreenshot(page, pageInformations.actions.screenshot);
-            }
+        if (pageInformations.actions) {
+            // Execute actions on page (click, text, ...)
+            await startActions(page, pageInformations.actions, TIMEOUT);
         }
 
         let harObj = await pptrHar.stop();
