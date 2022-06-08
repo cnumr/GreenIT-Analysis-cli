@@ -142,22 +142,30 @@ async function startActions(page, actions, TIMEOUT) {
             await page.waitForTimeout(timeout);
         }
 
-        if (action.type === "click") {
-            await page.click(action.element);
-            await waitPageLoading(page, action, TIMEOUT);
-        } else if (action.type === "text") {
-            await page.type(action.element, action.content, {delay: 100});
-            await waitPageLoading(page, action, TIMEOUT);
-        } else if (action.type === "select") {
-            let args = [action.element].concat(action.values);
-            // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
-            await page.select.apply(page, args);
-            await waitPageLoading(page, action, TIMEOUT);
-        } else if (action.type === "scroll") {
-            await scrollToBottom(page);
-            await waitPageLoading(page, action, TIMEOUT);
-        } else {
-            console.log("Unknown action for '" + actionName + "' : " + action.type);
+        try {
+            if (action.type === "click") {
+                await page.click(action.element);
+                await waitPageLoading(page, action, TIMEOUT);
+            } else if (action.type === "text") {
+                await page.type(action.element, action.content, {delay: 100});
+                await waitPageLoading(page, action, TIMEOUT);
+            } else if (action.type === "select") {
+                let args = [action.element].concat(action.values);
+                // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
+                await page.select.apply(page, args);
+                await waitPageLoading(page, action, TIMEOUT);
+            } else if (action.type === "scroll") {
+                await scrollToBottom(page);
+                await waitPageLoading(page, action, TIMEOUT);
+            } else {
+                console.log("Unknown action for '" + actionName + "' : " + action.type);
+            }
+        } catch (e) {
+            throw e;
+        } finally {
+            if (action.screenshot) {
+                await takeScreenshot(page, action.screenshot);
+            }
         }
     }
 }
