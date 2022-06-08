@@ -188,8 +188,9 @@ Il est possible de définir une liste d'actions à travers le champ `actions` qu
 | `waitForSelector`   | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible         |
 | `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible                 |
 | `waitForNavigation` | string | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+| `screenshot`       | string | Non         | Réalise une capture d'écran de la page, après avoir réalisé l'action. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si l'action est en erreur. |
 
-Les conditions de type `waitFor` peuvent être réutilisées afin de définir une condition d'attente après l'exécution de l'action. Elles restent optionnelles.
+Les conditions de type `waitFor` peuvent être réutilisées afin de définir une condition d'attente après l'exécution de l'action. Elles restent optionnelles. La capture d'écran, le cas échéant, est réalisé après cette condition d'attente.
 
 Des paramètres supplémentaires peuvent être nécessaires selon le type de l'action.
 
