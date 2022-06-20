@@ -1,0 +1,44 @@
+services:  
+  greenit-cli-influxdb:
+    image: ${INFLUXDB_IMAGE_VERSION}
+    container_name: greenit-cli-influxdb
+    ports:
+      - '8086:8086'
+    volumes:
+      - greenit-cli-influxdb-storage:/var/lib/influxdb2
+      - ./influxdb/queries:/home/queries:rw
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG_NAME}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET_NAME}
+      - DOCKER_INFLUXDB_INIT_RETENTION=${INFLUXDB_RETENTION}
+
+  greenit-cli-grafana:
+    container_name: greenit-cli-grafana
+    image: ${GRAFANA_IMAGE_VERSION}
+    ports:
+      - '3000:3000'
+    volumes:
+      - greenit-cli-grafana-storage:/var/lib/grafana
+      - ./grafana-provisioning/:/etc/grafana/provisioning
+    depends_on:
+      - greenit-cli-influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - INFLUXDB_ORG_ID=${INFLUXDB_ORG_ID}
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
+      - INFLUXDB_BUCKET_NAME=${INFLUXDB_BUCKET_NAME}
+      - INFLUXDB_HOST=${INFLUXDB_HOST}
+      - INFLUXDB_PORT=${INFLUXDB_PORT}
+
+volumes:
+  greenit-cli-influxdb-storage:
+    driver: local
+  greenit-cli-grafana-storage:
+    driver: local
