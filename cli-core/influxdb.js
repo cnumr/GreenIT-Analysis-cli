@@ -46,6 +46,7 @@ async function write(reports, options) {
         let obj = JSON.parse(fs.readFileSync(file.path).toString());
         let hostname = obj.url.split('/')[2]
         let point = new Point("eco_index")
+            .tag("pageName", obj.pageInformations.name)
             .tag("hostname", hostname)
             .stringField("url", obj.url)
             .stringField("hostname", hostname)
