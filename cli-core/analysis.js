@@ -153,8 +153,6 @@ async function startActions(page, actions, TIMEOUT) {
             } else {
                 console.log("Unknown action for '" + actionName + "' : " + action.type);
             }
-        } catch (e) {
-            throw e;
         } finally {
             if (action.screenshot) {
                 await takeScreenshot(page, action.screenshot);
