@@ -68,6 +68,22 @@ yargs(hideBin(process.argv))
         type: 'string',
         description: 'Headers HTTP to configure to analyze url',
       })
+      .option('influxdb', {
+        type: 'boolean',
+        description: 'Write result in influxdb'
+      })
+      .option('influxdb_hostname', {
+        type: 'string'
+      })
+      .option('influxdb_bucket', {
+        type: 'string'
+      })
+      .option('influxdb_token', {
+        type: 'string'
+      })
+      .option('influxdb_org', {
+        type: 'string'
+      })
   }, (argv) => {
       require("./commands/analyse.js")(argv)
   })

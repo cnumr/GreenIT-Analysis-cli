@@ -336,6 +336,12 @@ Choix :
   accept-language: 'en-US,en;q=0.9,en;q=0.8'
   ```
 
+- `--influxdb` : Active l'écriture des données dans une base influxdb
+- `--influxdb_hostname` : URL de la base influxdb
+- `--influxdb_org` : Nom de l'organisation influxdb
+- `--influxdb_token` : Token de connexion pour influxdb
+- `--influxdb_bucket` : Bucket infludb sur lequel envoyer les données
+
 ### Usage avec Docker
 1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
 2. Lancer l'analyse :
@@ -447,6 +453,15 @@ Exemple d'un rapport :
 - Page pour une URL analysée :
 
 ![Page d'une URL analysée dans le rapport HTML](./docs/rapport-html-detail-page.png)
+
+### InfluxDB
+
+Les données seront envoyés sur influxdb en plus du rapport.
+
+Exemple d'usage :
+```shell
+greenit analyse exampleUrl.yaml --influxdb --influxdb_hostname http://localhost:8086 --influxdb_org organisation --influxdb_token token --influxdb_bucket db0
+```
 
 ## ParseSiteMap
 
