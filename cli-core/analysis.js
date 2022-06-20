@@ -53,16 +53,9 @@ async function analyseURL(browser, pageInformations, options) {
             }
         }
 
-        try {
-            if (pageInformations.actions) {
-                // Execute actions on page (click, text, ...)
-                await startActions(page, pageInformations.actions, TIMEOUT);
-            }
-        } finally {
-            // Take screenshot (even if the action fails)
-            if (pageInformations.actions && pageInformations.actions.screenshot) {
-                await takeScreenshot(page, pageInformations.actions.screenshot);
-            }
+        if (pageInformations.actions) {
+            // Execute actions on page (click, text, ...)
+            await startActions(page, pageInformations.actions, TIMEOUT);
         }
 
         let harObj = await pptrHar.stop();
@@ -142,22 +135,28 @@ async function startActions(page, actions, TIMEOUT) {
             await page.waitForTimeout(timeout);
         }
 
-        if (action.type === "click") {
-            await page.click(action.element);
-            await waitPageLoading(page, action, TIMEOUT);
-        } else if (action.type === "text") {
-            await page.type(action.element, action.content, {delay: 100});
-            await waitPageLoading(page, action, TIMEOUT);
-        } else if (action.type === "select") {
-            let args = [action.element].concat(action.values);
-            // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
-            await page.select.apply(page, args);
-            await waitPageLoading(page, action, TIMEOUT);
-        } else if (action.type === "scroll") {
-            await scrollToBottom(page);
-            await waitPageLoading(page, action, TIMEOUT);
-        } else {
-            console.log("Unknown action for '" + actionName + "' : " + action.type);
+        try {
+            if (action.type === "click") {
+                await page.click(action.element);
+                await waitPageLoading(page, action, TIMEOUT);
+            } else if (action.type === "text") {
+                await page.type(action.element, action.content, {delay: 100});
+                await waitPageLoading(page, action, TIMEOUT);
+            } else if (action.type === "select") {
+                let args = [action.element].concat(action.values);
+                // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
+                await page.select.apply(page, args);
+                await waitPageLoading(page, action, TIMEOUT);
+            } else if (action.type === "scroll") {
+                await scrollToBottom(page);
+                await waitPageLoading(page, action, TIMEOUT);
+            } else {
+                console.log("Unknown action for '" + actionName + "' : " + action.type);
+            }
+        } finally {
+            if (action.screenshot) {
+                await takeScreenshot(page, action.screenshot);
+            }
         }
     }
 }
