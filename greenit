@@ -61,16 +61,12 @@ yargs(hideBin(process.argv))
       .option('format', {
         alias: 'f',
         type: 'string',
-        description: 'Report format : Possible choices : xlsx (excel), html'
+        description: 'Report format : Possible choices : xlsx (excel), html, influxdb'
       })
       .option('headers', {
         alias: 'h',
         type: 'string',
         description: 'Headers HTTP to configure to analyze url',
-      })
-      .option('influxdb', {
-        type: 'boolean',
-        description: 'Write result in influxdb'
       })
       .option('influxdb_hostname', {
         type: 'string'
