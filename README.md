@@ -458,10 +458,20 @@ Exemple d'un rapport :
 
 Les données seront envoyés sur influxdb en plus du rapport.
 
+Un docker-compose avec un exemple de configuration d'influxdb et de grafana est présent dans le projet. Lors de la première utilisation, quelques étapes de mise en place sont nécessaires :
+- Changer les couples nom d'utilisateur/mot de passe dans le fichier .env (optionel) ;
+- Démarrer le conteneur influxdb : `docker-compose up greenit-cli-influxdb` ;
+- Se connecter à influxdb (`http://localhost:8086` par défault) pour récupérer l'id de l'organisation (dans l'url après la connexion `http://localhost:8086/orgs/<org id>`) et le token de connection (data -> API Token), et renseigner les variables d'environnement correspondantes ;
+- Il est ensuite possible de démarrer le conteneur grafana et d'envoyer les données sur influxdb. 
+
+Ces étapes ne seront pas nécessaire à nouveau. Il faudra toutefois redémarrer au moins le conteneur influxdb avant un test.
+
 Exemple d'usage :
 ```shell
-greenit analyse exampleUrl.yaml --influxdb --influxdb_hostname http://localhost:8086 --influxdb_org organisation --influxdb_token token --influxdb_bucket db0
+greenit analyse exampleUrl.yaml results.html --influxdb --influxdb_hostname http://localhost:8086 --influxdb_org organisation --influxdb_token token --influxdb_bucket db0
 ```
+Exemple de dashboard grafana (l'url testée est celle du site d'[ecoindex](http://ecoindex.fr/))
+![Page d'une URL analysée dans le rapport HTML](./docs/grafana-dashboard.png)
 
 ## ParseSiteMap
 

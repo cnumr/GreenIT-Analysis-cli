@@ -1,7 +1,7 @@
 services:  
   greenit-cli-influxdb:
     image: ${INFLUXDB_IMAGE_VERSION}
-    container_name: greenit-cli-influxdb
+    container_name: ${INFLUXDB_HOST}
     ports:
       - '8086:8086'
     volumes:
