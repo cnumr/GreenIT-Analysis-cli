@@ -328,6 +328,7 @@ Paramètres optionnels :
 Choix :
 - xlsx 
 - html
+- influxdb
 
 - `--headers , -h` : Chemin vers le fichier YAML contenant les headers HTTP configurés pour accéder aux URL à analyser.
 
@@ -337,6 +338,12 @@ Choix :
   accept-encoding: 'gzip, deflate, br'
   accept-language: 'en-US,en;q=0.9,en;q=0.8'
   ```
+
+- `--influxdb` : Active l'écriture des données dans une base influxdb
+- `--influxdb_hostname` : URL de la base influxdb
+- `--influxdb_org` : Nom de l'organisation influxdb
+- `--influxdb_token` : Token de connexion pour influxdb
+- `--influxdb_bucket` : Bucket infludb sur lequel envoyer les données
 
 ### Usage avec Docker
 1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
@@ -449,6 +456,27 @@ Exemple d'un rapport :
 - Page pour une URL analysée :
 
 ![Page d'une URL analysée dans le rapport HTML](./docs/rapport-html-detail-page.png)
+
+#### InfluxDB
+Prérequis : 
+- Le paramètre suivant est définit : `--format=influxdb` ou `-f=influxdb`
+
+Les données seront envoyés sur influxdb.
+
+Un docker-compose avec un exemple de configuration d'influxdb et de grafana est présent dans le projet. Lors de la première utilisation, quelques étapes de mise en place sont nécessaires :
+- Changer les couples nom d'utilisateur/mot de passe dans le fichier .env (optionel) ;
+- Démarrer le conteneur influxdb : `docker-compose up greenit-cli-influxdb` ;
+- Se connecter à influxdb (`http://localhost:8086` par défault) pour récupérer l'id de l'organisation (dans l'url après la connexion `http://localhost:8086/orgs/<org id>`) et le token de connection (data -> API Token), et renseigner les variables d'environnement correspondantes ;
+- Il est ensuite possible de démarrer le conteneur grafana et d'envoyer les données sur influxdb. 
+
+Ces étapes ne seront pas nécessaire à nouveau. Il faudra toutefois redémarrer au moins le conteneur influxdb avant un test.
+
+Exemple d'usage :
+```shell
+greenit analyse exampleUrl.yaml --format=influxdb --influxdb_hostname http://localhost:8086 --influxdb_org organisation --influxdb_token token --influxdb_bucket db0
+```
+Exemple de dashboard grafana (l'url testée est celle du site d'[ecoindex](http://ecoindex.fr/))
+![Page d'une URL analysée dans le rapport HTML](./docs/grafana-dashboard.png)
 
 ## ParseSiteMap
 

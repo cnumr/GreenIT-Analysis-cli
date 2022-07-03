@@ -61,12 +61,24 @@ yargs(hideBin(process.argv))
       .option('format', {
         alias: 'f',
         type: 'string',
-        description: 'Report format : Possible choices : xlsx (excel), html'
+        description: 'Report format : Possible choices : xlsx (excel), html, influxdb'
       })
       .option('headers', {
         alias: 'h',
         type: 'string',
         description: 'Headers HTTP to configure to analyze url',
+      })
+      .option('influxdb_hostname', {
+        type: 'string'
+      })
+      .option('influxdb_bucket', {
+        type: 'string'
+      })
+      .option('influxdb_token', {
+        type: 'string'
+      })
+      .option('influxdb_org', {
+        type: 'string'
       })
   }, (argv) => {
       require("./commands/analyse.js")(argv)

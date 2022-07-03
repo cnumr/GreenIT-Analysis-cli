@@ -1,0 +1,13 @@
+apiVersion: 1
+datasources:
+  - name: InfluxDB2
+    type: influxdb
+    access: proxy
+    url: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
+    secureJsonData:
+      token: ${INFLUXDB_TOKEN}
+    jsonData:
+      version: Flux
+      organization: ${INFLUXDB_ORG_ID}
+      defaultBucket: ${INFLUXDB_BUCKET_NAME}
+    editable: true
