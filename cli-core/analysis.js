@@ -258,7 +258,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
 
     //create directory for subresults
     if (fs.existsSync(SUBRESULTS_DIRECTORY)){
-        fs.rmdirSync(SUBRESULTS_DIRECTORY, { recursive: true });
+        fs.rmSync(SUBRESULTS_DIRECTORY, { recursive: true });
     }
     fs.mkdirSync(SUBRESULTS_DIRECTORY);
     //Asynchronous analysis with MAX_TAB open simultaneously to json
