@@ -78,7 +78,7 @@ async function analyse_core(options) {
         await browser.close()
     }
     //create report
-    let reportObj = await create_global_report(reports, options);
+    let reportObj = await create_global_report(reports, {...options, proxy});
     if (reportFormat === 'html') {
         await create_html_report(reportObj, options);
     } else if (reportFormat === 'influxdb') {
