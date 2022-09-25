@@ -95,9 +95,22 @@ async function create_global_report(reports,options){
         }
         if (progressBar) progressBar.tick()
     })
-    //Add info the the recap sheet
+
+    let proxy = null;
+    if (options.proxy?.server) {
+        const { protocol, hostname: host, port } = new URL(options.proxy.server);
+        const { user, password } = options.proxy;
+        const auth = user && password ? { username: user, password } : undefined;
+        proxy = {
+            protocol: protocol.slice(0,-1),
+            host,
+            port,
+            auth
+        };
+    }
+    //Add info the recap sheet
     //Prepare data
-    const isMobile = (await axios.get('http://ip-api.com/json/?fields=mobile')).data.mobile //get connection type
+    const isMobile = (await axios.get('http://ip-api.com/json/?fields=mobile',{proxy})).data.mobile //get connection type
     const date = new Date();
     eco = (reports.length-err.length != 0)? Math.round(eco / (reports.length-err.length)) : "No data"; //Average EcoIndex
     let grade = getEcoIndexGrade(eco)

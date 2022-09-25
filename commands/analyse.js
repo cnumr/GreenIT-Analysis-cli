@@ -29,6 +29,10 @@ async function analyse_core(options) {
     let proxy = {};
     if(options.proxy) {
         proxy = readProxy(options.proxy);
+        browserArgs.push(`--proxy-server=${proxy.server}`);
+        if(proxy.bypass){
+            browserArgs.push(`--proxy-bypass-list=${proxy.bypass}`);
+        }
     }
 
     // Read headers http file
@@ -74,7 +78,7 @@ async function analyse_core(options) {
         await browser.close()
     }
     //create report
-    let reportObj = await create_global_report(reports, options);
+    let reportObj = await create_global_report(reports, {...options, proxy});
     if (reportFormat === 'html') {
         await create_html_report(reportObj, options);
     } else if (reportFormat === 'influxdb') {
@@ -94,7 +98,6 @@ function readProxy(proxyFile) {
         if (!proxy.server || !proxy.user || !proxy.password) {
             throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`
         }
-        browserArgs.push(`--proxy-server=${proxy.server}`);
     } catch (error) {
         throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file.`
     }
