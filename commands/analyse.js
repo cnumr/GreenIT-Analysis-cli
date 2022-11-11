@@ -17,7 +17,7 @@ async function analyse_core(options) {
     try {
         pagesInformations = YAML.parse(fs.readFileSync(URL_YAML_FILE).toString());
     } catch (error) {
-        throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file.`
+        throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
     }
 
     let browserArgs = [
@@ -66,7 +66,7 @@ async function analyse_core(options) {
             try {
                 loginInfos = YAML.parse(fs.readFileSync(LOGIN_YAML_FILE).toString());
             } catch (error) {
-                throw ` --login : "${LOGIN_YAML_FILE}" is not a valid YAML file.`
+                throw ` --login : "${LOGIN_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
             }
             //console.log(loginInfos)
             await login(browser, loginInfos, options)
@@ -99,7 +99,7 @@ function readProxy(proxyFile) {
             throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`
         }
     } catch (error) {
-        throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file.`
+        throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
     }
     return proxy;
 }
@@ -110,7 +110,7 @@ function readHeaders(headersFile) {
     try {
         headers = YAML.parse(fs.readFileSync(HEADERS_YAML_FILE).toString());
     } catch (error) {
-        throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file.`
+        throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
     }
     return headers;
 }
