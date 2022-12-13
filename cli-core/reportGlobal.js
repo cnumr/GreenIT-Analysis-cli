@@ -110,7 +110,12 @@ async function create_global_report(reports,options){
     }
     //Add info the recap sheet
     //Prepare data
-    const isMobile = (await axios.get('http://ip-api.com/json/?fields=mobile',{proxy})).data.mobile //get connection type
+    let isMobile = (DEVICE !== "desktop");
+    try {
+        isMobile = (await axios.get('http://ip-api.com/json/?fields=mobile',{proxy}))?.data?.mobile ?? isMobile //get connection type
+    } catch (error) {
+        console.error(`WARN - Unable to get the connection type from http://ip-api.com (default value for isMobile will be: ${isMobile}): ${error}`)
+    }
     const date = new Date();
     eco = (reports.length-err.length != 0)? Math.round(eco / (reports.length-err.length)) : "No data"; //Average EcoIndex
     let grade = getEcoIndexGrade(eco)
@@ -132,6 +137,7 @@ async function create_global_report(reports,options){
     };
     
     if (progressBar) progressBar.tick()
+
     //save report
     let filePath = path.join(SUBRESULTS_DIRECTORY,"globalReport.json");
     try {
