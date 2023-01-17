@@ -458,20 +458,26 @@ Exemple d'un rapport :
 ![Page d'une URL analysée dans le rapport HTML](./docs/rapport-html-detail-page.png)
 
 #### InfluxDB
-Prérequis : 
-- Le paramètre suivant est définit : `--format=influxdb` ou `-f=influxdb`
 
-Les données seront envoyés sur influxdb.
+Prérequis :
 
-Un docker-compose avec un exemple de configuration d'influxdb et de grafana est présent dans le projet. Lors de la première utilisation, quelques étapes de mise en place sont nécessaires :
+- Le paramètre suivant est défini : `--format=influxdb` ou `-f=influxdb`
+
+Les données seront envoyées sur influxdb.
+
+Un `docker-compose.yml` avec un exemple de configuration d'influxdb et de grafana est présent dans le projet.
+Lors de la première utilisation, quelques étapes de mise en place sont nécessaires :
+
 - Changer les couples nom d'utilisateur/mot de passe dans le fichier .env (optionel) ;
-- Démarrer le conteneur influxdb : `docker-compose up greenit-cli-influxdb` ;
+- Démarrer le conteneur influxdb : `docker compose up greenit-cli-influxdb` ;
 - Se connecter à influxdb (`http://localhost:8086` par défault) pour récupérer l'id de l'organisation (dans l'url après la connexion `http://localhost:8086/orgs/<org id>`) et le token de connection (data -> API Token), et renseigner les variables d'environnement correspondantes ;
 - Il est ensuite possible de démarrer le conteneur grafana et d'envoyer les données sur influxdb. 
 
-Ces étapes ne seront pas nécessaire à nouveau. Il faudra toutefois redémarrer au moins le conteneur influxdb avant un test.
+Ces étapes ne seront pas nécessaires à nouveau.
+Il faudra toutefois redémarrer au moins le conteneur influxdb avant un test.
 
 Exemple d'usage :
+
 ```shell
 greenit analyse exampleUrl.yaml --format=influxdb --influxdb_hostname http://localhost:8086 --influxdb_org organisation --influxdb_token token --influxdb_bucket db0
 ```
@@ -480,11 +486,12 @@ Exemple de dashboard grafana (l'url testée est celle du site d'[ecoindex](http:
 
 ## ParseSiteMap
 
-```
+```sh
 greenit parseSitemap <sitemap_url> <yaml_output_file>
 ```
 
 Paramètres obligatoires :
+
 - `sitemap_url` : URL de la sitemap à transformer.
 - `yaml_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "url.yaml")
 
