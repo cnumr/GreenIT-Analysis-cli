@@ -80,6 +80,11 @@ yargs(hideBin(process.argv))
       .option('influxdb_org', {
         type: 'string'
       })
+      .option('headless', {
+        type: 'boolean',
+        description: 'Option to enable or disable web browser headless mode',
+        default: true
+      })
   }, (argv) => {
       require("./commands/analyse.js")(argv)
   })

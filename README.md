@@ -344,6 +344,7 @@ Choix :
 - `--influxdb_org` : Nom de l'organisation influxdb
 - `--influxdb_token` : Token de connexion pour influxdb
 - `--influxdb_bucket` : Bucket infludb sur lequel envoyer les données
+- `--headless` : Paramètre permettant d'activer ou de désactiver le mode headless. Lorsque ce mode est désactivé, cela permet de visualiser l'automatisation des actions dans le navigateur. Valeurs possibles : [`true`, `false`]. Valeur par défaut : `true`.
 
 ### Usage avec Docker
 1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
