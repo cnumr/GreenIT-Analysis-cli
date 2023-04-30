@@ -92,7 +92,11 @@ npm link
  ```
 7. Construire l'image Docker :
  ```
- docker build -t imageName .
+ docker build -t greenit-analysis-cli .
+ ```
+⚠️ Si vous êtes sur MacOS, vous devez lancer la commande avec l'option `--platform=linux/amd64` :
+ ```
+ docker build --platform=linux/amd64 -t greenit-analysis-cli .
  ```
 
 ### Configurer un proxy
@@ -118,7 +122,7 @@ ENV NO_PROXY=$no_proxy
 
 Exemple :
 ```
-docker build -t imageName \
+docker build -t greenit-analysis-cli \
   --build-arg http_proxy=http://<user>:<password>@<host>:<port> \
   --build-arg https_proxy=https://<user>:<password>@<host>:<port> \
   --build-arg no_proxy=<no_proxy> \
@@ -358,8 +362,8 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
   -e TZ=<timezone> \
-  --name containerName \
-  imageName
+  --name GreenIT-Analysis \
+  greenit-analysis-cli
 ```
 
 📝 Remarque : il faut définir la variable d'environnement `TZ` pour définir votre timezone afin d'afficher correctement les dates dans les rapports. Exemple de timezone : `TZ=Europe/Paris`.
@@ -379,8 +383,8 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   -e TZ=<timezone> \
   -e "URL_PATH=/app/input/myapp_url.yaml" \
   -e "RESULTS_PATH=/app/output/results_20210101.xlsx" \
-  --name containerName \
-  imageName
+  --name GreenIT-Analysis \
+  greenit-analysis-cli
 ```
 
 #### Surcharger l'instruction CMD définie dans le Dockerfile
@@ -392,8 +396,8 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
   -e TZ=<timezone> \
-  --name containerName \
-  imageName \
+  --name GreenIT-Analysis \
+  greenit-analysis-cli \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --max_tab=1 --timeout=15000 --retry=5
 ```
 
@@ -404,8 +408,8 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
   -v /<path>/output:/app/output  \
   -e TZ=<timezone> \
-  --name containerName \
-  imageName \
+  --name GreenIT-Analysis \
+  greenit-analysis-cli \
   greenit analyse /app/input/url.yaml /app/output/results.xlsx --proxy=/app/input/proxy.yaml
 ```
 
