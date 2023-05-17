@@ -22,7 +22,8 @@ async function analyse_core(options) {
 
     let browserArgs = [
         "--no-sandbox",                 // can't run inside docker without
-        "--disable-setuid-sandbox"      // but security issues
+        "--disable-setuid-sandbox",     // but security issues
+        "--single-process"
     ]
 
     // Add proxy conf in browserArgs
@@ -87,7 +88,7 @@ async function analyse_core(options) {
     else {
         await create_XLSX_report(reportObj, options);
     }
-    
+
 }
 
 function readProxy(proxyFile) {
