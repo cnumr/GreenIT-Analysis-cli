@@ -85,6 +85,11 @@ yargs(hideBin(process.argv))
         description: 'Option to enable or disable web browser headless mode',
         default: true
       })
+      .option('chrome_flags', {
+        type: 'array',
+        description: 'Additional Chrome flags. Example: --chrome-flags="--flag1 --flag2"',
+        default: []
+      })
   }, (argv) => {
       require("./commands/analyse.js")(argv)
   })

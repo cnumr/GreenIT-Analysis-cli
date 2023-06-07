@@ -20,11 +20,11 @@ async function analyse_core(options) {
         throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
     }
 
+    let additionalArgs = String(options.chrome_flags).split(" ");
     let browserArgs = [
         "--no-sandbox",                 // can't run inside docker without
         "--disable-setuid-sandbox",     // but security issues
-        "--single-process"
-    ]
+    ].concat(additionalArgs);
 
     // Add proxy conf in browserArgs
     let proxy = {};
