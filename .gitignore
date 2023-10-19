@@ -7,3 +7,5 @@ results_test/
 *.xlsx
 *.yaml
 !docker-compose.yaml
+/outputs/
+package-lock.json

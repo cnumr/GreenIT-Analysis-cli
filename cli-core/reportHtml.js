@@ -1,207 +1,366 @@
+module.exports = {
+  create_html_report,
+};
 const fs = require('fs');
 const path = require('path');
 const ProgressBar = require('progress');
-const TemplateEngine = require('thymeleaf');
+const Mustache = require('mustache');
 const translator = require('./translator.js').translator;
+
+const rules = require('../conf/rules')
+const config = require('../conf/config');
+const utils = require('./utils');
 
 /**
  * Css class best practices
  */
 const cssBestPractices = {
-    A : 'checkmark-success',
-    B : 'close-warning',
-    C : 'close-error'
-}
+  A: 'checkmark-success',
+  B: 'close-warning',
+  C: 'close-error'
+};
+const bestPracticesKey = [
+  { name: 'AddExpiresOrCacheControlHeaders' },
+  { name: 'CompressHttp' },
+  { name: 'DomainsNumber' },
+  { name: 'DontResizeImageInBrowser' },
+  { name: 'EmptySrcTag' },
+  { name: 'ExternalizeCss' },
+  { name: 'ExternalizeJs' },
+  { name: 'HttpError' },
+  { name: 'HttpRequests' },
+  { name: 'ImageDownloadedNotDisplayed' },
+  { name: 'JsValidate' },
+  { name: 'MaxCookiesLength' },
+  { name: 'MinifiedCss' },
+  { name: 'MinifiedJs' },
+  { name: 'NoCookieForStaticRessources' },
+  { name: 'NoRedirect' },
+  { name: 'OptimizeBitmapImages' },
+  { name: 'OptimizeSvg' },
+  { name: 'Plugins' },
+  { name: 'PrintStyleSheet' },
+  { name: 'SocialNetworkButton' },
+  { name: 'StyleSheets' },
+  { name: 'UseETags' },
+  { name: 'UseStandardTypefaces' },
+];
 
 //create html report for all the analysed pages and recap on the first sheet
-async function create_html_report(reportObject,options){
-    const OUTPUT_FILE = path.resolve(options.report_output_file);
-    const fileList = reportObject.reports;
-    const globalReport = reportObject.globalReport;
+async function create_html_report(reportObject, options) {
+  const OUTPUT_FILE = path.resolve(options.report_output_file);
+  const fileList = reportObject.reports;
+  const globalReport = reportObject.globalReport;
 
-    //initialise progress bar
-    let progressBar;
-    if (!options.ci){
-        progressBar = new ProgressBar(' Create HTML report       [:bar] :percent     Remaining: :etas     Time: :elapseds', {
-            complete: '=',
-            incomplete: ' ',
-            width: 40,
-            total: fileList.length+2
-        });
-        progressBar.tick()
-    } else {
-        console.log('Creating HTML report ...');
-    }
-    
-    // Read all reports
-    const allReportsVariables = readAllReports(fileList);
+  //initialise progress bar
+  const progressBar = utils.createProgressBar(options, fileList.length + 2, 'Create HTML report', 'Creating HTML report ...');
 
-    // Read global report
-    const globalReportVariables = readGlobalReport(globalReport.path, allReportsVariables);
+  // Read all reports
+  const { allReportsVariables, waterTotal, greenhouseGasesEmissionTotal } = readAllReports(fileList);
 
-    // write global report
-    const templateEngine = new TemplateEngine.TemplateEngine(); 
-    writeGlobalReport(templateEngine, globalReportVariables, OUTPUT_FILE, progressBar);
+  // Read global report
+  const globalReportVariables = readGlobalReport(globalReport.path,
+    allReportsVariables,
+    waterTotal,
+    greenhouseGasesEmissionTotal
+  );
 
-    // write all reports
-    const outputFolder = path.dirname(OUTPUT_FILE);
-    writeAllReports(templateEngine, allReportsVariables, outputFolder, progressBar);
+  // write global report
+  writeGlobalReport(globalReportVariables, OUTPUT_FILE, progressBar);
+
+  // write all reports
+  const outputFolder = path.dirname(OUTPUT_FILE);
+  writeAllReports(allReportsVariables, outputFolder, progressBar);
 }
 
+/**
+ * Use all reports to generate global and detail data
+ * @param {*} fileList 
+ * @returns 
+ */
 function readAllReports(fileList) {
-    let allReportsVariables = [];
-    let reportVariables = {};
-    fileList.forEach((file)=>{
-        let report_data = JSON.parse(fs.readFileSync(file.path).toString());
-        const pageName = report_data.pageInformations.name || report_data.pageInformations.url;
-        const pageFilename = report_data.pageInformations.name ? `${removeForbiddenCharacters(report_data.pageInformations.name)}.html` : `${report_data.index}.html`;
+  // init variables
+  let allReportsVariables = [];
+  let waterTotal = 0;
+  let greenhouseGasesEmissionTotal = 0;
 
-        if (report_data.success) {
-            let bestPractices = extractBestPractices(report_data.bestPractices);
-            reportVariables = {
-                date: report_data.date,
-                success: report_data.success,
-                cssRowError: '',
-                name: pageName,
-                link: `<a href="${pageFilename}">${pageName}</a>`,
-                filename: pageFilename,
-                header: `GreenIT-Analysis report > <a class="text-white" href="${report_data.pageInformations.url}">${pageName}</a>`,
-                bigEcoIndex: `${report_data.ecoIndex} <span class="grade big-grade ${report_data.grade}">${report_data.grade}</span>`,
-                smallEcoIndex: `${report_data.ecoIndex} <span class="grade ${report_data.grade}">${report_data.grade}</span>`,
-                grade: report_data.grade,
-                waterConsumption: report_data.waterConsumption,
-                greenhouseGasesEmission: report_data.greenhouseGasesEmission,
-                nbRequest: report_data.nbRequest,
-                pageSize: `${Math.round(report_data.responsesSize / 1000)} (${Math.round(report_data.responsesSizeUncompress / 1000)})`,
-                domSize: report_data.domSize,
-                nbBestPracticesToCorrect: report_data.nbBestPracticesToCorrect,
-                bestPractices
-            };
+  // Read all json files
+  fileList.forEach((file) => {
+    let reportVariables = {};
+    let report_data = JSON.parse(fs.readFileSync(file.path).toString());
+    const pageName =
+      report_data.pageInformations.name || report_data.pageInformations.url;
+    const pageFilename = report_data.pageInformations.name
+      ? `${removeForbiddenCharacters(report_data.pageInformations.name)}.html`
+      : `${report_data.index}.html`;
+
+    if (report_data.success) {
+      const pageBestPractices = extractBestPractices();
+
+      // Manage best practices
+      let page = [{ name: pageFilename, bestPractices: report_data.bestPractices }];
+      let nbBestPracticesToCorrect = 0;
+      pageBestPractices.forEach((bp) => {
+        if (page.bestPractices) {
+          bp.note =
+            cssBestPractices[page.bestPractices[bp.key].complianceLevel || 'A'];
+          bp.comment = page.bestPractices[bp.key].comment || '';
+          bp.errors = page.bestPractices[bp.key].detailComment;
+
+          if (
+            cssBestPractices[
+            page.bestPractices[bp.key].complianceLevel || 'A'
+            ] !== 'checkmark-success'
+          ) {
+            // if error, increment number of incorrect best practices
+            nbBestPracticesToCorrect += 1;
+          }
         } else {
-            reportVariables = {
-                date: report_data.date,
-                success: report_data.success,
-                cssRowError: 'bg-danger',
-                name: pageName,
-                link: `<a href="${pageFilename}">${pageName}</a>`,
-                filename: pageFilename,
-                bestPractices: []
-            }
+          bp.note = 'A';
+          bp.comment = ''
         }
-        allReportsVariables.push(reportVariables);
-    });
-    return allReportsVariables;
+
+        page.bestPractices = pageBestPractices;
+      });
+      let pages = [page];
+      //			let pages = report_data.pages;
+
+      const bestPractices = _manageScenarioBestPratices(pages);
+      waterTotal += report_data.waterConsumption;
+      greenhouseGasesEmissionTotal += report_data.greenhouseGasesEmission;
+
+      reportVariables = {
+        date: report_data.date,
+        success: report_data.success,
+        cssRowError: '',
+        name: pageName,
+        link: `<a href="${pageFilename}">${pageName}</a>`,
+        filename: pageFilename,
+        header: `GreenIT-Analysis report > <a class="text-white" href="${report_data.pageInformations.url}">${pageName}</a>`,
+        bigEcoIndex: `${report_data.ecoIndex} <span class="grade big-grade ${report_data.grade}">${report_data.grade}</span>`,
+        smallEcoIndex: `${report_data.ecoIndex} <span class="grade ${report_data.grade}">${report_data.grade}</span>`,
+        grade: report_data.grade,
+        waterConsumption: report_data.waterConsumption,
+        greenhouseGasesEmission: report_data.greenhouseGasesEmission,
+        nbRequest: report_data.nbRequest,
+        responsesSize: Math.round(responsesSizeTotal * 1000) / 1000,
+        pageSize: `${Math.round(report_data.responsesSize / 1000)} (${Math.round(
+          report_data.responsesSizeUncompress / 1000)})`,
+        domSize: report_data.domSize,
+        nbBestPracticesToCorrect: report_data.nbBestPracticesToCorrect,
+        pages,
+        bestPractices
+      };
+    } else {
+      reportVariables = {
+        date: report_data.date,
+        name: pageName,
+        filename: pageFilename,
+        success: false,
+        header: `GreenIT-Analysis report > <a class="text-white" href="${report_data.pageInformations.url}">${pageName}</a>`,
+        cssRowError: 'bg-danger',
+        pages: [],
+        link: `<a href="${pageFilename}">${pageName}</a>`,
+        bestPractices: []
+      }
+    }
+    allReportsVariables.push(reportVariables);
+  });
+
+  return { allReportsVariables, waterTotal, greenhouseGasesEmissionTotal };
 }
 
-function readGlobalReport(path, allReportsVariables) {
-    let globalReport_data = JSON.parse(fs.readFileSync(path).toString());
-    const hasWorstRules = globalReport_data.worstRules?.length > 0 ? true : false;
-    const globalReportVariables = {
-        date: globalReport_data.date,
-        hostname: globalReport_data.hostname,
-        device: globalReport_data.device,
-        connection: globalReport_data.connection,
-        ecoIndex: `${globalReport_data.ecoIndex} <span class="grade big-grade ${globalReport_data.grade}">${globalReport_data.grade}</span>`,
-        grade: globalReport_data.grade,
-        nbBestPracticesToCorrect: globalReport_data.nbBestPracticesToCorrect,
-        nbPages: globalReport_data.nbPages,
-        nbErrors: globalReport_data.errors.length,
-        allReportsVariables,
-        worstRulesHeader: hasWorstRules ? `Top ${globalReport_data.worstRules.length} des règles à corriger` : '',
-        worstRules: hasWorstRules ? globalReport_data.worstRules.map((worstRule, index) => `#${index+1} ${translator.translateRule(worstRule)}`) : '',
-        cssTablePagesSize: hasWorstRules ? 'col-md-9' : 'col-md-12'
+/**
+ * Read and generate data for global template
+ * @param {*} path 
+ * @param {*} allReportsVariables 
+ * @param {*} waterTotal 
+ * @param {*} greenhouseGasesEmissionTotal 
+ * @returns 
+ */
+function readGlobalReport(
+  path,
+  allReportsVariables,
+  waterTotal,
+  greenhouseGasesEmissionTotal
+) {
+  const globalReport_data = JSON.parse(fs.readFileSync(path).toString());
+  const hasWorstRules = globalReport_data.worstRules?.length > 0 ? true : false;
+  const bestPracticesGlobal = [];
+
+  const bestPractices = extractBestPractices();
+
+  bestPractices.forEach((bestPractice) => {
+    let note = 'checkmark-success';
+    let errors = [];
+    let success = true;
+
+    allReportsVariables.forEach((scenario) => {
+      if (scenario.pages) {
+        scenario.pages.forEach((page) => {
+          const best = page.bestPractices.filter(
+            (bp) => bp.key === bestPractice.key,
+          )[0];
+
+          if (success && best.note === 'close-error') {
+            success = false;
+            note = 'close-error';
+          }
+        });
+      }
+    });
+
+    const bestPracticeGlobal = {
+      id: bestPractice.id,
+      info: bestPractice.info,
+      name: bestPractice.name,
+      comment: bestPractice.comment,
+      note: note,
+      errors: errors,
+      prio: bestPractice.prio,
+      impact: bestPractice.impact,
+      effort: bestPractice.effort,
     };
-    return globalReportVariables;
+
+    bestPracticesGlobal.push(bestPracticeGlobal);
+  });
+
+  let ecoIndex = "";
+
+  if (globalReport_data.worstEcoIndexes) {
+    try {
+      globalReport_data.worstEcoIndexes.forEach(worstEcoIndex => {
+        ecoIndex = `${ecoIndex} ${ecoIndex === "" ? "" : "/"} ${worstEcoIndex.ecoIndex} <span class="grade big-grade ${worstEcoIndex.grade}">${worstEcoIndex.grade}</span>`;
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const globalReportVariables = {
+    date: globalReport_data.date,
+    hostname: globalReport_data.hostname,
+    device: globalReport_data.device,
+    connection: globalReport_data.connection,
+    ecoIndex: ecoIndex,
+    grade: globalReport_data.grade,
+    nbPages: globalReport_data.nbPages,
+    waterTotal: Math.round(waterTotal * 100) / 100,
+    greenhouseGasesEmissionTotal:
+      Math.round(greenhouseGasesEmissionTotal * 100) / 100,
+    nbErrors: globalReport_data.errors.length,
+    allReportsVariables,
+    worstRulesHeader: hasWorstRules
+      ? `Top ${globalReport_data.worstRules.length} des règles à corriger`
+      : '',
+    worstRules: hasWorstRules
+      ? globalReport_data.worstRules?.map(
+        (worstRule, index) =>
+          `#${index + 1} ${translator.translateRule(worstRule)}`,
+      )
+      : '',
+    tabGlobal: bestPracticesGlobal,
+    cssTablePagesSize: hasWorstRules ? 'col-md-9' : 'col-md-12'
+  };
+  return globalReportVariables;
 }
 
 function extractBestPractices(bestPracticesFromReport) {
-    const bestPracticesKey = [
-        'AddExpiresOrCacheControlHeaders',
-        'CompressHttp',
-        'DomainsNumber',
-        'DontResizeImageInBrowser',
-        'EmptySrcTag',
-        'ExternalizeCss',
-        'ExternalizeJs',
-        'HttpError',
-        'HttpRequests',
-        'ImageDownloadedNotDisplayed',
-        'JsValidate',
-        'MaxCookiesLength',
-        'MinifiedCss',
-        'MinifiedJs',
-        'NoCookieForStaticRessources',
-        'NoRedirect',
-        'OptimizeBitmapImages',
-        'OptimizeSvg',
-        'Plugins',
-        'PrintStyleSheet',
-        'SocialNetworkButton',
-        'StyleSheets',
-        'UseETags',
-        'UseStandardTypefaces'
-    ];
+  let bestPractices = [];
 
-    let bestPractices = [];
+  bestPracticesKey.forEach((key) => {
+    const bestPractice = {
+      key: key.name,
+      name: translator.translateRule(key),
+      notes: [],
+      pages: [],
+      comments: [],
+    };
+    bestPractices.push(bestPractice);
+  })
 
-    bestPracticesKey.forEach(key => {
-        const bestPractice = {
-            name: translator.translateRule(key),
-            comment: bestPracticesFromReport[key].comment || '',
-            note: cssBestPractices[bestPracticesFromReport[key].complianceLevel || 'A']
-        };
-        bestPractices.push(bestPractice);
-    })
-
-    return bestPractices;
+  return bestPractices;
 }
 
-function writeGlobalReport(templateEngine, globalReportVariables, outputFile, progressBar) {
-    templateEngine.processFile(path.join(__dirname, 'template/global.html'), globalReportVariables)
-    .then(globalReportHtml => {
-        fs.writeFileSync(outputFile, globalReportHtml);
-        if (progressBar){
-            progressBar.tick();
-        } else {
-            console.log(`Global report : ${outputFile} created`);
-        }
-    })
-    .catch(error => {
-        console.log("Error while reading HTML global template : ", error)
+/**
+ * Manage best practice state for each page
+ * @param {*} pages 
+ */
+function _manageScenarioBestPratices(pages) {
+  const bestPractices = extractBestPractices();
+  // loop over each best practice
+  pages.forEach((page) => {
+    bestPractices.forEach((bp) => {
+      if (!bp.pages) {
+        bp.pages = [];
+      }
+      if (!bp.notes) {
+        bp.notes = [];
+      }
+      if (!bp.comments) {
+        bp.comments = [];
+      }
+
+      bp.pages.push(page.name);
+      if (page.bestPractices) {
+        // Get mapping best practice and update data
+        const currentBestPractice = page.bestPractices.find((element) => element.key === bp.key);
+        bp.notes.push(currentBestPractice.note || 'A');
+        bp.comments.push(currentBestPractice.comment || '');
+      }
     });
+  });
+  return bestPractices;
 }
 
-function writeAllReports(templateEngine, allReportsVariables, outputFolder, progressBar) {
-    allReportsVariables.forEach(reportVariables => {
-        templateEngine.processFile(path.join(__dirname, 'template/page.html'), reportVariables)
-        .then(singleReportHtml => {
-            fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, singleReportHtml);
-            if (progressBar){
-                progressBar.tick();
-            } else {
-                console.log(`Single report : ${reportVariables.filename} created`);
-            }
-        })
-        .catch(error => {
-            console.log(`Error while reading HTML template ${reportVariables.filename} : `, error)
-        });
-    });
+/**
+ * Write global report from global template
+ */
+function writeGlobalReport(globalReportVariables, outputFile, progressBar) {
+  const template = fs
+    .readFileSync(path.join(__dirname, 'template/global.html'))
+    .toString();
+  var rendered = Mustache.render(template, globalReportVariables);
+  fs.writeFileSync(outputFile, rendered);
+  if (progressBar) {
+    progressBar.tick();
+  } else {
+    console.log(`Global report : ${outputFile} created`);
+  }
+}
+
+/**
+ * Write scenarios report from page template
+ */
+function writeAllReports(allReportsVariables, outputFolder, progressBar) {
+  const template = fs
+    .readFileSync(path.join(__dirname, 'template/page.html'))
+    .toString();
+  allReportsVariables.forEach((reportVariables) => {
+    var rendered = Mustache.render(template, reportVariables);
+    fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, rendered);
+    if (progressBar) {
+      progressBar.tick();
+    } else {
+      console.log(`Global report : ${outputFolder}/${reportVariables.filename} created`);
+    }
+  });
 }
 
 function removeForbiddenCharacters(str) {
-    str = removeForbiddenCharactersInFile(str);
-    str = removeAccents(str);
-    return str;
+  str = removeForbiddenCharactersInFile(str);
+  str = removeAccents(str);
+  return str;
 }
 
 function removeForbiddenCharactersInFile(str) {
-    return str.replace(/[/\\?%*:|"<>° ]/g, '');
+  return str.replace(/[/\\?%*:|"<>° ]/g, '');
 }
 
 function removeAccents(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 module.exports = {
-    create_html_report
-}
+  create_html_report,
+};

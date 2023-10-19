@@ -35,5 +35,15 @@ USER pptruser
 RUN npm i
 
 ENV URL_PATH="/app/input/url.yaml"
-ENV RESULTS_PATH="/app/output/results.xlsx"
-CMD greenit analyse $URL_PATH $RESULTS_PATH
+ENV RESULTS_PATH="/app/output/global.html"
+ENV RESULTS_FORMAT="html"
+ENV MAX_TAB="1"
+ENV TIMEOUT="10000"
+ENV RETRY="10"
+ENV MOBILE="filaire"
+CMD greenit analyse $URL_PATH $RESULTS_PATH \
+  --format=$RESULTS_FORMAT \
+  --max_tab=$MAX_TAB \
+  --timeout=$TIMEOUT \
+  --retry=$RETRY \
+  --mobile=$MOBILE
