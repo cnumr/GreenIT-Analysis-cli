@@ -1,6 +1,3 @@
-module.exports = {
-  create_html_report,
-};
 const fs = require('fs');
 const path = require('path');
 const ProgressBar = require('progress');
@@ -102,8 +99,7 @@ function readAllReports(fileList) {
       let nbBestPracticesToCorrect = 0;
       pageBestPractices.forEach((bp) => {
         if (page.bestPractices) {
-          bp.note =
-            cssBestPractices[page.bestPractices[bp.key].complianceLevel || 'A'];
+          bp.note = cssBestPractices[page.bestPractices[bp.key].complianceLevel || 'A'];
           bp.comment = page.bestPractices[bp.key].comment || '';
           bp.errors = page.bestPractices[bp.key].detailComment;
 
@@ -123,9 +119,8 @@ function readAllReports(fileList) {
         page.bestPractices = pageBestPractices;
       });
       let pages = [page];
-      //			let pages = report_data.pages;
 
-      const bestPractices = _manageScenarioBestPratices(pages);
+      const bestPractices = manageScenarioBestPratices(pages);
       waterTotal += report_data.waterConsumption;
       greenhouseGasesEmissionTotal += report_data.greenhouseGasesEmission;
 
@@ -185,7 +180,6 @@ function readGlobalReport(
   greenhouseGasesEmissionTotal
 ) {
   const globalReport_data = JSON.parse(fs.readFileSync(path).toString());
-  const hasWorstRules = globalReport_data.worstRules?.length > 0 ? true : false;
   const bestPracticesGlobal = [];
 
   const bestPractices = extractBestPractices();
@@ -250,22 +244,12 @@ function readGlobalReport(
       Math.round(greenhouseGasesEmissionTotal * 100) / 100,
     nbErrors: globalReport_data.errors.length,
     allReportsVariables,
-    worstRulesHeader: hasWorstRules
-      ? `Top ${globalReport_data.worstRules.length} des règles à corriger`
-      : '',
-    worstRules: hasWorstRules
-      ? globalReport_data.worstRules?.map(
-        (worstRule, index) =>
-          `#${index + 1} ${translator.translateRule(worstRule)}`,
-      )
-      : '',
-    tabGlobal: bestPracticesGlobal,
-    cssTablePagesSize: hasWorstRules ? 'col-md-9' : 'col-md-12'
+    tabGlobal: bestPracticesGlobal
   };
   return globalReportVariables;
 }
 
-function extractBestPractices(bestPracticesFromReport) {
+function extractBestPractices() {
   let bestPractices = [];
 
   bestPracticesKey.forEach((key) => {
@@ -286,7 +270,7 @@ function extractBestPractices(bestPracticesFromReport) {
  * Manage best practice state for each page
  * @param {*} pages 
  */
-function _manageScenarioBestPratices(pages) {
+function manageScenarioBestPratices(pages) {
   const bestPractices = extractBestPractices();
   // loop over each best practice
   pages.forEach((page) => {
@@ -362,5 +346,5 @@ function removeAccents(str) {
 }
 
 module.exports = {
-  create_html_report,
+  create_html_report
 };

@@ -3,8 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
 
-//utils.create_report(reportObject, options);
-
 //create xlsx report for all the analysed pages and recap on the first sheet
 async function create_XLSX_report(reportObject, options) {
   const OUTPUT_FILE = path.resolve(options.report_output_file);

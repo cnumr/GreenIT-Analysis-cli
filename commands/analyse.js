@@ -21,7 +21,7 @@ async function analyse_core(options) {
     pagesInformations = YAML.parse(fs.readFileSync(URL_YAML_FILE).toString());
   } catch (error) {
     console.log(error);
-    throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file.`;
+    throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`;
   }
   let browserArgs = [
     '--no-sandbox', // can't run inside docker without
@@ -69,7 +69,7 @@ async function analyse_core(options) {
       try {
         loginInfos = YAML.parse(fs.readFileSync(LOGIN_YAML_FILE).toString());
       } catch (error) {
-        throw ` --login : "${LOGIN_YAML_FILE}" is not a valid YAML file.`;
+        throw ` --login : "${LOGIN_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`;
       }
       //console.log(loginInfos)
       await login(browser, loginInfos, options)
@@ -82,12 +82,7 @@ async function analyse_core(options) {
   }
   //create report
   let reportObj = await create_global_report(reports, { ...options, proxy });
-  if (reportFormat === 'influxdbhtml') {
-    // write in database then generate html report
-    await writeToInflux(reports, options);
-    await create_html_report(reportObj, options, true);
-  }
-  else if (reportFormat === 'html') {
+  if (reportFormat === 'html') {
     await create_html_report(reportObj, options, false);
   } else if (reportFormat === 'influxdb') {
     await writeToInflux(reports, options);
@@ -105,7 +100,7 @@ function readProxy(proxyFile) {
       throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`
     }
   } catch (error) {
-    throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file.`;
+    throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`;
   }
   return proxy;
 }
@@ -116,7 +111,7 @@ function readHeaders(headersFile) {
   try {
     headers = YAML.parse(fs.readFileSync(HEADERS_YAML_FILE).toString());
   } catch (error) {
-    throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file.`;
+    throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`;
   }
   return headers;
 }

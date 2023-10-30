@@ -113,5 +113,5 @@ async function write(reports, options) {
 }
 
 module.exports = {
-  write,
+  write
 };
