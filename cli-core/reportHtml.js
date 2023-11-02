@@ -95,7 +95,7 @@ function readAllReports(fileList) {
       const pageBestPractices = extractBestPractices();
 
       // Manage best practices
-      let page = [{ name: pageFilename, bestPractices: report_data.bestPractices }];
+      let page = { name: pageFilename, bestPractices: report_data.bestPractices };
       let nbBestPracticesToCorrect = 0;
       pageBestPractices.forEach((bp) => {
         if (page.bestPractices) {
@@ -116,8 +116,9 @@ function readAllReports(fileList) {
           bp.comment = ''
         }
 
-        page.bestPractices = pageBestPractices;
       });
+
+      page.bestPractices = pageBestPractices;
       let pages = [page];
 
       const bestPractices = manageScenarioBestPratices(pages);
@@ -138,7 +139,6 @@ function readAllReports(fileList) {
         waterConsumption: report_data.waterConsumption,
         greenhouseGasesEmission: report_data.greenhouseGasesEmission,
         nbRequest: report_data.nbRequest,
-        responsesSize: Math.round(responsesSizeTotal * 1000) / 1000,
         pageSize: `${Math.round(report_data.responsesSize / 1000)} (${Math.round(
           report_data.responsesSizeUncompress / 1000)})`,
         domSize: report_data.domSize,
