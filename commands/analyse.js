@@ -7,7 +7,7 @@ const login = require('../cli-core/analysis.js').login;
 const create_global_report = require('../cli-core/reportGlobal.js').create_global_report;
 const create_XLSX_report = require('../cli-core/reportExcel.js').create_XLSX_report;
 const create_html_report = require('../cli-core/reportHtml.js').create_html_report;
-const writeToInflux = require("../cli-core/influxdb").write;
+const writeToInflux = require('../cli-core/influxdb').write;
 
 //launch core
 async function analyse_core(options) {
@@ -17,20 +17,22 @@ async function analyse_core(options) {
     try {
         pagesInformations = YAML.parse(fs.readFileSync(URL_YAML_FILE).toString());
     } catch (error) {
-        throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
+        throw ` url_input_file : "${URL_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(
+            error.linePos
+        )}.`;
     }
 
     let browserArgs = [
-        "--no-sandbox",                 // can't run inside docker without
-        "--disable-setuid-sandbox"      // but security issues
-    ]
+        '--no-sandbox', // can't run inside docker without
+        '--disable-setuid-sandbox', // but security issues
+    ];
 
     // Add proxy conf in browserArgs
     let proxy = {};
-    if(options.proxy) {
+    if (options.proxy) {
         proxy = readProxy(options.proxy);
         browserArgs.push(`--proxy-server=${proxy.server}`);
-        if(proxy.bypass){
+        if (proxy.bypass) {
             browserArgs.push(`--proxy-bypass-list=${proxy.bypass}`);
         }
     }
@@ -44,7 +46,7 @@ async function analyse_core(options) {
     // Get and check report format
     const reportFormat = getReportFormat(options.format, options.report_output_file);
     if (!reportFormat) {
-        throw 'Format not supported. Use --format option or report file extension to define a supported extension.'
+        throw 'Format not supported. Use --format option or report file extension to define a supported extension.';
     }
 
     //start browser
@@ -52,42 +54,40 @@ async function analyse_core(options) {
         headless: options.headless,
         args: browserArgs,
         // Keep gpu horsepower in headless
-        ignoreDefaultArgs: [
-            '--disable-gpu'
-        ]
+        ignoreDefaultArgs: ['--disable-gpu'],
     });
     //handle analyse
     let reports;
     try {
         //handle login
-        if (options.login){
+        if (options.login) {
             const LOGIN_YAML_FILE = path.resolve(options.login);
             let loginInfos;
             try {
                 loginInfos = YAML.parse(fs.readFileSync(LOGIN_YAML_FILE).toString());
             } catch (error) {
-                throw ` --login : "${LOGIN_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
+                throw ` --login : "${LOGIN_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(
+                    error.linePos
+                )}.`;
             }
             //console.log(loginInfos)
-            await login(browser, loginInfos, options)
+            await login(browser, loginInfos, options);
         }
         //analyse
         reports = await createJsonReports(browser, pagesInformations, options, proxy, headers);
     } finally {
         //close browser
-        await browser.close()
+        await browser.close();
     }
     //create report
-    let reportObj = await create_global_report(reports, {...options, proxy});
+    let reportObj = await create_global_report(reports, { ...options, proxy });
     if (reportFormat === 'html') {
         await create_html_report(reportObj, options);
     } else if (reportFormat === 'influxdb') {
         await writeToInflux(reports, options);
-    }
-    else {
+    } else {
         await create_XLSX_report(reportObj, options);
     }
-    
 }
 
 function readProxy(proxyFile) {
@@ -96,10 +96,12 @@ function readProxy(proxyFile) {
     try {
         proxy = YAML.parse(fs.readFileSync(PROXY_FILE).toString());
         if (!proxy.server || !proxy.user || !proxy.password) {
-            throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`
+            throw `proxy_config_file : Bad format "${PROXY_FILE}". Expected server, user and password.`;
         }
     } catch (error) {
-        throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
+        throw ` proxy_config_file : "${PROXY_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(
+            error.linePos
+        )}.`;
     }
     return proxy;
 }
@@ -110,7 +112,9 @@ function readHeaders(headersFile) {
     try {
         headers = YAML.parse(fs.readFileSync(HEADERS_YAML_FILE).toString());
     } catch (error) {
-        throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(error.linePos)}.`
+        throw ` --headers : "${HEADERS_YAML_FILE}" is not a valid YAML file: ${error.code} at ${JSON.stringify(
+            error.linePos
+        )}.`;
     }
     return headers;
 }
@@ -124,7 +128,7 @@ function getReportFormat(format, filename) {
 
     // Else, check extension
     const filenameLC = filename.toLowerCase();
-    const extensionFormat = formats.find(format => filenameLC.endsWith(`.${format}`));
+    const extensionFormat = formats.find((format) => filenameLC.endsWith(`.${format}`));
     if (extensionFormat) {
         console.log(`No output format specified, defaulting to ${extensionFormat} based on output file name.`);
     }
@@ -133,7 +137,7 @@ function getReportFormat(format, filename) {
 
 //export method that handle error
 function analyse(options) {
-    analyse_core(options).catch(e=>console.error("ERROR : \n", e))
+    analyse_core(options).catch((e) => console.error('ERROR : \n', e));
 }
 
 module.exports = analyse;
