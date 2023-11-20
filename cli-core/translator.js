@@ -1,8 +1,7 @@
 const fr = require('../locales/fr.json');
 
 class Translator {
-
-    constructor () {
+    constructor() {
         this.catalog = fr;
     }
 
@@ -11,7 +10,7 @@ class Translator {
     }
 
     setLocale(locale) {
-        if(locale === 'fr') {
+        if (locale === 'fr') {
             this.catalog = fr;
         }
     }
@@ -19,11 +18,10 @@ class Translator {
     translateRule(rule) {
         return this.catalog['rule_' + rule];
     }
-
 }
 
 const translator = new Translator();
 
 module.exports = {
-    translator
-}
+    translator,
+};

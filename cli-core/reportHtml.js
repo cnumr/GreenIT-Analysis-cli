@@ -8,31 +8,34 @@ const translator = require('./translator.js').translator;
  * Css class best practices
  */
 const cssBestPractices = {
-    A : 'checkmark-success',
-    B : 'close-warning',
-    C : 'close-error'
-}
+    A: 'checkmark-success',
+    B: 'close-warning',
+    C: 'close-error',
+};
 
 //create html report for all the analysed pages and recap on the first sheet
-async function create_html_report(reportObject,options){
+async function create_html_report(reportObject, options) {
     const OUTPUT_FILE = path.resolve(options.report_output_file);
     const fileList = reportObject.reports;
     const globalReport = reportObject.globalReport;
 
     //initialise progress bar
     let progressBar;
-    if (!options.ci){
-        progressBar = new ProgressBar(' Create HTML report       [:bar] :percent     Remaining: :etas     Time: :elapseds', {
-            complete: '=',
-            incomplete: ' ',
-            width: 40,
-            total: fileList.length+2
-        });
-        progressBar.tick()
+    if (!options.ci) {
+        progressBar = new ProgressBar(
+            ' Create HTML report       [:bar] :percent     Remaining: :etas     Time: :elapseds',
+            {
+                complete: '=',
+                incomplete: ' ',
+                width: 40,
+                total: fileList.length + 2,
+            }
+        );
+        progressBar.tick();
     } else {
         console.log('Creating HTML report ...');
     }
-    
+
     // Read all reports
     const allReportsVariables = readAllReports(fileList);
 
@@ -40,7 +43,7 @@ async function create_html_report(reportObject,options){
     const globalReportVariables = readGlobalReport(globalReport.path, allReportsVariables);
 
     // write global report
-    const templateEngine = new TemplateEngine.TemplateEngine(); 
+    const templateEngine = new TemplateEngine.TemplateEngine();
     writeGlobalReport(templateEngine, globalReportVariables, OUTPUT_FILE, progressBar);
 
     // write all reports
@@ -51,10 +54,12 @@ async function create_html_report(reportObject,options){
 function readAllReports(fileList) {
     let allReportsVariables = [];
     let reportVariables = {};
-    fileList.forEach((file)=>{
+    fileList.forEach((file) => {
         let report_data = JSON.parse(fs.readFileSync(file.path).toString());
         const pageName = report_data.pageInformations.name || report_data.pageInformations.url;
-        const pageFilename = report_data.pageInformations.name ? `${removeForbiddenCharacters(report_data.pageInformations.name)}.html` : `${report_data.index}.html`;
+        const pageFilename = report_data.pageInformations.name
+            ? `${removeForbiddenCharacters(report_data.pageInformations.name)}.html`
+            : `${report_data.index}.html`;
 
         if (report_data.success) {
             let bestPractices = extractBestPractices(report_data.bestPractices);
@@ -72,10 +77,12 @@ function readAllReports(fileList) {
                 waterConsumption: report_data.waterConsumption,
                 greenhouseGasesEmission: report_data.greenhouseGasesEmission,
                 nbRequest: report_data.nbRequest,
-                pageSize: `${Math.round(report_data.responsesSize / 1000)} (${Math.round(report_data.responsesSizeUncompress / 1000)})`,
+                pageSize: `${Math.round(report_data.responsesSize / 1000)} (${Math.round(
+                    report_data.responsesSizeUncompress / 1000
+                )})`,
                 domSize: report_data.domSize,
                 nbBestPracticesToCorrect: report_data.nbBestPracticesToCorrect,
-                bestPractices
+                bestPractices,
             };
         } else {
             reportVariables = {
@@ -85,8 +92,8 @@ function readAllReports(fileList) {
                 name: pageName,
                 link: `<a href="${pageFilename}">${pageName}</a>`,
                 filename: pageFilename,
-                bestPractices: []
-            }
+                bestPractices: [],
+            };
         }
         allReportsVariables.push(reportVariables);
     });
@@ -108,8 +115,12 @@ function readGlobalReport(path, allReportsVariables) {
         nbErrors: globalReport_data.errors.length,
         allReportsVariables,
         worstRulesHeader: hasWorstRules ? `Top ${globalReport_data.worstRules.length} des règles à corriger` : '',
-        worstRules: hasWorstRules ? globalReport_data.worstRules.map((worstRule, index) => `#${index+1} ${translator.translateRule(worstRule)}`) : '',
-        cssTablePagesSize: hasWorstRules ? 'col-md-9' : 'col-md-12'
+        worstRules: hasWorstRules
+            ? globalReport_data.worstRules.map(
+                  (worstRule, index) => `#${index + 1} ${translator.translateRule(worstRule)}`
+              )
+            : '',
+        cssTablePagesSize: hasWorstRules ? 'col-md-9' : 'col-md-12',
     };
     return globalReportVariables;
 }
@@ -139,52 +150,54 @@ function extractBestPractices(bestPracticesFromReport) {
         'SocialNetworkButton',
         'StyleSheets',
         'UseETags',
-        'UseStandardTypefaces'
+        'UseStandardTypefaces',
     ];
 
     let bestPractices = [];
 
-    bestPracticesKey.forEach(key => {
+    bestPracticesKey.forEach((key) => {
         const bestPractice = {
             name: translator.translateRule(key),
             comment: bestPracticesFromReport[key].comment || '',
-            note: cssBestPractices[bestPracticesFromReport[key].complianceLevel || 'A']
+            note: cssBestPractices[bestPracticesFromReport[key].complianceLevel || 'A'],
         };
         bestPractices.push(bestPractice);
-    })
+    });
 
     return bestPractices;
 }
 
 function writeGlobalReport(templateEngine, globalReportVariables, outputFile, progressBar) {
-    templateEngine.processFile(path.join(__dirname, 'template/global.html'), globalReportVariables)
-    .then(globalReportHtml => {
-        fs.writeFileSync(outputFile, globalReportHtml);
-        if (progressBar){
-            progressBar.tick();
-        } else {
-            console.log(`Global report : ${outputFile} created`);
-        }
-    })
-    .catch(error => {
-        console.log("Error while reading HTML global template : ", error)
-    });
+    templateEngine
+        .processFile(path.join(__dirname, 'template/global.html'), globalReportVariables)
+        .then((globalReportHtml) => {
+            fs.writeFileSync(outputFile, globalReportHtml);
+            if (progressBar) {
+                progressBar.tick();
+            } else {
+                console.log(`Global report : ${outputFile} created`);
+            }
+        })
+        .catch((error) => {
+            console.log('Error while reading HTML global template : ', error);
+        });
 }
 
 function writeAllReports(templateEngine, allReportsVariables, outputFolder, progressBar) {
-    allReportsVariables.forEach(reportVariables => {
-        templateEngine.processFile(path.join(__dirname, 'template/page.html'), reportVariables)
-        .then(singleReportHtml => {
-            fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, singleReportHtml);
-            if (progressBar){
-                progressBar.tick();
-            } else {
-                console.log(`Single report : ${reportVariables.filename} created`);
-            }
-        })
-        .catch(error => {
-            console.log(`Error while reading HTML template ${reportVariables.filename} : `, error)
-        });
+    allReportsVariables.forEach((reportVariables) => {
+        templateEngine
+            .processFile(path.join(__dirname, 'template/page.html'), reportVariables)
+            .then((singleReportHtml) => {
+                fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, singleReportHtml);
+                if (progressBar) {
+                    progressBar.tick();
+                } else {
+                    console.log(`Single report : ${reportVariables.filename} created`);
+                }
+            })
+            .catch((error) => {
+                console.log(`Error while reading HTML template ${reportVariables.filename} : `, error);
+            });
     });
 }
 
@@ -199,9 +212,9 @@ function removeForbiddenCharactersInFile(str) {
 }
 
 function removeAccents(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 module.exports = {
-    create_html_report
-}
+    create_html_report,
+};

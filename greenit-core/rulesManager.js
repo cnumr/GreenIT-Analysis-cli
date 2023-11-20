@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2019  didierfred@gmail.com 
+ *  Copyright (C) 2019  didierfred@gmail.com
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published
@@ -18,64 +18,61 @@
 rulesManager = new RulesManager();
 
 function RulesManager() {
+    let rulesId = [];
+    let rulesChecker = new Map();
+    let eventListeners = new Map();
+    let notCompatibleRules = [];
+    eventListeners.set('harReceived', []);
+    eventListeners.set('frameMeasuresReceived', []);
+    eventListeners.set('resourceContentReceived', []);
 
-  let rulesId = [];
-  let rulesChecker = new Map();
-  let eventListeners = new Map();
-  let notCompatibleRules = [];
-  eventListeners.set("harReceived", []);
-  eventListeners.set("frameMeasuresReceived", []);
-  eventListeners.set("resourceContentReceived", []);
+    this.registerRule = function (ruleChecker, eventListener) {
+        rulesId.push(ruleChecker.id);
+        rulesChecker.set(ruleChecker.id, ruleChecker);
+        let event = eventListeners.get(eventListener);
+        if (event) event.push(ruleChecker.id);
+    };
 
-  this.registerRule = function (ruleChecker, eventListener) {
-    rulesId.push(ruleChecker.id);
-    rulesChecker.set(ruleChecker.id, ruleChecker);
-    let event = eventListeners.get(eventListener);
-    if (event) event.push(ruleChecker.id);
-  }
+    this.getRulesId = function () {
+        return rulesId;
+    };
 
-  this.getRulesId = function () {
-    return rulesId;
-  }
+    this.getRulesNotCompatibleWithCurrentBrowser = function () {
+        return notCompatibleRules;
+    };
 
-  this.getRulesNotCompatibleWithCurrentBrowser = function () {
-    return notCompatibleRules;
+    this.getNewRulesChecker = function () {
+        return new RulesChecker();
+    };
 
-  }
-
-  this.getNewRulesChecker = function () {
-    return new RulesChecker();
-  }
-
-  function RulesChecker() {
-    let rules = new Map();
-    rulesChecker.forEach((ruleChecker, ruleId) => {
-      let ruleCheckerInstance = Object.create(ruleChecker)
-      // for certains rules need an initalization , method not implemented in all rules
-      if (ruleCheckerInstance.initialize) ruleCheckerInstance.initialize();
-      rules.set(ruleId, ruleCheckerInstance);
-    });
-
-    this.sendEvent = function (event, measures, resource) {
-
-      eventListener = eventListeners.get(event);
-      if (eventListener) {
-        eventListener.forEach(ruleID => {
-          this.checkRule(ruleID, measures, resource);
+    function RulesChecker() {
+        let rules = new Map();
+        rulesChecker.forEach((ruleChecker, ruleId) => {
+            let ruleCheckerInstance = Object.create(ruleChecker);
+            // for certains rules need an initalization , method not implemented in all rules
+            if (ruleCheckerInstance.initialize) ruleCheckerInstance.initialize();
+            rules.set(ruleId, ruleCheckerInstance);
         });
-      }
-    }
 
-    this.checkRule = function (rule, measures, resource) {
-      rules.get(rule).check(measures, resource);
-    }
+        this.sendEvent = function (event, measures, resource) {
+            eventListener = eventListeners.get(event);
+            if (eventListener) {
+                eventListener.forEach((ruleID) => {
+                    this.checkRule(ruleID, measures, resource);
+                });
+            }
+        };
 
-    this.getRule = function (rule) {
-      return rules.get(rule);
-    }
+        this.checkRule = function (rule, measures, resource) {
+            rules.get(rule).check(measures, resource);
+        };
 
-    this.getAllRules = function () {
-      return rules;
+        this.getRule = function (rule) {
+            return rules.get(rule);
+        };
+
+        this.getAllRules = function () {
+            return rules;
+        };
     }
-  }
 }
