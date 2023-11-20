@@ -92,25 +92,7 @@
                 </table>
             </div>
             <div class="container my-5">
-                <div class="row text-center">
-                    <div class="col col-md-3">
-                        <div class="card mb-3 border-success" style="max-width: 18rem;">
-                            <div class="card-header bg-success text-white">Ecoindex</div>
-                            <div class="card-body text-dark">
-                                <h1 id="ecoIndex" class="card-title" style="height: 45px;">{{{ ecoIndex }}}</h1>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col col-md-3">
-                        <div class="card mb-3 border-warning" style="max-width: 18rem;">
-                            <div class="card-header bg-warning text-white">Règles à corriger</div>
-                            <div class="card-body text-dark">
-                                <h1 id="nbBestPracticesToCorrect" class="card-title">{{ nbBestPracticesToCorrect }}</h1>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="row text-center justify-content-center">
                     <div class="col col-md-3">
                         <div class="card mb-3 border-primary" style="max-width: 18rem;">
                             <div class="card-header bg-primary text-white">Pages</div>
@@ -119,7 +101,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col col-md-3">
                         <div class="card mb-3 border-danger" style="max-width: 18rem;">
                             <div class="card-header bg-danger text-white">Erreur(s)</div>
@@ -180,6 +161,13 @@
                     {{/worstRulesHeader}}
                 </div>
             </div>
+
+            <p><B>Liens</B> :</p>
+            <ul>
+                <li>Pour comprendre le calcul de l'EcoIndex : <a href="https://www.ecoindex.fr/comment-ca-marche/">https://www.ecoindex.fr/comment-ca-marche/</a></li>
+                <li>Parmi les 115 règles d'écoconception, 24 sont vérifiées par l'outil. Pour en savoir plus : <a href="https://github.com/cnumr/best-practices">https://github.com/cnumr/best-practices</a></li>
+            </ul>
+
         </div>
     </body>
 </html>

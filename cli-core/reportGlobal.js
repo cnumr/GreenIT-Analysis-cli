@@ -71,12 +71,10 @@ async function create_global_report(reports, options) {
         console.log('Creating global report ...');
     }
 
-    let eco = 0; //future average
     let err = [];
     let hostname;
     let worstPages = [];
     let bestPracticesTotal = {};
-    let nbBestPracticesToCorrect = 0;
     //Creating one report sheet per file
     reports.forEach((file) => {
         let obj = JSON.parse(fs.readFileSync(file.path).toString());
@@ -84,8 +82,6 @@ async function create_global_report(reports, options) {
         obj.nb = parseInt(file.name);
         //handle potential failed analyse
         if (obj.success) {
-            eco += obj.ecoIndex;
-            nbBestPracticesToCorrect += obj.nbBestPracticesToCorrect;
             handleWorstPages(obj, worstPages);
             for (let key in obj.bestPractices) {
                 bestPracticesTotal[key] = bestPracticesTotal[key] || 0;
@@ -125,15 +121,11 @@ async function create_global_report(reports, options) {
         );
     }
     const date = new Date();
-    eco = reports.length - err.length != 0 ? Math.round(eco / (reports.length - err.length)) : 'No data'; //Average EcoIndex
-    let grade = getEcoIndexGrade(eco);
     let globalSheet_data = {
         date: `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`,
         hostname: hostname,
         device: DEVICE,
         connection: isMobile ? 'Mobile' : 'Filaire',
-        grade: grade,
-        ecoIndex: eco,
         nbPages: reports.length,
         timeout: parseInt(TIMEOUT),
         maxTab: parseInt(MAX_TAB),
@@ -141,7 +133,6 @@ async function create_global_report(reports, options) {
         errors: err,
         worstPages: worstPages,
         worstRules: handleWorstRule(bestPracticesTotal, WORST_RULES),
-        nbBestPracticesToCorrect: nbBestPracticesToCorrect,
     };
 
     if (progressBar) progressBar.tick();
@@ -160,17 +151,6 @@ async function create_global_report(reports, options) {
         },
         reports,
     };
-}
-
-//EcoIndex -> Grade
-function getEcoIndexGrade(ecoIndex) {
-    if (ecoIndex > 75) return 'A';
-    if (ecoIndex > 65) return 'B';
-    if (ecoIndex > 50) return 'C';
-    if (ecoIndex > 35) return 'D';
-    if (ecoIndex > 20) return 'E';
-    if (ecoIndex > 5) return 'F';
-    return 'G';
 }
 
 //Grade -> EcoIndex
