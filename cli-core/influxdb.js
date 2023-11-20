@@ -1,6 +1,6 @@
 const { InfluxDB, Point, HttpError } = require('@influxdata/influxdb-client');
 const fs = require('fs');
-const ProgressBar = require('progress');
+const { createProgressBar } = require('./utils');
 
 async function write(reports, options) {
     if (!options.influxdb_hostname) {
@@ -19,21 +19,12 @@ async function write(reports, options) {
     const url = options.influxdb_hostname;
 
     //initialise progress bar
-    let progressBar;
-    if (!options.ci) {
-        progressBar = new ProgressBar(
-            ' Push to InfluxDB     [:bar] :percent     Remaining: :etas     Time: :elapseds',
-            {
-                complete: '=',
-                incomplete: ' ',
-                width: 40,
-                total: reports.length + 2,
-            }
-        );
-        progressBar.tick();
-    } else {
-        console.log('Push report to InfluxDB ...');
-    }
+    const progressBar = createProgressBar(
+        options,
+        reports.length + 2,
+        'Push to InfluxDB',
+        'Push report to InfluxDB ...'
+    );
 
     // initialise client
     const client = new InfluxDB({ url: options.influxdb_hostname, token: options.influxdb_token });

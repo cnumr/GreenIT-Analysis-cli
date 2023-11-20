@@ -6,14 +6,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <!-- Bootstrap CSS -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+            crossorigin="anonymous"
+        ></script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
             rel="stylesheet"
             integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
             crossorigin="anonymous"
         />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.min.css"
+            rel="stylesheet"
+            integrity="sha384-GHL5aQs2BwQUg6AUEbqq6XFSN6lGo8DAT58V5NckuLm9Ibf0uR8i7T+GwodBqcET"
+            crossorigin="anonymous"
+        />
 
         <style type="text/css">
+            .pageRow {
+                background-color: #f0f0f0;
+            }
+            .collapseRow {
+                background-color: #d8ffbf;
+            }
+            .hiddenRow {
+                padding: 0 !important;
+            }
             .grade {
                 display: inline-block;
                 width: 24px;
@@ -67,12 +87,13 @@
             }
 
             .checkmark-success {
-                display: inline-block;
+                position: absolute;
                 transform: rotate(45deg);
                 height: 18px;
                 width: 10px;
                 border-bottom: 5px solid #78b13f;
                 border-right: 5px solid #78b13f;
+                margin-left: 20px;
             }
 
             .close-warning,
@@ -128,40 +149,6 @@
                 <div class="row text-center">
                     <div class="col col-md-4">
                         <div class="card mb-4 border-success" style="max-width: 18rem">
-                            <div class="card-header bg-success text-white">Ecoindex</div>
-                            <div class="card-body text-dark">
-                                <h1 id="ecoIndex" class="card-title" style="height: 45px">
-                                    {{{ bigEcoIndex }}}
-                                </h1>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col col-md-4">
-                        <div class="card mb-4 border-success" style="max-width: 18rem">
-                            <div class="card-header bg-success text-white">Eau (cl)</div>
-                            <div class="card-body text-dark">
-                                <h1 id="waterConsumption" class="card-title">
-                                    {{ waterConsumption }}
-                                </h1>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col col-md-4">
-                        <div class="card mb-4 border-success" style="max-width: 18rem">
-                            <div class="card-header bg-success text-white">GES (gCO2e)</div>
-                            <div class="card-body text-dark">
-                                <h1 id="greenhouseGasesEmission" class="card-title">
-                                    {{ greenhouseGasesEmission }}
-                                </h1>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row text-center">
-                    <div class="col col-md-4">
-                        <div class="card mb-4 border-success" style="max-width: 18rem">
                             <div class="card-header bg-success text-white">Requêtes</div>
                             <div class="card-body text-dark">
                                 <h1 id="nbRequest" class="card-title">{{ nbRequest }}</h1>
@@ -190,6 +177,102 @@
             </div>
 
             <div class="container my-3">
+                <h5 class="mb-3">Etapes</h5>
+                <div class="row">
+                    <div class="col col-md-12">
+                        <table id="tabBestPractices" class="table table-sm">
+                            <thead class="table-light">
+                                <th scope="col">Etape</th>
+                                <th scope="col">Ecoindex</th>
+                                <th scope="col">Eau (cl)</th>
+                                <th scope="col">GES (gCO2e)</th>
+                                <th scope="col">Nb d'éléments du DOM</th>
+                                <th scope="col">Nombre de requêtes</th>
+                                <th scope="col">Page (Ko)</th>
+                            </thead>
+                            <tbody>
+                                {{#pages}}
+                                <!-- Empty line -->
+                                <tr class="pageRow">
+                                    <td colspan="7"><b>{{ name }} - {{ url }}</b></td>
+                                </tr>
+                                {{#actions}}
+                                <tr>
+                                    <td>{{ name }}</td>
+                                    <td>
+                                        {{ ecoIndex }}
+                                        <span class="grade {{grade}}">{{grade}}</span>
+                                    </td>
+                                    <td>{{ waterConsumption }}</td>
+                                    <td>{{ greenhouseGasesEmission }}</td>
+                                    <td>{{ domSize }}</td>
+                                    <td>{{{ nbRequest }}}</td>
+                                    <td>{{ responsesSize }}</td>
+                                </tr>
+                                {{/actions}}
+                                <tr>
+                                    <td>Total avec actions</td>
+                                    <td>
+                                        {{ lastTask.ecoIndex }}
+                                        <span class="grade {{lastTask.grade}}">{{lastTask.grade}}</span>
+                                    </td>
+                                    <td>{{ lastTask.waterConsumption }}</td>
+                                    <td>{{ lastTask.greenhouseGasesEmission }}</td>
+                                    <td>{{ lastTask.domSize }}</td>
+                                    <td>{{{ lastTask.nbRequest }}}</td>
+                                    <td>{{ lastTask.responsesSize }}</td>
+                                </tr>
+                                <tr class="collapseRow">
+                                    <td colspan="7">
+                                        <a data-bs-toggle="collapse" href="#rule_{{ id }}" role="button" aria-expanded="false" aria-controls="rule_{{ id }}">
+                                            Bonnes pratiques ({{ nbBestPracticesToCorrect }} à corriger)
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7" class="hiddenRow">
+                                        <table id="rule_{{ id }}" class="collapse table table-sm">
+                                            <thead class="table-light">
+                                                <th scope="col">Règle</th>
+                                                <th scope="col">Résultat</th>
+                                                <th scope="col">Note</th>
+                                            </thead>
+                                            <tbody>
+                                                {{#bestPractices}}
+                                                <tr>
+                                                    <td title="{{ info }}">
+                                                        <a data-bs-toggle="collapse" href="#{{ id }}" role="button" aria-expanded="false" aria-controls="{{ id }}">
+                                                            <span>{{ name }}</span>
+                                                        </a>
+                                                    </td>
+                                                    <td>{{comment}}</td>
+                                                    <td class="text-center">
+                                                        <div class="{{ note }}"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="3" class="hiddenRow">
+                                                        <div class="collapse" id="{{ id }}">
+                                                            <div class="card card-body">{{{ errors }}}</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {{/bestPractices}}
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7"></td>
+                                </tr>
+                                {{/pages}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container my-3">
                 <h5 class="mb-3">Bonnes pratiques</h5>
                 <div class="row">
                     <div class="col col-md-12">
@@ -202,10 +285,29 @@
                             <tbody>
                                 {{#bestPractices}}
                                 <tr>
-                                    <td>{{ name }}</td>
-                                    <td>{{ comment }}</td>
+                                    <td>
+                                        <span>{{ name }}</span><br />
+                                        {{#pages}} {{ . }}
+                                        <br />
+                                        {{/pages}}
+                                    </td>
+                                    <td>
+                                        <br />{{#comments}} {{ . }}
+                                        <br />
+                                        {{/comments}}
+                                    </td>
                                     <td class="text-center">
-                                        <div class={{ note }}></div>
+                                        <br />{{#notes}}
+                                        <div class="{{ . }}"></div>
+                                        <br />
+                                        {{/notes}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="hiddenRow">
+                                        <div class="collapse" id="{{ id }}">
+                                            <div class="card card-body">{{{ errors }}}</div>
+                                        </div>
                                     </td>
                                 </tr>
                                 {{/bestPractices}}

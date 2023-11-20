@@ -6,10 +6,28 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+            crossorigin="anonymous"
+        ></script>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
+            crossorigin="anonymous"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.min.css"
+            rel="stylesheet"
+            integrity="sha384-GHL5aQs2BwQUg6AUEbqq6XFSN6lGo8DAT58V5NckuLm9Ibf0uR8i7T+GwodBqcET"
+            crossorigin="anonymous"
+        />
 
         <style type="text/css">
+            .pageRow {
+                background-color: #f0f0f0;
+            }
             .grade {
                 display: inline-block;
                 width: 24px;
@@ -30,38 +48,86 @@
             }
 
             .grade.A {
-                background-color: #349A47;
+                background-color: #349a47;
                 color: #fff;
             }
 
             .grade.B {
-                background-color: #51B84B;
+                background-color: #51b84b;
                 color: #fff;
             }
 
             .grade.C {
-                background-color: #CADB2A;
+                background-color: #cadb2a;
                 color: #fff;
             }
 
             .grade.D {
-                background-color: #F6EB15;
+                background-color: #f6eb15;
             }
 
             .grade.E {
-                background-color: #FECD06;
+                background-color: #fecd06;
             }
 
             .grade.F {
-                background-color: #F99839;
+                background-color: #f99839;
                 color: #fff;
             }
 
             .grade.G {
-                background-color: #ED2124;
+                background-color: #ed2124;
                 color: #fff;
             }
-            </style>
+            .checkmark-success {
+                position: absolute;
+                transform: rotate(45deg);
+                height: 18px;
+                width: 10px;
+                border-bottom: 5px solid #78b13f;
+                border-right: 5px solid #78b13f;
+                margin-left: 20px;
+            }
+
+            .close-warning,
+            .close-error {
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                padding-left: 20px;
+            }
+            .close-warning:before,
+            .close-warning:after,
+            .close-error:before,
+            .close-error:after {
+                position: absolute;
+                content: ' ';
+                height: 22px;
+                width: 4px;
+            }
+            .close-warning:before,
+            .close-error:before {
+                transform: rotate(45deg);
+            }
+            .close-warning:after,
+            .close-error:after {
+                transform: rotate(-45deg);
+            }
+
+            .close-warning:before,
+            .close-warning:after {
+                background-color: orange;
+            }
+
+            .close-error:before,
+            .close-error:after {
+                background-color: red;
+            }
+            .hiddenRow {
+                padding: 0 !important;
+                max-width: 920px;
+            }
+        </style>
 
         <title>GreenIT-Analysis report</title>
     </head>
@@ -69,7 +135,7 @@
     <body>
         <nav class="navbar navbar-success bg-success text-white mb-4">
             <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1" style="font-size: 1rem;">GreenIT-Analysis report</span>
+                <span class="navbar-brand mb-0 h1" style="font-size: 1rem">GreenIT-Analysis report</span>
             </div>
         </nav>
         <div class="container">
@@ -91,37 +157,20 @@
                     </tbody>
                 </table>
             </div>
+
             <div class="container my-5">
-                <div class="row text-center">
+                <div class="row text-center justify-content-center">
                     <div class="col col-md-3">
-                        <div class="card mb-3 border-success" style="max-width: 18rem;">
-                            <div class="card-header bg-success text-white">Ecoindex</div>
+                        <div class="card mb-3 border-primary" style="max-width: 18rem">
+                            <div class="card-header bg-primary text-white">Scénario(s)</div>
                             <div class="card-body text-dark">
-                                <h1 id="ecoIndex" class="card-title" style="height: 45px;">{{{ ecoIndex }}}</h1>
+                                <h1 id="nbScenarios" class="card-title" style="height: 45px">{{{ nbScenarios }}}</h1>
                             </div>
                         </div>
                     </div>
 
                     <div class="col col-md-3">
-                        <div class="card mb-3 border-warning" style="max-width: 18rem;">
-                            <div class="card-header bg-warning text-white">Règles à corriger</div>
-                            <div class="card-body text-dark">
-                                <h1 id="nbBestPracticesToCorrect" class="card-title">{{ nbBestPracticesToCorrect }}</h1>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col col-md-3">
-                        <div class="card mb-3 border-primary" style="max-width: 18rem;">
-                            <div class="card-header bg-primary text-white">Pages</div>
-                            <div class="card-body text-dark">
-                                <h1 id="nbPages" class="card-title">{{ nbPages }}</h1>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col col-md-3">
-                        <div class="card mb-3 border-danger" style="max-width: 18rem;">
+                        <div class="card mb-3 border-danger" style="max-width: 18rem">
                             <div class="card-header bg-danger text-white">Erreur(s)</div>
                             <div class="card-body text-dark">
                                 <h1 id="nbErrors" class="card-title">{{ nbErrors }}</h1>
@@ -133,53 +182,83 @@
 
             <div class="container my-3">
                 <div class="row">
-                    <div class="col {{ cssTablePagesSize }}">
+                    <div class="col col-md-12">
                         <table id="tabPages" class="table table-sm">
-                            <thead class="table-light">
-                                <th scope="col">Page</th>
+                            <thead class="table-light" style="text-align: center; vertical-align: middle">
+                                <th scope="col">Scénario</th>
                                 <th scope="col">Ecoindex</th>
+                                <th scope="col">Part due aux actions</th>
                                 <th scope="col">Eau (cl)</th>
                                 <th scope="col">GES (gCO2e)</th>
                                 <th scope="col">Règles à corriger</th>
                             </thead>
-                            <tbody>
+                            <tbody style="text-align: center">
                                 {{#allReportsVariables}}
-                                <tr class="{{ cssRowError }}">
-                                    <td>{{{ link }}}</a></td>
-                                    {{^success}}
-                                    <td colspan="4"> Erreur</td>
-                                    {{/success}}
-                                    {{#success}}
-                                    <td >{{{ smallEcoIndex }}}</td>
-                                    <td>{{ waterConsumption }}</td>
-                                    <td>{{ greenhouseGasesEmission }}</td>
-                                    <td>{{ nbBestPracticesToCorrect }}</td>
-                                    {{/success}}
-                                </tr>
+                                    <tr class="{{ cssRowError }}" style="text-align: left">
+                                        <td colspan="6">{{{ link }}}</td>
+                                    </tr>
+                                    {{#pages}}
+                                    <tr class="pageRow {{ cssRowError }}">
+                                        <td>{{ name }}</td>
+                                        {{^success}}
+                                        <td colspan="4">Erreur</td>
+                                        {{/success}}
+                                        {{#success}}
+                                        <td>
+                                            {{{ lastTask.ecoIndex }}}&nbsp;<span class="grade {{ lastTask.grade }}">{{ lastTask.grade }}</span>
+                                        </td>
+                                        <td>&nbsp;{{ deltaEcoIndex }}</td>
+                                        <td>&nbsp;{{ waterConsumption }}</td>
+                                        <td>&nbsp;{{ greenhouseGasesEmission }}</td>
+                                        <td>&nbsp;{{ nbBestPracticesToCorrect }}</td>
+                                        {{/success}}
+                                    </tr>
+                                    {{/pages}}
                                 {{/allReportsVariables}}
                             </tbody>
                         </table>
                     </div>
-                    {{#worstRulesHeader}}
-                    <div class="col col-md-3">
-                        <table id="tabWorstRules" class="table table-bordered">
-                            <thead>
-                                <tr class="bg-dark text-white">
-                                <th scope="col">{{ worstRulesHeader }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#worstRules}}
-                                <tr>
-                                    <td>{{ . }}</td>
-                                </tr>
-                                {{/worstRules}}
-                            </tbody>
-                        </table>
+                    <div class="container my-3">
+                        <h5 class="mb-3">Bonnes pratiques</h5>
+                        <div class="row">
+                            <div class="col col-md-12">
+                                <table id="tabBestPractices" class="table table-sm">
+                                    <thead class="table-light">
+                                        <th scope="col">Règle</th>
+                                        <th scope="col">Note</th>
+                                    </thead>
+                                    <tbody>
+                                        {{#tabGlobal}}
+                                        <tr>
+                                            <td>{{ name }}</td>
+                                            <td class="text-center">
+                                                <div class="{{ note }}"></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="6" class="hiddenRow">
+                                                <div class="collapse" id="{{ id }}">
+                                                    {{#errors}} {{ scenario }}
+                                                    <div class="card card-body">{{{ errors }}}</div>
+                                                    {{/errors}}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {{/tabGlobal}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    {{/worstRulesHeader}}
                 </div>
             </div>
+
+            <p><B>Liens</B> :</p>
+            <ul>
+                <li>Pour comprendre le calcul de l'EcoIndex : <a href="https://www.ecoindex.fr/comment-ca-marche/">https://www.ecoindex.fr/comment-ca-marche/</a></li>
+                <li>Parmi les 115 règles d'écoconception, 24 sont vérifiées par l'outil. Pour en savoir plus : <a href="https://github.com/cnumr/best-practices">https://github.com/cnumr/best-practices</a></li>
+            </ul>
+
         </div>
     </body>
 </html>
