@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const ProgressBar = require('progress');
-const TemplateEngine = require('thymeleaf');
+const Mustache = require('mustache');
 const translator = require('./translator.js').translator;
 
 /**
@@ -43,12 +43,11 @@ async function create_html_report(reportObject, options) {
     const globalReportVariables = readGlobalReport(globalReport.path, allReportsVariables);
 
     // write global report
-    const templateEngine = new TemplateEngine.TemplateEngine();
-    writeGlobalReport(templateEngine, globalReportVariables, OUTPUT_FILE, progressBar);
+    writeGlobalReport(globalReportVariables, OUTPUT_FILE, progressBar);
 
     // write all reports
     const outputFolder = path.dirname(OUTPUT_FILE);
-    writeAllReports(templateEngine, allReportsVariables, outputFolder, progressBar);
+    writeAllReports(allReportsVariables, outputFolder, progressBar);
 }
 
 function readAllReports(fileList) {
@@ -167,37 +166,33 @@ function extractBestPractices(bestPracticesFromReport) {
     return bestPractices;
 }
 
-function writeGlobalReport(templateEngine, globalReportVariables, outputFile, progressBar) {
-    templateEngine
-        .processFile(path.join(__dirname, 'template/global.html'), globalReportVariables)
-        .then((globalReportHtml) => {
-            fs.writeFileSync(outputFile, globalReportHtml);
-            if (progressBar) {
-                progressBar.tick();
-            } else {
-                console.log(`Global report : ${outputFile} created`);
-            }
-        })
-        .catch((error) => {
-            console.log('Error while reading HTML global template : ', error);
-        });
+/**
+ * Write global report from global template
+ */
+function writeGlobalReport(globalReportVariables, outputFile, progressBar) {
+    const template = fs.readFileSync(path.join(__dirname, 'template/global.html')).toString();
+    var rendered = Mustache.render(template, globalReportVariables);
+    fs.writeFileSync(outputFile, rendered);
+    if (progressBar) {
+        progressBar.tick();
+    } else {
+        console.log(`Global report : ${outputFile} created`);
+    }
 }
 
-function writeAllReports(templateEngine, allReportsVariables, outputFolder, progressBar) {
+/**
+ * Write scenarios report from page template
+ */
+function writeAllReports(allReportsVariables, outputFolder, progressBar) {
+    const template = fs.readFileSync(path.join(__dirname, 'template/page.html')).toString();
     allReportsVariables.forEach((reportVariables) => {
-        templateEngine
-            .processFile(path.join(__dirname, 'template/page.html'), reportVariables)
-            .then((singleReportHtml) => {
-                fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, singleReportHtml);
-                if (progressBar) {
-                    progressBar.tick();
-                } else {
-                    console.log(`Single report : ${reportVariables.filename} created`);
-                }
-            })
-            .catch((error) => {
-                console.log(`Error while reading HTML template ${reportVariables.filename} : `, error);
-            });
+        var rendered = Mustache.render(template, reportVariables);
+        fs.writeFileSync(`${outputFolder}/${reportVariables.filename}`, rendered);
+        if (progressBar) {
+            progressBar.tick();
+        } else {
+            console.log(`Global report : ${outputFolder}/${reportVariables.filename} created`);
+        }
     });
 }
 
