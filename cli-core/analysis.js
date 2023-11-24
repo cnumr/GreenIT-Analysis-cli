@@ -37,34 +37,14 @@ async function analyseURL(browser, pageInformations, options) {
         // disabling cache
         await page.setCacheEnabled(false);
 
-        //get har file
-        const pptrHar = new PuppeteerHar(page);
-        await pptrHar.start();
-
-        try {
-            //go to url
-            await page.goto(pageInformations.url, { timeout: TIMEOUT });
-
-            // waiting for page to load
-            await waitPageLoading(page, pageInformations, TIMEOUT);
-        } finally {
-            // Take screenshot (even if the page fails to load)
-            if (pageInformations.screenshot) {
-                await takeScreenshot(page, pageInformations.screenshot);
-            }
-        }
-
         // Execute actions on page (click, text, ...)
         let pages = await startActions(
             page,
+            pageInformations,
             pageInformations.actions,
             TIMEOUT,
-            pptrHar,
             pageInformations.newPageName ? pageInformations.newPageName : 'Chargement de la page'
         );
-
-        await pptrHar.stop();
-        page.close();
 
         result.pages = pages;
         result.success = true;
@@ -120,7 +100,24 @@ function isValidWaitForNavigation(waitUntilParam) {
  * @param {*} name page name
  * @returns
  */
-async function startActions(page, actions, TIMEOUT, pptrHar, name) {
+async function startActions(page, pageInformations, actions, TIMEOUT, name) {
+    //get har file
+    let pptrHar = new PuppeteerHar(page);
+    await pptrHar.start();
+
+    try {
+        //go to url
+        await page.goto(pageInformations.url, { timeout: TIMEOUT });
+
+        // waiting for page to load
+        await waitPageLoading(page, pageInformations, TIMEOUT);
+    } finally {
+        // Take screenshot (even if the page fails to load)
+        if (pageInformations.screenshot) {
+            await takeScreenshot(page, pageInformations.screenshot);
+        }
+    }
+
     const pages = [];
     let currentPage = {};
 
@@ -129,13 +126,18 @@ async function startActions(page, actions, TIMEOUT, pptrHar, name) {
     // Do initial snapshot of data before actions
     let analysis = await doAnalysis(page, pptrHar, name);
 
-    let nbRequest = analysis.nbRequest;
     results.push(analysis);
     currentPage.name = name;
     currentPage.bestPractices = analysis.bestPractices;
+    currentPage.nbRequest = analysis.nbRequest;
+    currentPage.responsesSize = analysis.responsesSize;
+    currentPage.responsesSizeUncompress = analysis.responsesSizeUncompress;
 
     if (actions) {
         for (let index = 0; index < actions.length; index++) {
+            // Clean up HAR to capture new statistics
+            //pptrHar.cleanUp();
+
             let action = actions[index];
             let actionName = action.name || index + 1;
 
@@ -150,13 +152,14 @@ async function startActions(page, actions, TIMEOUT, pptrHar, name) {
                 if (action.newPageName) {
                     // Save page analyse
                     currentPage.actions = results;
-                    currentPage.nbRequest = nbRequest;
                     pages.push({ ...currentPage });
 
                     currentPage = {};
                     currentPage.name = action.newPageName;
                     results = [];
-                    nbRequest = 0;
+                    currentPage.nbRequest = 0;
+                    currentPage.responsesSize = 0;
+                    currentPage.responsesSizeUncompress = 0;
                     // Clean up HAR history
                     pptrHar.network_events = [];
                     pptrHar.response_body_promises = [];
@@ -184,30 +187,48 @@ async function startActions(page, actions, TIMEOUT, pptrHar, name) {
                 if (action.screenshot) {
                     await takeScreenshot(page, action.screenshot);
                 }
-
-                let result = await doAnalysis(page, pptrHar, action.name);
-                currentPage.bestPractices = result.bestPractices;
-                result.bestPractices = null;
-                nbRequest += result.nbRequest;
-                results.push(result);
             }
+
+            let result = await doAnalysis(page, pptrHar, action.name);
+            currentPage.bestPractices = result.bestPractices;
+
+            // Statistics of current page = statistics of last action (e.g. statistics sum of all actions)
+            currentPage.nbRequest = result.nbRequest;
+            currentPage.responsesSize = analysis.responsesSize;
+            currentPage.responsesSizeUncompress = analysis.responsesSizeUncompress;
+
+            results.push(result);
         }
     } else {
         currentPage.bestPractices = analysis.bestPractices;
     }
 
-    currentPage.nbRequest = nbRequest;
     currentPage.url = page.url();
     currentPage.actions = results;
     pages.push(currentPage);
 
+    await pptrHar.stop();
+    page.close();
+
     return pages;
+}
+
+function isNetworkEventGeneratedByAnalysis(initiator) {
+    return (
+        initiator?.type === 'script' &&
+        initiator?.stack?.callFrames?.some((callFrame) => callFrame.url.includes('bundle.js'))
+    );
 }
 
 async function doAnalysis(page, pptrHar, name) {
     let result = {};
 
     try {
+        // remove network events generated by the analysis (remove all events that have initiator.type=script generated by bundle.js)
+        pptrHar.network_events = pptrHar.network_events.filter(
+            (network_event) => !isNetworkEventGeneratedByAnalysis(network_event?.params?.initiator)
+        );
+
         //get ressources
         const harObj = await harStatus(pptrHar);
         const client = await page.target().createCDPSession();

@@ -107,8 +107,7 @@ function readAllReports(fileList) {
             report_data.pages.forEach((page) => {
                 const actions = [];
                 const analyzePage = {};
-                let previousNbRequest = 0;
-                let previousResponseSize = 0;
+
                 let actionNumber = 0;
 
                 analyzePage.name = page.name;
@@ -127,12 +126,9 @@ function readAllReports(fileList) {
                         res.grade = action.grade;
                         res.waterConsumption = action.waterConsumption;
                         res.greenhouseGasesEmission = action.greenhouseGasesEmission;
-                        // actions number of request is only the delta with previous measure
-                        res.nbRequest = action.nbRequest - previousNbRequest;
+                        res.nbRequest = action.nbRequest;
                         res.domSize = action.domSize;
-                        res.responsesSize = (action.responsesSize - previousResponseSize) / 1000;
-                        previousNbRequest = action.nbRequest;
-                        previousResponseSize = action.responsesSize;
+                        res.responsesSize = action.responsesSize / 1000;
                         analyzePage.waterConsumption = action.waterConsumption;
                         analyzePage.greenhouseGasesEmission = action.greenhouseGasesEmission;
                         analyzePage.domSize = action.domSize;
@@ -148,8 +144,8 @@ function readAllReports(fileList) {
                         // In all case, we affect last task to current action
                         analyzePage.lastTask = { ...res };
                         // For last task, we take full count
-                        analyzePage.lastTask.nbRequest = previousNbRequest;
-                        analyzePage.lastTask.responsesSize = previousResponseSize / 1000;
+                        analyzePage.lastTask.nbRequest = res.nbRequest;
+                        analyzePage.lastTask.responsesSize = res.responsesSize;
                         analyzePage.lastTask.responsesSizeUncompress = action.responsesSizeUncompress;
                     }
 
