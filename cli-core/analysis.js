@@ -134,18 +134,15 @@ async function startActions(page, actions, TIMEOUT, pptrHar, name) {
     currentPage.name = name;
     currentPage.bestPractices = analysis.bestPractices;
 
-    // Add some wait in order to prevent green-it script to cancel future measure
-    await page.waitForTimeout(1000);
-
     if (actions) {
         for (let index = 0; index < actions.length; index++) {
             let action = actions[index];
             let actionName = action.name || index + 1;
 
-            if (action.timeoutBefore) {
-                let timeout = action.timeoutBefore > 0 ? action.timeoutBefore : 1000;
-                await page.waitForTimeout(timeout);
-            }
+            // Add some wait in order to prevent green-it script to cancel future measure
+            // default timeout : 1000ms
+            let timeoutBefore = action.timeoutBefore > 0 ? action.timeoutBefore : 1000;
+            await page.waitForTimeout(timeoutBefore);
 
             currentPage.url = page.url();
 
