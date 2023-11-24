@@ -232,39 +232,6 @@ function readAllReports(fileList) {
  */
 function readGlobalReport(path, allReportsVariables, waterTotal, greenhouseGasesEmissionTotal) {
     const globalReport_data = JSON.parse(fs.readFileSync(path).toString());
-    const hasWorstRules = globalReport_data.worstRules?.length > 0 ? true : false;
-    const bestPracticesGlobal = [];
-
-    const bestPractices = extractBestPractices();
-
-    bestPractices.forEach((bestPractice) => {
-        let note = 'checkmark-success';
-        let errors = [];
-        let success = true;
-
-        allReportsVariables.forEach((scenario) => {
-            if (scenario.pages) {
-                scenario.pages.forEach((page) => {
-                    const best = page.bestPractices.filter((bp) => bp.key === bestPractice.key)[0];
-
-                    if (success && best.note === 'close-error') {
-                        success = false;
-                        note = 'close-error';
-                    }
-                });
-            }
-        });
-
-        const bestPracticeGlobal = {
-            id: bestPractice.id,
-            name: bestPractice.name,
-            comment: bestPractice.comment,
-            note: note,
-            errors: errors,
-        };
-
-        bestPracticesGlobal.push(bestPracticeGlobal);
-    });
 
     let ecoIndex = '';
 
@@ -292,7 +259,6 @@ function readGlobalReport(path, allReportsVariables, waterTotal, greenhouseGases
         greenhouseGasesEmissionTotal: Math.round(greenhouseGasesEmissionTotal * 100) / 100,
         nbErrors: globalReport_data.errors.length,
         allReportsVariables,
-        tabGlobal: bestPracticesGlobal,
     };
     return globalReportVariables;
 }

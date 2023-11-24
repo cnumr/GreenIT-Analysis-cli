@@ -218,38 +218,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="container my-3">
-                        <h5 class="mb-3">Bonnes pratiques</h5>
-                        <div class="row">
-                            <div class="col col-md-12">
-                                <table id="tabBestPractices" class="table table-sm">
-                                    <thead class="table-light">
-                                        <th scope="col">Règle</th>
-                                        <th scope="col">Note</th>
-                                    </thead>
-                                    <tbody>
-                                        {{#tabGlobal}}
-                                        <tr>
-                                            <td>{{ name }}</td>
-                                            <td class="text-center">
-                                                <div class="{{ note }}"></div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="6" class="hiddenRow">
-                                                <div class="collapse" id="{{ id }}">
-                                                    {{#errors}} {{ scenario }}
-                                                    <div class="card card-body">{{{ errors }}}</div>
-                                                    {{/errors}}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {{/tabGlobal}}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
