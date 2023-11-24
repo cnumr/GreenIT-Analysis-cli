@@ -108,8 +108,6 @@ function readAllReports(fileList) {
                 const actions = [];
                 const analyzePage = {};
 
-                let actionNumber = 0;
-
                 analyzePage.name = page.name;
                 analyzePage.url = page.url;
 
@@ -120,49 +118,35 @@ function readAllReports(fileList) {
                 page.actions.forEach((action) => {
                     const res = {};
                     res.name = action.name;
-
-                    if (action.success) {
-                        res.ecoIndex = action.ecoIndex;
-                        res.grade = action.grade;
-                        res.waterConsumption = action.waterConsumption;
-                        res.greenhouseGasesEmission = action.greenhouseGasesEmission;
-                        res.nbRequest = action.nbRequest;
-                        res.domSize = action.domSize;
-                        res.responsesSize = action.responsesSize / 1000;
-                        analyzePage.waterConsumption = action.waterConsumption;
-                        analyzePage.greenhouseGasesEmission = action.greenhouseGasesEmission;
-                        analyzePage.domSize = action.domSize;
-                        analyzePage.nbRequest = action.nbRequest;
-                        analyzePage.ecoIndex = action.ecoIndex;
-                        analyzePage.grade = action.grade;
-
-                        if (actionNumber === 0) {
-                            // Init task is used to get initial measure
-                            analyzePage.initTask = res;
-                        }
-
-                        // In all case, we affect last task to current action
-                        analyzePage.lastTask = { ...res };
-                        // For last task, we take full count
-                        analyzePage.lastTask.nbRequest = res.nbRequest;
-                        analyzePage.lastTask.responsesSize = res.responsesSize;
-                        analyzePage.lastTask.responsesSizeUncompress = action.responsesSizeUncompress;
-                    }
-
-                    analyzePage.deltaEcoIndex = analyzePage.initTask.ecoIndex - analyzePage.lastTask.ecoIndex;
-
-                    actionNumber++;
+                    res.ecoIndex = action.ecoIndex;
+                    res.grade = action.grade;
+                    res.waterConsumption = action.waterConsumption;
+                    res.greenhouseGasesEmission = action.greenhouseGasesEmission;
+                    res.nbRequest = action.nbRequest;
+                    res.domSize = action.domSize;
+                    res.responsesSize = action.responsesSize / 1000;
+                    res.responsesSizeUncompress = action.responsesSizeUncompress;
                     actions.push(res);
                 });
 
                 analyzePage.actions = actions;
-                if (analyzePage.lastTask) {
-                    // update total page measure
-                    nbRequestTotal += analyzePage.lastTask.nbRequest;
-                    responsesSizeTotal += analyzePage.lastTask.responsesSize;
-                    domSizeTotal += analyzePage.lastTask.domSize;
-                    responsesSizeUncompressTotal += analyzePage.lastTask.responsesSizeUncompress;
-                }
+
+                const lastAction = actions[actions.length - 1];
+                analyzePage.lastEcoIndex = lastAction.ecoIndex;
+                analyzePage.lastGrade = lastAction.grade;
+                analyzePage.deltaEcoIndex = actions[0].ecoIndex - lastAction.ecoIndex;
+                analyzePage.waterConsumption = lastAction.waterConsumption;
+                analyzePage.greenhouseGasesEmission = lastAction.greenhouseGasesEmission;
+                analyzePage.domSize = lastAction.domSize;
+                analyzePage.nbRequest = lastAction.nbRequest;
+                analyzePage.ecoIndex = lastAction.ecoIndex;
+                analyzePage.grade = lastAction.grade;
+
+                // update total page measure
+                nbRequestTotal += lastAction.nbRequest;
+                responsesSizeTotal += lastAction.responsesSize;
+                domSizeTotal += lastAction.domSize;
+                responsesSizeUncompressTotal += lastAction.responsesSizeUncompress;
 
                 const pageBestPractices = extractBestPractices();
 
