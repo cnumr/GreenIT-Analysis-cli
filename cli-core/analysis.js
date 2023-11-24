@@ -192,13 +192,6 @@ async function startActions(page, actions, TIMEOUT, pptrHar, name) {
                 results.push(result);
             }
         }
-
-        // Add some wait in order to prevent green-it script to cancel future measure
-        await page.waitForTimeout(1000);
-
-        // Get data for end of scenario
-        analysis = await doAnalysis(page, pptrHar, 'Fin du scénario');
-        results.push(analysis);
     } else {
         currentPage.bestPractices = analysis.bestPractices;
     }
