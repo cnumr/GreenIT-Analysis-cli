@@ -9,9 +9,9 @@ const { createProgressBar } = require('./utils');
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
 
-//Analyse a webpage
-async function analyseURL(browser, pageInformations, options) {
-    let result = {};
+//Analyse a scenario
+async function analyseScenario(browser, pageInformations, options) {
+    let scenarioResult = {};
 
     const TIMEOUT = options.timeout;
     const TAB_ID = options.tabId;
@@ -46,29 +46,29 @@ async function analyseURL(browser, pageInformations, options) {
             pageInformations.newPageName ? pageInformations.newPageName : 'Chargement de la page'
         );
 
-        result.pages = pages;
-        result.success = true;
-        result.nbBestPracticesToCorrect = 0;
+        scenarioResult.pages = pages;
+        scenarioResult.success = true;
+        scenarioResult.nbBestPracticesToCorrect = 0;
 
         // Compute number of times where best practices are not respected
-        for (let key in result.bestPractices) {
-            if ((result.bestPractices[key].complianceLevel || 'A') !== 'A') {
-                result.nbBestPracticesToCorrect++;
+        for (let key in scenarioResult.bestPractices) {
+            if ((scenarioResult.bestPractices[key].complianceLevel || 'A') !== 'A') {
+                scenarioResult.nbBestPracticesToCorrect++;
             }
         }
     } catch (error) {
         console.error(`Error while analyzing URL ${pageInformations.url} : `, error);
-        result.success = false;
+        scenarioResult.success = false;
     }
     const date = new Date();
-    result.date = `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`;
-    result.pageInformations = pageInformations;
-    result.tryNb = TRY_NB;
-    result.tabId = TAB_ID;
-    result.index = options.index;
-    result.url = pageInformations.url;
+    scenarioResult.date = `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`;
+    scenarioResult.pageInformations = pageInformations;
+    scenarioResult.tryNb = TRY_NB;
+    scenarioResult.tabId = TAB_ID;
+    scenarioResult.index = options.index;
+    scenarioResult.url = pageInformations.url;
 
-    return result;
+    return scenarioResult;
 }
 
 async function waitPageLoading(page, pageInformations, TIMEOUT) {
@@ -100,44 +100,30 @@ function isValidWaitForNavigation(waitUntilParam) {
  * @param {*} name page name
  * @returns
  */
-async function startActions(page, pageInformations, actions, TIMEOUT, name) {
+async function startActions(page, pageInformations, actions, timeout, name) {
     //get har file
-    let pptrHar = new PuppeteerHar(page);
+    const pptrHar = new PuppeteerHar(page);
     await pptrHar.start();
 
-    try {
-        //go to url
-        await page.goto(pageInformations.url, { timeout: TIMEOUT });
+    // do first action : go to the URL
+    await doFirstAction(page, pageInformations, timeout);
 
-        // waiting for page to load
-        await waitPageLoading(page, pageInformations, TIMEOUT);
-    } finally {
-        // Take screenshot (even if the page fails to load)
-        if (pageInformations.screenshot) {
-            await takeScreenshot(page, pageInformations.screenshot);
-        }
-    }
+    // do initial snapshot of data before actions
+    let actionResult = await doAnalysis(page, pptrHar, name);
 
-    const pages = [];
+    let actionsResultsForAPage = [];
+    actionsResultsForAPage.push(actionResult);
+
     let currentPage = {};
-
-    let results = [];
-
-    // Do initial snapshot of data before actions
-    let analysis = await doAnalysis(page, pptrHar, name);
-
-    results.push(analysis);
     currentPage.name = name;
-    currentPage.bestPractices = analysis.bestPractices;
-    currentPage.nbRequest = analysis.nbRequest;
-    currentPage.responsesSize = analysis.responsesSize;
-    currentPage.responsesSizeUncompress = analysis.responsesSizeUncompress;
+    currentPage.bestPractices = actionResult.bestPractices;
+    currentPage.nbRequest = actionResult.nbRequest;
+    currentPage.responsesSize = actionResult.responsesSize;
+    currentPage.responsesSizeUncompress = actionResult.responsesSizeUncompress;
 
+    const pagesResults = [];
     if (actions) {
         for (let index = 0; index < actions.length; index++) {
-            // Clean up HAR to capture new statistics
-            //pptrHar.cleanUp();
-
             let action = actions[index];
             let actionName = action.name || index + 1;
 
@@ -151,66 +137,85 @@ async function startActions(page, pageInformations, actions, TIMEOUT, name) {
             try {
                 if (action.newPageName) {
                     // Save page analyse
-                    currentPage.actions = results;
-                    pages.push({ ...currentPage });
+                    currentPage.actions = actionsResultsForAPage;
+                    pagesResults.push({ ...currentPage });
 
+                    // Reinit variables
+                    actionsResultsForAPage = [];
                     currentPage = {};
                     currentPage.name = action.newPageName;
-                    results = [];
                     currentPage.nbRequest = 0;
                     currentPage.responsesSize = 0;
                     currentPage.responsesSizeUncompress = 0;
+
                     // Clean up HAR history
                     pptrHar.network_events = [];
                     pptrHar.response_body_promises = [];
                 }
 
                 // Do asked action
-                if (action.type === 'click') {
-                    await page.click(action.element);
-                    await waitPageLoading(page, action, TIMEOUT);
-                } else if (action.type === 'text') {
-                    await page.type(action.element, action.content, { delay: 100 });
-                    await waitPageLoading(page, action, TIMEOUT);
-                } else if (action.type === 'select') {
-                    let args = [action.element].concat(action.values);
-                    // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
-                    await page.select.apply(page, args);
-                    await waitPageLoading(page, action, TIMEOUT);
-                } else if (action.type === 'scroll') {
-                    await scrollToBottom(page);
-                    await waitPageLoading(page, action, TIMEOUT);
-                } else {
-                    console.log("Unknown action for '" + actionName + "' : " + action.type);
-                }
+                await doAction(page, action, actionName, timeout);
             } finally {
                 if (action.screenshot) {
                     await takeScreenshot(page, action.screenshot);
                 }
             }
 
-            let result = await doAnalysis(page, pptrHar, action.name);
-            currentPage.bestPractices = result.bestPractices;
+            actionResult = await doAnalysis(page, pptrHar, actionName);
+            currentPage.bestPractices = actionResult.bestPractices;
 
             // Statistics of current page = statistics of last action (e.g. statistics sum of all actions)
-            currentPage.nbRequest = result.nbRequest;
-            currentPage.responsesSize = analysis.responsesSize;
-            currentPage.responsesSizeUncompress = analysis.responsesSizeUncompress;
+            currentPage.nbRequest = actionResult.nbRequest;
+            currentPage.responsesSize = actionResult.responsesSize;
+            currentPage.responsesSizeUncompress = actionResult.responsesSizeUncompress;
 
-            results.push(result);
+            actionsResultsForAPage.push(actionResult);
         }
-    } else {
-        currentPage.bestPractices = analysis.bestPractices;
     }
 
     currentPage.url = page.url();
-    currentPage.actions = results;
-    pages.push(currentPage);
+    currentPage.actions = actionsResultsForAPage;
+    pagesResults.push(currentPage);
 
     await pptrHar.stop();
     page.close();
 
-    return pages;
+    return pagesResults;
+}
+
+async function doFirstAction(page, pageInformations, timeout) {
+    try {
+        //go to url
+        await page.goto(pageInformations.url, { timeout: timeout });
+
+        // waiting for page to load
+        await waitPageLoading(page, pageInformations, timeout);
+    } finally {
+        // Take screenshot (even if the page fails to load)
+        if (pageInformations.screenshot) {
+            await takeScreenshot(page, pageInformations.screenshot);
+        }
+    }
+}
+
+async function doAction(page, action, actionName, timeout) {
+    if (action.type === 'click') {
+        await page.click(action.element);
+        await waitPageLoading(page, action, timeout);
+    } else if (action.type === 'text') {
+        await page.type(action.element, action.content, { delay: 100 });
+        await waitPageLoading(page, action, timeout);
+    } else if (action.type === 'select') {
+        let args = [action.element].concat(action.values);
+        // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
+        await page.select.apply(page, args);
+        await waitPageLoading(page, action, timeout);
+    } else if (action.type === 'scroll') {
+        await scrollToBottom(page);
+        await waitPageLoading(page, action, timeout);
+    } else {
+        console.log("Unknown action for '" + actionName + "' : " + action.type);
+    }
 }
 
 function isNetworkEventGeneratedByAnalysis(initiator) {
@@ -221,8 +226,6 @@ function isNetworkEventGeneratedByAnalysis(initiator) {
 }
 
 async function doAnalysis(page, pptrHar, name) {
-    let result = {};
-
     // remove network events generated by the analysis (remove all events that have initiator.type=script generated by bundle.js)
     pptrHar.network_events = pptrHar.network_events.filter(
         (network_event) => !isNetworkEventGeneratedByAnalysis(network_event?.params?.initiator)
@@ -247,7 +250,7 @@ async function doAnalysis(page, pptrHar, name) {
     await page.evaluate((x) => (resources = x), ressourceTree.frameTree.resources);
 
     //launch analyse
-    result = await page.evaluate(() => launchAnalyse());
+    const result = await page.evaluate(() => launchAnalyse());
     if (name) {
         result.name = name;
     }
@@ -375,7 +378,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
     //Asynchronous analysis with MAX_TAB open simultaneously to json
     for (let i = 0; i < MAX_TAB && index < pagesInformations.length; i++) {
         asyncFunctions.push(
-            analyseURL(browser, pagesInformations[index], {
+            analyseScenario(browser, pagesInformations[index], {
                 device: DEVICE,
                 timeout: TIMEOUT,
                 tabId: i,
@@ -393,7 +396,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
             asyncFunctions.splice(
                 convert[results.tabId],
                 1,
-                analyseURL(browser, results.pageInformations, {
+                analyseScenario(browser, results.pageInformations, {
                     device: DEVICE,
                     timeout: TIMEOUT,
                     tabId: results.tabId,
@@ -422,7 +425,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
                 asyncFunctions.splice(
                     results.tabId,
                     1,
-                    analyseURL(browser, pagesInformations[index], {
+                    analyseScenario(browser, pagesInformations[index], {
                         device: DEVICE,
                         timeout: TIMEOUT,
                         tabId: results.tabId,
