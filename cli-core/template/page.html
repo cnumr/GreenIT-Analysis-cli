@@ -274,28 +274,38 @@
                                 {{#bestPractices}}
                                 <tr>
                                     <td>
-                                        <span>{{ name }}</span><br />
-                                        {{#pages}} {{ . }}
+                                        <span>{{ name }}</span>
+                                        {{#pages.1}}
+                                        <br />
+                                        {{#pages}}
+                                        > {{ . }}
                                         <br />
                                         {{/pages}}
+                                        {{/pages.1}}
                                     </td>
                                     <td>
-                                        <br />{{#comments}} {{ . }}
+                                        {{^pages.1}}
+                                        {{comments.0}}
+                                        {{/pages.1}}
+                                        {{#pages.1}}
+                                        <br />
+                                        {{#comments}}
+                                        {{ . }}
                                         <br />
                                         {{/comments}}
+                                        {{/pages.1}}
                                     </td>
                                     <td class="text-center">
-                                        <br />{{#notes}}
+                                        {{^pages.1}}
+                                        <div class="{{ notes.0 }}"></div>
+                                        {{/pages.1}}
+                                        {{#pages.1}}
+                                        <br />
+                                        {{#notes}}
                                         <div class="{{ . }}"></div>
                                         <br />
                                         {{/notes}}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="hiddenRow">
-                                        <div class="collapse" id="{{ id }}">
-                                            <div class="card card-body">{{{ errors }}}</div>
-                                        </div>
+                                        {{/pages.1}}
                                     </td>
                                 </tr>
                                 {{/bestPractices}}
