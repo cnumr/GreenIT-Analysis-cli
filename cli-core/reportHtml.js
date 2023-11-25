@@ -259,8 +259,44 @@ function readGlobalReport(path, allReportsVariables, waterTotal, greenhouseGases
         greenhouseGasesEmissionTotal: Math.round(greenhouseGasesEmissionTotal * 100) / 100,
         nbErrors: globalReport_data.errors.length,
         allReportsVariables,
+        bestsPractices: constructBestPracticesGlobal(allReportsVariables),
     };
     return globalReportVariables;
+}
+
+function constructBestPracticesGlobal(allReportsVariables) {
+    const bestPracticesGlobal = [];
+    const bestPractices = extractBestPractices();
+
+    bestPractices.forEach((bestPractice) => {
+        let note = 'checkmark-success';
+        let errors = [];
+        let success = true;
+
+        allReportsVariables.forEach((scenario) => {
+            if (scenario.pages) {
+                scenario.pages.forEach((page) => {
+                    const best = page.bestPractices.filter((bp) => bp.key === bestPractice.key)[0];
+
+                    if (success && best.note === 'close-error') {
+                        success = false;
+                        note = 'close-error';
+                    }
+                });
+            }
+        });
+
+        const bestPracticeGlobal = {
+            id: bestPractice.id,
+            name: bestPractice.name,
+            comment: bestPractice.comment,
+            note: note,
+            errors: errors,
+        };
+
+        bestPracticesGlobal.push(bestPracticeGlobal);
+    });
+    return bestPracticesGlobal;
 }
 
 /**
