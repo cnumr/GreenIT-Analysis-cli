@@ -20,7 +20,7 @@ concat(
         ...rules,
         './greenit-core/greenpanel.js',
     ],
-    './dist/bundle.js',
+    './dist/greenItBundle.js',
     function (err) {
         if (err) throw err;
         console.log('build complete');

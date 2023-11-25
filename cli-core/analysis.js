@@ -1,16 +1,17 @@
 const PuppeteerHar = require('puppeteer-har');
 const fs = require('fs');
 const path = require('path');
-const ProgressBar = require('progress');
+const { harFromMessages } = require('chrome-har');
 const sizes = require('../sizes.js');
 const translator = require('./translator.js').translator;
+const { createProgressBar } = require('./utils');
 
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
 
-//Analyse a webpage
-async function analyseURL(browser, pageInformations, options) {
-    let result = {};
+//Analyse a scenario
+async function analyseScenario(browser, pageInformations, options) {
+    let scenarioResult = {};
 
     const TIMEOUT = options.timeout;
     const TAB_ID = options.tabId;
@@ -36,83 +37,32 @@ async function analyseURL(browser, pageInformations, options) {
         // disabling cache
         await page.setCacheEnabled(false);
 
-        //get har file
-        const pptrHar = new PuppeteerHar(page);
-        await pptrHar.start();
+        // Execute actions on page (click, text, ...)
+        let pages = await startActions(page, pageInformations, TIMEOUT);
 
-        try {
-            //go to url
-            await page.goto(pageInformations.url, { timeout: TIMEOUT });
-
-            // waiting for page to load
-            await waitPageLoading(page, pageInformations, TIMEOUT);
-        } finally {
-            // Take screenshot (even if the page fails to load)
-            if (pageInformations.screenshot) {
-                await takeScreenshot(page, pageInformations.screenshot);
-            }
-        }
-
-        if (pageInformations.actions) {
-            // Execute actions on page (click, text, ...)
-            await startActions(page, pageInformations.actions, TIMEOUT);
-        }
-
-        let harObj = await pptrHar.stop();
-        //get ressources
-        const client = await page.target().createCDPSession();
-        let ressourceTree = await client.send('Page.getResourceTree');
-        await client.detach();
-
-        // replace chrome.i18n.getMessage call by i18n custom implementation working in page
-        // fr is default catalog
-        await page.evaluate(
-            (language_array) =>
-                (chrome = {
-                    i18n: {
-                        getMessage: function (message, parameters = []) {
-                            return language_array[message].replace(/%s/g, function () {
-                                // parameters is string or array
-                                return Array.isArray(parameters) ? parameters.shift() : parameters;
-                            });
-                        },
-                    },
-                }),
-            translator.getCatalog()
-        );
-
-        //add script, get run, then remove it to not interfere with the analysis
-        let script = await page.addScriptTag({ path: path.join(__dirname, '../dist/bundle.js') });
-        await script.evaluate((x) => x.remove());
-
-        //pass node object to browser
-        await page.evaluate((x) => (har = x), harObj.log);
-        await page.evaluate((x) => (resources = x), ressourceTree.frameTree.resources);
-
-        //launch analyse
-        result = await page.evaluate(() => launchAnalyse());
-
-        page.close();
-        result.success = true;
-        result.nbBestPracticesToCorrect = 0;
+        scenarioResult.pages = pages;
+        scenarioResult.success = true;
+        scenarioResult.nbBestPracticesToCorrect = 0;
 
         // Compute number of times where best practices are not respected
-        for (let key in result.bestPractices) {
-            if ((result.bestPractices[key].complianceLevel || 'A') !== 'A') {
-                result.nbBestPracticesToCorrect++;
+        for (let key in scenarioResult.bestPractices) {
+            if ((scenarioResult.bestPractices[key].complianceLevel || 'A') !== 'A') {
+                scenarioResult.nbBestPracticesToCorrect++;
             }
         }
     } catch (error) {
-        result.success = false;
         console.error(`Error while analyzing URL ${pageInformations.url} : `, error);
+        scenarioResult.success = false;
     }
     const date = new Date();
-    result.date = `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`;
-    result.pageInformations = pageInformations;
-    result.tryNb = TRY_NB;
-    result.tabId = TAB_ID;
-    result.index = options.index;
-    return result;
+    scenarioResult.date = `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`;
+    scenarioResult.pageInformations = pageInformations;
+    scenarioResult.tryNb = TRY_NB;
+    scenarioResult.tabId = TAB_ID;
+    scenarioResult.index = options.index;
+    scenarioResult.url = pageInformations.url;
+
+    return scenarioResult;
 }
 
 async function waitPageLoading(page, pageInformations, TIMEOUT) {
@@ -135,40 +85,201 @@ function isValidWaitForNavigation(waitUntilParam) {
     );
 }
 
-async function startActions(page, actions, TIMEOUT) {
-    for (let index = 0; index < actions.length; index++) {
-        let action = actions[index];
-        let actionName = action.name || index + 1;
+/**
+ * Execute scenario configured actions
+ * @param {*} page selenium page
+ * @param {*} actions list of action
+ * @param {*} TIMEOUT timeout
+ * @param {*} pptrHar analyze data
+ * @param {*} name page name
+ * @returns
+ */
+async function startActions(page, pageInformations, timeout) {
+    //get har file
+    const pptrHar = new PuppeteerHar(page);
+    await pptrHar.start();
 
-        if (action.timeoutBefore) {
-            let timeout = action.timeoutBefore > 0 ? action.timeoutBefore : 0;
-            await page.waitForTimeout(timeout);
-        }
+    // do first action : go to the URL
+    await doFirstAction(page, pageInformations, timeout);
 
-        try {
-            if (action.type === 'click') {
-                await page.click(action.element);
-                await waitPageLoading(page, action, TIMEOUT);
-            } else if (action.type === 'text') {
-                await page.type(action.element, action.content, { delay: 100 });
-                await waitPageLoading(page, action, TIMEOUT);
-            } else if (action.type === 'select') {
-                let args = [action.element].concat(action.values);
-                // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
-                await page.select.apply(page, args);
-                await waitPageLoading(page, action, TIMEOUT);
-            } else if (action.type === 'scroll') {
-                await scrollToBottom(page);
-                await waitPageLoading(page, action, TIMEOUT);
-            } else {
-                console.log("Unknown action for '" + actionName + "' : " + action.type);
+    // do initial snapshot of data before actions
+    let actionResult = await doAnalysis(page, pptrHar, 'Chargement de la page');
+
+    let actionsResultsForAPage = [];
+    actionsResultsForAPage.push(actionResult);
+
+    let currentPage = {};
+    currentPage.name = actionResult.name;
+    currentPage.bestPractices = actionResult.bestPractices;
+    currentPage.nbRequest = actionResult.nbRequest;
+    currentPage.responsesSize = actionResult.responsesSize;
+    currentPage.responsesSizeUncompress = actionResult.responsesSizeUncompress;
+
+    const pagesResults = [];
+    const actions = pageInformations.actions;
+    if (actions) {
+        for (let index = 0; index < actions.length; index++) {
+            let action = actions[index];
+            let actionName = action.name || index + 1;
+
+            // Add some wait in order to prevent green-it script to cancel future measure
+            // default timeout : 1000ms
+            let timeoutBefore = action.timeoutBefore > 0 ? action.timeoutBefore : 1000;
+            await page.waitForTimeout(timeoutBefore);
+
+            currentPage.url = page.url();
+
+            if (action.pageChange) {
+                // Save page analyse
+                currentPage.actions = actionsResultsForAPage;
+                pagesResults.push({ ...currentPage });
+
+                // Reinit variables
+                actionsResultsForAPage = [];
+                currentPage = {};
+                currentPage.name = actionName;
+                currentPage.nbRequest = 0;
+                currentPage.responsesSize = 0;
+                currentPage.responsesSizeUncompress = 0;
+
+                // Clean up HAR history
+                pptrHar.network_events = [];
+                pptrHar.response_body_promises = [];
             }
-        } finally {
-            if (action.screenshot) {
-                await takeScreenshot(page, action.screenshot);
+
+            try {
+                // Do asked action
+                await doAction(page, action, actionName, timeout);
+            } finally {
+                if (action.screenshot) {
+                    await takeScreenshot(page, action.screenshot);
+                }
             }
+
+            actionResult = await doAnalysis(page, pptrHar, actionName);
+            currentPage.bestPractices = actionResult.bestPractices;
+
+            // Statistics of current page = statistics of last action (e.g. statistics sum of all actions)
+            currentPage.nbRequest = actionResult.nbRequest;
+            currentPage.responsesSize = actionResult.responsesSize;
+            currentPage.responsesSizeUncompress = actionResult.responsesSizeUncompress;
+
+            actionsResultsForAPage.push(actionResult);
         }
     }
+
+    currentPage.url = page.url();
+    currentPage.actions = actionsResultsForAPage;
+    pagesResults.push(currentPage);
+
+    await pptrHar.stop();
+    page.close();
+
+    return pagesResults;
+}
+
+async function doFirstAction(page, pageInformations, timeout) {
+    try {
+        //go to url
+        await page.goto(pageInformations.url, { timeout: timeout });
+
+        // waiting for page to load
+        await waitPageLoading(page, pageInformations, timeout);
+    } finally {
+        // Take screenshot (even if the page fails to load)
+        if (pageInformations.screenshot) {
+            await takeScreenshot(page, pageInformations.screenshot);
+        }
+    }
+}
+
+async function doAction(page, action, actionName, timeout) {
+    if (action.type === 'click') {
+        await page.click(action.element);
+        await waitPageLoading(page, action, timeout);
+    } else if (action.type === 'text') {
+        await page.type(action.element, action.content, { delay: 100 });
+        await waitPageLoading(page, action, timeout);
+    } else if (action.type === 'select') {
+        let args = [action.element].concat(action.values);
+        // equivalent to : page.select(action.element, action.values[0], action.values[1], ...)
+        await page.select.apply(page, args);
+        await waitPageLoading(page, action, timeout);
+    } else if (action.type === 'scroll') {
+        await scrollToBottom(page);
+        await waitPageLoading(page, action, timeout);
+    } else {
+        console.log("Unknown action for '" + actionName + "' : " + action.type);
+    }
+}
+
+function isNetworkEventGeneratedByAnalysis(initiator) {
+    return (
+        initiator?.type === 'script' &&
+        initiator?.stack?.callFrames?.some((callFrame) => callFrame.url.includes('greenItBundle.js'))
+    );
+}
+
+async function doAnalysis(page, pptrHar, name) {
+    // remove network events generated by the analysis (remove all events that have initiator.type=script generated by greenItBundle.js)
+    pptrHar.network_events = pptrHar.network_events.filter(
+        (network_event) => !isNetworkEventGeneratedByAnalysis(network_event?.params?.initiator)
+    );
+
+    //get ressources
+    const harObj = await harStatus(pptrHar);
+    const client = await page.target().createCDPSession();
+    const ressourceTree = await client.send('Page.getResourceTree');
+    await client.detach();
+
+    await injectChromeObjectInPage(page);
+
+    //add script, get run, then remove it to not interfere with the analysis
+    const script = await page.addScriptTag({
+        path: path.join(__dirname, '../dist/greenItBundle.js'),
+    });
+    await script.evaluate((x) => x.remove());
+
+    //pass node object to browser
+    await page.evaluate((x) => (har = x), harObj.log);
+    await page.evaluate((x) => (resources = x), ressourceTree.frameTree.resources);
+
+    //launch analyse
+    const result = await page.evaluate(() => launchAnalyse());
+    if (name) {
+        result.name = name;
+    }
+
+    return result;
+}
+
+async function injectChromeObjectInPage(page) {
+    // replace chrome.i18n.getMessage call by i18n custom implementation working in page
+    // fr is default catalog
+    await page.evaluate(
+        (language_array) =>
+            (chrome = {
+                i18n: {
+                    getMessage: function (message, parameters = []) {
+                        return language_array[message].replace(/%s/g, function () {
+                            // parameters is string or array
+                            return Array.isArray(parameters) ? parameters.shift() : parameters;
+                        });
+                    },
+                },
+            }),
+        translator.getCatalog()
+    );
+}
+
+/**
+ * @returns {Promise<void|object>}
+ */
+async function harStatus(pptrHar) {
+    await Promise.all(pptrHar.response_body_promises);
+    return harFromMessages(pptrHar.page_events.concat(pptrHar.network_events), {
+        includeTextFromResponseBody: pptrHar.saveResponse,
+    });
 }
 
 async function scrollToBottom(page) {
@@ -240,22 +351,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
     const DEVICE = options.device;
 
     //initialise progress bar
-    let progressBar;
-    if (!options.ci) {
-        progressBar = new ProgressBar(
-            ' Analysing                [:bar] :percent     Remaining: :etas     Time: :elapseds',
-            {
-                complete: '=',
-                incomplete: ' ',
-                width: 40,
-                total: pagesInformations.length + 2,
-            }
-        );
-        progressBar.tick();
-    } else {
-        console.log('Analysing ...');
-    }
-
+    const progressBar = createProgressBar(options, pagesInformations.length + 2, 'Analysing', 'Analysing ...');
     let asyncFunctions = [];
     let results;
     let resultId = 1;
@@ -277,7 +373,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
     //Asynchronous analysis with MAX_TAB open simultaneously to json
     for (let i = 0; i < MAX_TAB && index < pagesInformations.length; i++) {
         asyncFunctions.push(
-            analyseURL(browser, pagesInformations[index], {
+            analyseScenario(browser, pagesInformations[index], {
                 device: DEVICE,
                 timeout: TIMEOUT,
                 tabId: i,
@@ -287,7 +383,6 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
             })
         );
         index++;
-        //console.log(`Start of analysis #${index}/${pagesInformations.length}`)
     }
 
     while (asyncFunctions.length != 0) {
@@ -296,7 +391,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
             asyncFunctions.splice(
                 convert[results.tabId],
                 1,
-                analyseURL(browser, results.pageInformations, {
+                analyseScenario(browser, results.pageInformations, {
                     device: DEVICE,
                     timeout: TIMEOUT,
                     tabId: results.tabId,
@@ -310,7 +405,6 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
             let filePath = path.resolve(SUBRESULTS_DIRECTORY, `${resultId}.json`);
             writeList.push(fs.promises.writeFile(filePath, JSON.stringify(results)));
             reports.push({ name: `${resultId}`, path: filePath });
-            //console.log(`End of an analysis (${resultId}/${pagesInformations.length}). Results will be saved in ${filePath}`);
             if (progressBar) {
                 progressBar.tick();
             } else {
@@ -326,7 +420,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
                 asyncFunctions.splice(
                     results.tabId,
                     1,
-                    analyseURL(browser, pagesInformations[index], {
+                    analyseScenario(browser, pagesInformations[index], {
                         device: DEVICE,
                         timeout: TIMEOUT,
                         tabId: results.tabId,
@@ -336,7 +430,6 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
                     })
                 ); // No need for convert, fixed size array
                 index++;
-                //console.log(`Start of analysis #${index}/${pagesInformations.length}`)
             }
         }
     }

@@ -1,4 +1,4 @@
-# GreenIT-Analysis 
+# GreenIT-Analysis
 Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://github.com/cnumr/GreenIT-Analysis).
 
 # Sommaire
@@ -22,7 +22,7 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
 - [Conditions d'utilisation](#conditions-dutilisation)
 
 # Principe de l'outil
-Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes dans Chromium en passant par Puppeteer pour récuperer les résultats. 
+Cet outil simule l'exécution de l'extension sur les pages spécifiées ouvertes dans Chromium en passant par Puppeteer pour récuperer les résultats.
 
 Le système de cache est désactivé pour fiabiliser l'analyse d'une page.
 
@@ -41,8 +41,8 @@ Pour cela, deux manières différentes de pouvoir l'utiliser :
 ### Prérequis
  - Node.js
 
-### Installation 
-1. Récupérer le code source : 
+### Installation
+1. Récupérer le code source :
 ```
 git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
 ```
@@ -54,7 +54,7 @@ git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
 ```
 npm install
 ```
-4. Créer le lien symbolique pour faciliter l'usage de l'outil : 
+4. Créer le lien symbolique pour faciliter l'usage de l'outil :
 ```
 npm link
 ```
@@ -82,7 +82,7 @@ npm link
  ```
  chmod 777 /<path>/output
  ```
-5. Récupérer le code source : 
+5. Récupérer le code source :
  ```
  git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
  ```
@@ -90,7 +90,7 @@ npm link
  ```
  cd GreenIT-Analysis-cli
  ```
-7. Construire l'image Docker : 
+7. Construire l'image Docker :
  ```
  docker build -t imageName .
  ```
@@ -98,10 +98,10 @@ npm link
 ### Configurer un proxy
 Si vous avez besoin de configurer un proxy, il faut :
 
-1. Modifier le Dockerfile 
+1. Modifier le Dockerfile
 
 ```
-# Uncomment if you need to configure proxy. 
+# Uncomment if you need to configure proxy.
 # You can init these variables by using --build-arg during docker build
 # Example : docker build [...] --build-arg http_proxy=http://<user>:<password>@<host>:<port>
 ENV HTTP_PROXY=$http_proxy
@@ -110,8 +110,8 @@ ENV NO_PROXY=$no_proxy
 
 [...]
 
-# Uncomment if you need to configure proxy. 
-#RUN npm config set proxy $HTTP_PROXY 
+# Uncomment if you need to configure proxy.
+#RUN npm config set proxy $HTTP_PROXY
 ```
 
 2. Construire l'image en passant les informations du proxy en paramètres
@@ -156,9 +156,9 @@ Plus de détails ici : https://github.com/puppeteer/puppeteer/blob/main/docs/api
 
 Par défaut, si aucun des paramètres de type `waitFor` n'est défini, alors l'outil considère que la navigation est terminée lorsque l'événement `load` est déclenché.
 
-Exemple de fichier `url.yaml` : 
+Exemple de fichier `url.yaml` :
 ```yaml
-# Analyse l'URL collectif.greenit.fr 
+# Analyse l'URL collectif.greenit.fr
 - name : 'Collectif GreenIT.fr'
   url : 'https://collectif.greenit.fr/'
 
@@ -175,20 +175,21 @@ Exemple de fichier `url.yaml` :
 ```
 
 #### Actions
-Les actions permettent de définir un parcours utilisateur plus complexe avant de lancer l'analyse. 
+Les actions permettent de définir un parcours utilisateur plus complexe avant de lancer l'analyse.
 
 Il est possible de définir une liste d'actions à travers le champ `actions` qui est de type liste. La forme d'une action est la suivante :
 
-| Paramètre           | Type   | Obligatoire | Description                                                                 |
-| ------------------- | ------ | ----------- | --------------------------------------------------------------------------- |
-| `name`              | string | Non         | Non de l'action                                                             |
-| `type`              | string | Oui         | Type de l'action : `click`, `scroll`, `select`, `text`                      |
-| `element`           | string | Non         | Element du DOM sur lequel l'action doit être exécutée. De type CSS selector |
-| `timeoutBefore`     | string | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes)                  |
-| `waitForSelector`   | string | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible         |
-| `waitForXPath`      | string | Non         | Attend que l'élément HTML définit par le XPath soit visible                 |
-| `waitForNavigation` | string | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
-| `screenshot`       | string | Non         | Réalise une capture d'écran de la page, après avoir réalisé l'action. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si l'action est en erreur. |
+| Paramètre           | Type    | Obligatoire | Description                                                                 |
+| ------------------- | ------- | ----------- | --------------------------------------------------------------------------- |
+| `name`              | string  | Non         | Non de l'action                                                             |
+| `type`              | string  | Oui         | Type de l'action : `click`, `scroll`, `select`, `text`                      |
+| `element`           | string  | Non         | Element du DOM sur lequel l'action doit être exécutée. De type CSS selector |
+| `pageChange`        | boolean | Non         | Si `true`, indique que l'action déclenche un changement de page. Permet d'avoir un calcul des indicateurs dédié à la nouvelle page. Valeur par défaut : `false`. |
+| `timeoutBefore`     | string  | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes). Valeur par défaut : 1000 |
+| `waitForSelector`   | string  | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible         |
+| `waitForXPath`      | string  | Non         | Attend que l'élément HTML définit par le XPath soit visible                 |
+| `waitForNavigation` | string  | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+| `screenshot`       | string   | Non         | Réalise une capture d'écran de la page, après avoir réalisé l'action. La valeur à renseigner est le nom de la capture d'écran. La capture d'écran est réalisée même si l'action est en erreur. |
 
 Les conditions de type `waitFor` peuvent être réutilisées afin de définir une condition d'attente après l'exécution de l'action. Elles restent optionnelles. La capture d'écran, le cas échéant, est réalisée après cette condition d'attente.
 
@@ -212,6 +213,7 @@ Exemple :
     - name : 'Clic sur Découvrez nos outils'
       type: 'click'
       element : 'a[title="Nos outils"]'
+      pageChange: true
       timeoutBefore: 1000
       waitForSelector: '#header'
 ```
@@ -273,7 +275,7 @@ Exemple :
       timeoutBefore: 1000
 ```
 
-### Commande 
+### Commande
 
 ```
 greenit analyse <url_input_file> <report_output_file>
@@ -284,11 +286,38 @@ Paramètres obligatoires :
 - `report_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
 
 Paramètres optionnels :
-- `--timeout , -t` : Nombre de millisecondes maximal pour charger une url. (Valeur par défaut : 180000)
-- `--max_tab` : Nombre d'URL analysées en "simultané" (asynchronicité). (Valeur par défaut : 40)
-- `--retry , -r` : Nombre d'essais supplémentaires d'analyse en cas d'echec. (Valeur par défaut : 2)
-- `--worst_pages` : Nombre de pages à traiter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
-- `--worst_rules` : Nombre de règles à respecter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
+- `--device , -d` : Emulation du terminal d'affichage. (Valeur par défaut : "desktop")
+
+  Choix :
+  - desktop
+  - galaxyS9
+  - galaxyS20
+  - iPhone8
+  - iPhone8Plus
+  - iPhoneX
+  - iPad
+
+- `--format , -f` : Format du rapport. Ce paramètre est optionnel : s'il n'est pas défini, alors le format sera déduit en fonction de l'extension du fichier du rapport. Lorsqu'il est défini, le paramètre format est prioritaire vis-à-vis de l'extension.
+
+    Choix :
+    - xlsx
+    - html
+    - influxdb
+
+- `--headers , -h` : Chemin vers le fichier YAML contenant les headers HTTP configurés pour accéder aux URL à analyser.
+
+  Exemple de headers.yaml :
+  ```yaml
+  accept: 'text/html,application/xhtml+xml,application/xml'
+  accept-encoding: 'gzip, deflate, br'
+  accept-language: 'en-US,en;q=0.9,en;q=0.8'
+  ```
+- `--headless` : Paramètre permettant d'activer ou de désactiver le mode headless. Lorsque ce mode est désactivé, cela permet de visualiser l'automatisation des actions dans le navigateur. Valeurs possibles : [`true`, `false`]. Valeur par défaut : `true`.
+- `--influxdb` : Active l'écriture des données dans une base influxdb
+- `--influxdb_hostname` : URL de la base influxdb
+- `--influxdb_org` : Nom de l'organisation influxdb
+- `--influxdb_token` : Token de connexion pour influxdb
+- `--influxdb_bucket` : Bucket infludb sur lequel envoyer les données
 - `--login , -l` : Chemin vers le fichier YAML contenant les informations de connexions.
 
   Exemple de login.yaml :
@@ -303,17 +332,8 @@ Paramètres optionnels :
   ```
   Plus d'informations sur les selectors : https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
 
-- `--device , -d` : Emulation du terminal d'affichage. (Valeur par défaut : "desktop")
-  
-  Choix :
-  - desktop
-  - galaxyS9
-  - galaxyS20
-  - iPhone8
-  - iPhone8Plus
-  - iPhoneX
-  - iPad
-
+- `--max_tab` : Nombre d'URL analysées en "simultané" (asynchronicité). (Valeur par défaut : 40).
+- `--mobile` : Type de connexion. Si `true` : mobile, sinon : filaire. Valeur par défaut : `false` (filaire).
 - `--proxy , -p` : Chemin vers le fichier YAML contenant les informations de configuration du proxy.
 
   Exemple de proxy.yaml :
@@ -322,29 +342,10 @@ Paramètres optionnels :
   user: "<username>"
   password: "<password>"
   ```
-
-- `--format , -f` : Format du rapport. Ce paramètre est optionnel : s'il n'est pas défini, alors le format sera déduit en fonction de l'extension du fichier du rapport. Lorsqu'il est défini, le paramètre format est prioritaire vis-à-vis de l'extension.
-
-Choix :
-- xlsx 
-- html
-- influxdb
-
-- `--headers , -h` : Chemin vers le fichier YAML contenant les headers HTTP configurés pour accéder aux URL à analyser.
-
-  Exemple de headers.yaml :
-  ```yaml
-  accept: 'text/html,application/xhtml+xml,application/xml'
-  accept-encoding: 'gzip, deflate, br'
-  accept-language: 'en-US,en;q=0.9,en;q=0.8'
-  ```
-
-- `--influxdb` : Active l'écriture des données dans une base influxdb
-- `--influxdb_hostname` : URL de la base influxdb
-- `--influxdb_org` : Nom de l'organisation influxdb
-- `--influxdb_token` : Token de connexion pour influxdb
-- `--influxdb_bucket` : Bucket infludb sur lequel envoyer les données
-- `--headless` : Paramètre permettant d'activer ou de désactiver le mode headless. Lorsque ce mode est désactivé, cela permet de visualiser l'automatisation des actions dans le navigateur. Valeurs possibles : [`true`, `false`]. Valeur par défaut : `true`.
+- `--retry , -r` : Nombre d'essais supplémentaires d'analyse en cas d'echec. (Valeur par défaut : 2)
+- `--timeout , -t` : Nombre de millisecondes maximal pour charger une url. (Valeur par défaut : 180000)
+- `--worst_pages` : Nombre de pages à traiter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
+- `--worst_rules` : Nombre de règles à respecter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
 
 ### Usage avec Docker
 1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
@@ -364,7 +365,7 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
 
 3. Récupérer les résultats dans votre dossier `/<path>/output`
 
-#### Redéfinir les variables `URL_PATH` et `RESULTS_PATH` 
+#### Redéfinir les variables `URL_PATH` et `RESULTS_PATH`
 Vous pouvez redéfinir les variables `URL_PATH` et `RESULTS_PATH` si vous souhaitez changer le nom des fichiers ou leur emplacement.
 
 Exemple :
@@ -379,10 +380,10 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
   imageName
 ```
 
-#### Surcharger l'instruction CMD définie dans le Dockerfile 
+#### Surcharger l'instruction CMD définie dans le Dockerfile
 Vous pouvez surcharger la commande renseignée par défaut dans le Dockerfile.
 
-Exemple : 
+Exemple :
 ```
 docker run -it --init --rm --cap-add=SYS_ADMIN \
   -v /<path>/input:/app/input \
@@ -409,11 +410,11 @@ docker run -it --init --rm --cap-add=SYS_ADMIN \
 
 #### Excel (xlsx)
 
-Prérequis : 
+Prérequis :
 - Soit le paramètre suivant est définit : `--format=xlsx` ou `-f=xlsx`
 - Soit le fichier de sortie doit avoir l'extension `.xlsx`
 
-Exemple de commande : 
+Exemple de commande :
 
 ```
 greenit analyse /app/input/url.yaml /app/output/results.xlsx --format=xlsx
@@ -434,29 +435,33 @@ Exemple d'un rapport :
 
 #### HTML
 
-Prérequis : 
-Prérequis : 
+Prérequis :
+Prérequis :
 - Soit le paramètre suivant est définit : `--format=html` ou `-f=html`
 - Soit le fichier de sortie doit avoir l'extension `.html`
 
-Exemple de commande : 
+Exemple de commande :
 
 ```
 greenit analyse /app/input/url.yaml /app/output/global.html --format=html
 ```
 
 Le rapport HTML est composé :
-- D'une page résumé : moyenne de l'ecoindex de toutes les pages analysées, nombre total de règles à corriger, tableau de toutes les pages analysées avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger) et les règles prioritaires à corriger. Pour accéder au rapport détaillé d'une URL analysée, il suffit de cliquer sur le nom de la page.
-- D'une page par URL analysée  : l'ecoindex de l'URL et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
+- D'une page résumé : nombre de scénarios analysés, nombre d'erreur, tableau récapitulatif des scénarios analysés avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger). Un scénario débute par l'ouverture d'une page web via son URL, puis réalise un certain nombre d'actions pouvant éventuellement entrainer l'ouverture d'une autre page. Pour accéder au rapport détaillé d'un scénario analysé, il suffit de cliquer sur le nom du scénario.
+- D'une page par scénario analysé : total du nombre de requêtes HTTP, taille et poids des pages analysées, ainsi qu'un tableau détaillant page par page, et action par action, les indicateurs tels que l'ecoindex et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
 
 Exemple d'un rapport :
 - Page globale :
 
 ![Page globale du rapport HTML](./docs/rapport-html-global.png)
 
-- Page pour une URL analysée :
+- Page pour un scénario analysé :
 
-![Page d'une URL analysée dans le rapport HTML](./docs/rapport-html-detail-page.png)
+![Page d'un scénario analysé dans le rapport HTML](./docs/rapport-html-detail-page.png)
+
+- Page pour un scénario analysé incluant un changement de page :
+
+![Page d'un scénario analysé incluant un changement de page dans le rapport HTML](./docs/rapport-html-detail-page-avec-changement-page.png)
 
 #### InfluxDB
 
@@ -472,7 +477,7 @@ Lors de la première utilisation, quelques étapes de mise en place sont nécess
 - Changer les couples nom d'utilisateur/mot de passe dans le fichier .env (optionel) ;
 - Démarrer le conteneur influxdb : `docker compose up greenit-cli-influxdb` ;
 - Se connecter à influxdb (`http://localhost:8086` par défault) pour récupérer l'id de l'organisation (dans l'url après la connexion `http://localhost:8086/orgs/<org id>`) et le token de connection (data -> API Token), et renseigner les variables d'environnement correspondantes ;
-- Il est ensuite possible de démarrer le conteneur grafana et d'envoyer les données sur influxdb. 
+- Il est ensuite possible de démarrer le conteneur grafana et d'envoyer les données sur influxdb.
 
 Ces étapes ne seront pas nécessaires à nouveau.
 Il faudra toutefois redémarrer au moins le conteneur influxdb avant un test.

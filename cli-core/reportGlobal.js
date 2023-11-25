@@ -1,8 +1,8 @@
-const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 const ProgressBar = require('progress');
 const axios = require('axios');
+const { getEcoIndexGrade, getGradeEcoIndex, createProgressBar } = require('./utils');
 
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
@@ -45,6 +45,8 @@ async function create_global_report(reports, options) {
     const MAX_TAB = options.max_tab || 'No data';
     //Nb of retry before dropping analysis
     const RETRY = options.retry || 'No data';
+    //Connection type
+    const MOBILE = options.mobile ? 'Mobile' : 'Filaire';
     //Nb of displayed worst pages
     const WORST_PAGES = options.worst_pages;
     //Nb of displayed worst rules
@@ -55,26 +57,21 @@ async function create_global_report(reports, options) {
     let handleWorstPages = worstPagesHandler(WORST_PAGES);
 
     //initialise progress bar
-    let progressBar;
-    if (!options.ci) {
-        progressBar = new ProgressBar(
-            ' Create Global report     [:bar] :percent     Remaining: :etas     Time: :elapseds',
-            {
-                complete: '=',
-                incomplete: ' ',
-                width: 40,
-                total: reports.length + 2,
-            }
-        );
-        progressBar.tick();
-    } else {
-        console.log('Creating global report ...');
-    }
+    const progressBar = createProgressBar(
+        options,
+        reports.length + 2,
+        'Create Global report',
+        'Creating global report ...'
+    );
 
+    let eco = 0; //future average
+    let worstEcoIndexes = [null, null];
     let err = [];
     let hostname;
     let worstPages = [];
     let bestPracticesTotal = {};
+    let nbBestPracticesToCorrect = 0;
+
     //Creating one report sheet per file
     reports.forEach((file) => {
         let obj = JSON.parse(fs.readFileSync(file.path).toString());
@@ -82,11 +79,27 @@ async function create_global_report(reports, options) {
         obj.nb = parseInt(file.name);
         //handle potential failed analyse
         if (obj.success) {
-            handleWorstPages(obj, worstPages);
-            for (let key in obj.bestPractices) {
-                bestPracticesTotal[key] = bestPracticesTotal[key] || 0;
-                bestPracticesTotal[key] += getGradeEcoIndex(obj.bestPractices[key].complianceLevel || 'A');
+            eco += obj.ecoIndex;
+            const pageWorstEcoIndexes = getWorstEcoIndexes(obj);
+            if (!worstEcoIndexes[0] || worstEcoIndexes[0].ecoIndex > pageWorstEcoIndexes[0].ecoIndex) {
+                // update global worst ecoindex
+                worstEcoIndexes[0] = { ...pageWorstEcoIndexes[0] };
             }
+            if (!worstEcoIndexes[1] || worstEcoIndexes[1].ecoIndex > pageWorstEcoIndexes[1].ecoIndex) {
+                // update global worst ecoindex
+                worstEcoIndexes[1] = { ...pageWorstEcoIndexes[1] };
+            }
+
+            nbBestPracticesToCorrect += obj.nbBestPracticesToCorrect;
+            handleWorstPages(obj, worstPages);
+            obj.pages.forEach((page) => {
+                if (page.bestPractices) {
+                    for (let key in page.bestPractices) {
+                        bestPracticesTotal[key] = bestPracticesTotal[key] || 0;
+                        bestPracticesTotal[key] += getGradeEcoIndex(page.bestPractices[key].complianceLevel || 'A');
+                    }
+                }
+            });
         } else {
             err.push({
                 nb: obj.nb,
@@ -112,27 +125,24 @@ async function create_global_report(reports, options) {
     }
     //Add info the recap sheet
     //Prepare data
-    let isMobile = DEVICE !== 'desktop';
-    try {
-        isMobile = (await axios.get('http://ip-api.com/json/?fields=mobile', { proxy }))?.data?.mobile ?? isMobile; //get connection type
-    } catch (error) {
-        console.error(
-            `WARN - Unable to get the connection type from http://ip-api.com (default value for isMobile will be: ${isMobile}): ${error}`
-        );
-    }
     const date = new Date();
+    eco = reports.length - err.length != 0 ? Math.round(eco / (reports.length - err.length)) : 'No data'; //Average EcoIndex
     let globalSheet_data = {
         date: `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`,
         hostname: hostname,
         device: DEVICE,
-        connection: isMobile ? 'Mobile' : 'Filaire',
-        nbPages: reports.length,
+        connection: MOBILE,
+        grade: getEcoIndexGrade(eco),
+        ecoIndex: eco,
+        worstEcoIndexes: worstEcoIndexes,
+        nbScenarios: reports.length,
         timeout: parseInt(TIMEOUT),
         maxTab: parseInt(MAX_TAB),
         retry: parseInt(RETRY),
         errors: err,
         worstPages: worstPages,
         worstRules: handleWorstRule(bestPracticesTotal, WORST_RULES),
+        nbBestPracticesToCorrect: nbBestPracticesToCorrect,
     };
 
     if (progressBar) progressBar.tick();
@@ -153,15 +163,34 @@ async function create_global_report(reports, options) {
     };
 }
 
-//Grade -> EcoIndex
-function getGradeEcoIndex(grade) {
-    if (grade == 'A') return 75;
-    if (grade == 'B') return 65;
-    if (grade == 'C') return 50;
-    if (grade == 'D') return 35;
-    if (grade == 'E') return 20;
-    if (grade == 'F') return 5;
-    return 0;
+function getWorstEcoIndexes(obj) {
+    let worstEcoIndexes = [null, null];
+    obj.pages.forEach((page) => {
+        worstEcoIndexes = worstEcoIndexes.map((worstEcoIndex, i) => {
+            if (page.actions.length === 1 || i === 0) {
+                // first = last if only one value, otherwise return value of first action
+                return getWorstEcoIndex(page.actions[0].ecoIndex, worstEcoIndex);
+            } else if (i === 1) {
+                // return value of last action
+                if (page.actions[page.actions.length - 1].ecoIndex) {
+                    return getWorstEcoIndex(page.actions[page.actions.length - 1].ecoIndex, worstEcoIndex);
+                }
+            }
+            return worstEcoIndex;
+        });
+    });
+
+    return worstEcoIndexes.map((worstEcoIndex) => ({
+        ecoIndex: worstEcoIndex,
+        grade: getEcoIndexGrade(worstEcoIndex),
+    }));
+}
+
+function getWorstEcoIndex(current, worst) {
+    if (!worst || worst > current) {
+        worst = current;
+    }
+    return worst;
 }
 
 module.exports = {

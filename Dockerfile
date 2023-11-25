@@ -1,7 +1,7 @@
 # See : https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker
 FROM node:16-slim
 
-# Uncomment if you need to configure proxy. 
+# Uncomment if you need to configure proxy.
 # You can init these variables by using --build-args during docker build
 # Example : docker build [...] --build-args http_proxy=http://<user>:<password>@<host>:<port>
 #ENV HTTP_PROXY=$http_proxy
@@ -19,8 +19,8 @@ RUN apt-get update \
 WORKDIR /app
 COPY . .
 
-# Uncomment if you need to configure proxy. 
-#RUN npm config set proxy $HTTP_PROXY 
+# Uncomment if you need to configure proxy.
+#RUN npm config set proxy $HTTP_PROXY
 
 RUN npm i \
     && npm link \
@@ -31,7 +31,7 @@ RUN npm i \
 
 USER pptruser
 
-# To avoid "Error: ENOENT: no such file or directory, open '/app/dist/bundle.js'"
+# To avoid "Error: ENOENT: no such file or directory, open '/app/dist/greenItBundle.js'"
 RUN npm i
 
 ENV URL_PATH="/app/input/url.yaml"
