@@ -447,7 +447,7 @@ greenit analyse /app/input/url.yaml /app/output/global.html --format=html
 ```
 
 Le rapport HTML est composé :
-- D'une page résumé : nombre de scénarios analysés, nombre d'erreur, tableau récapitulatif des scénarios analysés avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger). Un scénario débute par l'ouverture d'une page web via son URL, puis réalise un certain nombre d'actions pouvant éventuellement entrainer l'ouverture d'une autre page. Pour accéder au rapport détaillé d'un scénario analysé, il suffit de cliquer sur le nom du scénario.
+- D'une page résumé : nombre de scénarios analysés, nombre d'erreur, tableau récapitulatif des scénarios analysés avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger). Un scénario débute par l'ouverture d'une page web via son URL, puis réalise un certain nombre d'actions pouvant éventuellement entrainer l'ouverture d'une autre page. Pour accéder au rapport détaillé d'un scénario analysé, il suffit de cliquer sur le nom du scénario. Un tableau récapitulatif des bonnes pratiques non respectées (dans au moins 1 scénario) est aussi présent.
 - D'une page par scénario analysé : total du nombre de requêtes HTTP, taille et poids des pages analysées, ainsi qu'un tableau détaillant page par page, et action par action, les indicateurs tels que l'ecoindex et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
 
 Exemple d'un rapport :
