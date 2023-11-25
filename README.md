@@ -295,12 +295,14 @@ Paramètres optionnels :
   - iPhone8Plus
   - iPhoneX
   - iPad
+
 - `--format , -f` : Format du rapport. Ce paramètre est optionnel : s'il n'est pas défini, alors le format sera déduit en fonction de l'extension du fichier du rapport. Lorsqu'il est défini, le paramètre format est prioritaire vis-à-vis de l'extension.
 
-Choix :
-- xlsx
-- html
-- influxdb
+    Choix :
+    - xlsx
+    - html
+    - influxdb
+
 - `--headers , -h` : Chemin vers le fichier YAML contenant les headers HTTP configurés pour accéder aux URL à analyser.
 
   Exemple de headers.yaml :
@@ -329,8 +331,8 @@ Choix :
   ```
   Plus d'informations sur les selectors : https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
 
-- `--max_tab` : Nombre d'URL analysées en "simultané" (asynchronicité). (Valeur par défaut : 40)
-- `--mobile` : Type de connexion. (Valeur par défaut : filaire)
+- `--max_tab` : Nombre d'URL analysées en "simultané" (asynchronicité). (Valeur par défaut : 40).
+- `--mobile` : Type de connexion. Si `true` : mobile, sinon : filaire. Valeur par défaut : `false` (filaire).
 - `--proxy , -p` : Chemin vers le fichier YAML contenant les informations de configuration du proxy.
 
   Exemple de proxy.yaml :
@@ -444,17 +446,21 @@ greenit analyse /app/input/url.yaml /app/output/global.html --format=html
 ```
 
 Le rapport HTML est composé :
-- D'une page résumé : moyenne de l'ecoindex de toutes les pages analysées, nombre total de règles à corriger, tableau de toutes les pages analysées avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger) et les règles prioritaires à corriger. Pour accéder au rapport détaillé d'une URL analysée, il suffit de cliquer sur le nom de la page.
-- D'une page par URL analysée  : l'ecoindex de l'URL et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
+- D'une page résumé : nombre de scénarios analysés, nombre d'erreur, tableau récapitulatif des scénarios analysés avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger). Un scénario débute par l'ouverture d'une page web via son URL, puis réalise un certain nombre d'actions pouvant éventuellement entrainer l'ouverture d'une autre page. Pour accéder au rapport détaillé d'un scénario analysé, il suffit de cliquer sur le nom du scénario.
+- D'une page par scénario analysé : total du nombre de requêtes HTTP, taille et poids des pages analysées, ainsi qu'un tableau détaillant page par page, et action par action, les indicateurs tels que l'ecoindex et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
 
 Exemple d'un rapport :
 - Page globale :
 
 ![Page globale du rapport HTML](./docs/rapport-html-global.png)
 
-- Page pour une URL analysée :
+- Page pour un scénario analysé :
 
-![Page d'une URL analysée dans le rapport HTML](./docs/rapport-html-detail-page.png)
+![Page d'un scénario analysé dans le rapport HTML](./docs/rapport-html-detail-page.png)
+
+- Page pour un scénario analysé incluant un changement de page :
+
+![Page d'un scénario analysé incluant un changement de page dans le rapport HTML](./docs/rapport-html-detail-page.png)
 
 #### InfluxDB
 
