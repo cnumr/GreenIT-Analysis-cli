@@ -461,7 +461,7 @@ Exemple d'un rapport :
 
 - Page pour un scénario analysé incluant un changement de page :
 
-![Page d'un scénario analysé incluant un changement de page dans le rapport HTML](./docs/rapport-html-detail-page.png)
+![Page d'un scénario analysé incluant un changement de page dans le rapport HTML](./docs/rapport-html-detail-page-avec-changement-page.png)
 
 #### InfluxDB
 
