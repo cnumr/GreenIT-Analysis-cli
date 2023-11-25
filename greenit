@@ -63,9 +63,9 @@ yargs(hideBin(process.argv))
                     default: 40,
                 })
                 .option('mobile', {
-                    type: 'string',
-                    description: 'Connection type',
-                    default: 'filaire',
+                    type: 'boolean',
+                    description: 'Connection type : mobile or wired',
+                    default: false,
                 })
                 .option('proxy', {
                     alias: 'p',

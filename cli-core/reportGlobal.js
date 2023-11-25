@@ -46,7 +46,7 @@ async function create_global_report(reports, options) {
     //Nb of retry before dropping analysis
     const RETRY = options.retry || 'No data';
     //Connection type
-    const MOBILE = options.mobile || 'No data';
+    const MOBILE = options.mobile ? 'Mobile' : 'Filaire';
     //Nb of displayed worst pages
     const WORST_PAGES = options.worst_pages;
     //Nb of displayed worst rules
@@ -131,7 +131,7 @@ async function create_global_report(reports, options) {
         date: `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`,
         hostname: hostname,
         device: DEVICE,
-        connection: MOBILE ? 'Mobile' : 'Filaire',
+        connection: MOBILE,
         grade: getEcoIndexGrade(eco),
         ecoIndex: eco,
         worstEcoIndexes: worstEcoIndexes,
