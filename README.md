@@ -182,10 +182,10 @@ Il est possible de définir une liste d'actions à travers le champ `actions` qu
 | Paramètre           | Type    | Obligatoire | Description                                                                 |
 | ------------------- | ------- | ----------- | --------------------------------------------------------------------------- |
 | `name`              | string  | Non         | Non de l'action                                                             |
-| `newPageName`       | string  | Non         | Nom de la nouvelle page accédée dans le scénario suite à l'exécution d'une action. Permet d'avoir un calcul des indicateurs dédiés à la nouvelle page. |
 | `type`              | string  | Oui         | Type de l'action : `click`, `scroll`, `select`, `text`                      |
 | `element`           | string  | Non         | Element du DOM sur lequel l'action doit être exécutée. De type CSS selector |
-| `timeoutBefore`     | string  | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes)                  |
+| `pageChange`        | boolean | Non         | Si `true`, indique que l'action déclenche un changement de page. Permet d'avoir un calcul des indicateurs dédié à la nouvelle page. Valeur par défaut : `false`. |
+| `timeoutBefore`     | string  | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes). Valeur par défaut : 1000 |
 | `waitForSelector`   | string  | Non         | Attend que l'élément HTML définit par le sélecteur CSS soit visible         |
 | `waitForXPath`      | string  | Non         | Attend que l'élément HTML définit par le XPath soit visible                 |
 | `waitForNavigation` | string  | Non         | Attend la fin du chargement de la page. 4 valeurs possibles : `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
@@ -213,6 +213,7 @@ Exemple :
     - name : 'Clic sur Découvrez nos outils'
       type: 'click'
       element : 'a[title="Nos outils"]'
+      pageChange: true
       timeoutBefore: 1000
       waitForSelector: '#header'
 ```

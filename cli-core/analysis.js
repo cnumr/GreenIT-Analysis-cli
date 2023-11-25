@@ -38,13 +38,7 @@ async function analyseScenario(browser, pageInformations, options) {
         await page.setCacheEnabled(false);
 
         // Execute actions on page (click, text, ...)
-        let pages = await startActions(
-            page,
-            pageInformations,
-            pageInformations.actions,
-            TIMEOUT,
-            pageInformations.newPageName ? pageInformations.newPageName : 'Chargement de la page'
-        );
+        let pages = await startActions(page, pageInformations, TIMEOUT);
 
         scenarioResult.pages = pages;
         scenarioResult.success = true;
@@ -100,7 +94,7 @@ function isValidWaitForNavigation(waitUntilParam) {
  * @param {*} name page name
  * @returns
  */
-async function startActions(page, pageInformations, actions, timeout, name) {
+async function startActions(page, pageInformations, timeout) {
     //get har file
     const pptrHar = new PuppeteerHar(page);
     await pptrHar.start();
@@ -109,19 +103,20 @@ async function startActions(page, pageInformations, actions, timeout, name) {
     await doFirstAction(page, pageInformations, timeout);
 
     // do initial snapshot of data before actions
-    let actionResult = await doAnalysis(page, pptrHar, name);
+    let actionResult = await doAnalysis(page, pptrHar, 'Chargement de la page');
 
     let actionsResultsForAPage = [];
     actionsResultsForAPage.push(actionResult);
 
     let currentPage = {};
-    currentPage.name = name;
+    currentPage.name = actionResult.name;
     currentPage.bestPractices = actionResult.bestPractices;
     currentPage.nbRequest = actionResult.nbRequest;
     currentPage.responsesSize = actionResult.responsesSize;
     currentPage.responsesSizeUncompress = actionResult.responsesSizeUncompress;
 
     const pagesResults = [];
+    const actions = pageInformations.actions;
     if (actions) {
         for (let index = 0; index < actions.length; index++) {
             let action = actions[index];
@@ -134,25 +129,25 @@ async function startActions(page, pageInformations, actions, timeout, name) {
 
             currentPage.url = page.url();
 
+            if (action.pageChange) {
+                // Save page analyse
+                currentPage.actions = actionsResultsForAPage;
+                pagesResults.push({ ...currentPage });
+
+                // Reinit variables
+                actionsResultsForAPage = [];
+                currentPage = {};
+                currentPage.name = actionName;
+                currentPage.nbRequest = 0;
+                currentPage.responsesSize = 0;
+                currentPage.responsesSizeUncompress = 0;
+
+                // Clean up HAR history
+                pptrHar.network_events = [];
+                pptrHar.response_body_promises = [];
+            }
+
             try {
-                if (action.newPageName) {
-                    // Save page analyse
-                    currentPage.actions = actionsResultsForAPage;
-                    pagesResults.push({ ...currentPage });
-
-                    // Reinit variables
-                    actionsResultsForAPage = [];
-                    currentPage = {};
-                    currentPage.name = action.newPageName;
-                    currentPage.nbRequest = 0;
-                    currentPage.responsesSize = 0;
-                    currentPage.responsesSizeUncompress = 0;
-
-                    // Clean up HAR history
-                    pptrHar.network_events = [];
-                    pptrHar.response_body_promises = [];
-                }
-
                 // Do asked action
                 await doAction(page, action, actionName, timeout);
             } finally {
