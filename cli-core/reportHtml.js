@@ -3,6 +3,7 @@ const path = require('path');
 const Mustache = require('mustache');
 const translator = require('./translator.js').translator;
 
+const rules = require('../conf/rules');
 const utils = require('./utils');
 
 /**
@@ -292,6 +293,9 @@ function constructBestPracticesGlobal(allReportsVariables) {
             comment: bestPractice.comment,
             note: note,
             errors: errors,
+            priority: bestPractice.priority,
+            impact: bestPractice.impact,
+            effort: bestPractice.effort,
         };
 
         bestPracticesGlobal.push(bestPracticeGlobal);
@@ -306,14 +310,19 @@ function constructBestPracticesGlobal(allReportsVariables) {
  */
 function extractBestPractices() {
     let bestPractices = [];
-
+    let bestPractice;
+    let rule;
     let index = 0;
 
     bestPracticesKey.forEach((bestPracticeName) => {
-        const bestPractice = {
+        rule = rules.find((p) => p.bestPractice === bestPracticeName);
+        bestPractice = {
             key: bestPracticeName,
             id: `collapse${index}`,
             name: translator.translateRule(bestPracticeName),
+            priority: rule.priority,
+            impact: rule.impact,
+            effort: rule.effort,
             notes: [],
             pages: [],
             comments: [],

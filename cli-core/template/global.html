@@ -127,7 +127,29 @@
                 padding: 0 !important;
                 max-width: 920px;
             }
+
+            table[data-priority='1'] tbody tr:not([data-priority='1']) {
+                display: none;
+            }
+            table[data-priority='2'] tbody tr:not([data-priority='2']) {
+                display: none;
+            }
+            table[data-priority='3'] tbody tr:not([data-priority='3']) {
+                display: none;
+            }
+            table[data-priority='4'] tbody tr:not([data-priority='4']) {
+                display: none;
+            }
+            table[data-priority='5'] tbody tr:not([data-priority='5']) {
+                display: none;
+            }
         </style>
+
+        <script>
+            function setTablePriority(priority) {
+                document.getElementById('tabBestPractices').setAttribute('data-priority', priority);
+            }
+        </script>
 
         <title>GreenIT-Analysis report</title>
     </head>
@@ -223,17 +245,43 @@
 
             <div class="container my-3">
                 <h5 class="mb-3">Bonnes pratiques</h5>
+                <div style="margin-bottom: 10px">
+                    <button type="button" class="btn btn-outline-primary" onclick="setTablePriority(5)">
+                        Priorité 5/5
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setTablePriority(4)">
+                        Priorité 4/5
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="setTablePriority(3)">
+                        Priorité 3/5
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="setTablePriority(2)">
+                        Priorité 2/5
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" onclick="setTablePriority(1)">
+                        Priorité 1/5
+                    </button>
+                    <button type="button" class="btn btn-outline-info" onclick="setTablePriority('all')">
+                        Toutes les priorités
+                    </button>
+                </div>
                 <div class="row">
                     <div class="col col-md-12">
                         <table id="tabBestPractices" class="table table-sm">
                             <thead class="table-light">
                                 <th scope="col">Règle</th>
+                                <th scope="col">Effort</th>
+                                <th scope="col">Impact</th>
+                                <th scope="col">Priorité</th>
                                 <th scope="col">Note</th>
                             </thead>
                             <tbody>
                                 {{#bestsPractices}}
-                                <tr>
+                                <tr data-priority="{{ priority }}">
                                     <td>{{ name }}</td>
+                                    <td>{{ effort }}</td>
+                                    <td>{{ impact }}</td>
+                                    <td>{{ priority }}</td>
                                     <td class="text-center">
                                         <div class="{{ note }}"></div>
                                     </td>

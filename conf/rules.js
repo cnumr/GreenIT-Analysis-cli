@@ -1,0 +1,148 @@
+const rules = [
+    {
+        bestPractice: 'DomainsNumber',
+        priority: 3,
+        effort: 3,
+        impact: 4,
+    },
+    {
+        bestPractice: 'AddExpiresOrCacheControlHeaders',
+        priority: 4,
+        effort: 3,
+        impact: 4,
+    },
+    {
+        bestPractice: 'CompressHttp',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'DontResizeImageInBrowser',
+        priority: 4,
+        effort: 4,
+        impact: 4,
+    },
+    {
+        bestPractice: 'EmptySrcTag',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'ExternalizeCss',
+        priority: 4,
+        effort: 4,
+        impact: 4,
+    },
+    {
+        bestPractice: 'ExternalizeJs',
+        priority: 4,
+        effort: 4,
+        impact: 4,
+    },
+    {
+        bestPractice: 'HttpError',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'HttpRequests',
+        priority: 4,
+        effort: 3,
+        impact: 4,
+    },
+    {
+        bestPractice: 'ImageDownloadedNotDisplayed',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'JsValidate',
+        priority: 3,
+        effort: 3,
+        impact: 2,
+    },
+    {
+        bestPractice: 'MaxCookiesLength',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'MinifiedCss',
+        priority: 4,
+        effort: 3,
+        impact: 4,
+    },
+    {
+        bestPractice: 'MinifiedJs',
+        priority: 4,
+        effort: 3,
+        impact: 4,
+    },
+    {
+        bestPractice: 'NoCookieForStaticRessources',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'NoRedirect',
+        priority: 3,
+        effort: 3,
+        impact: 3,
+    },
+    {
+        bestPractice: 'OptimizeBitmapImages',
+        priority: 4,
+        effort: 4,
+        impact: 4,
+    },
+    {
+        bestPractice: 'OptimizeSvg',
+        priority: 4,
+        effort: 4,
+        impact: 4,
+    },
+    {
+        bestPractice: 'Plugins',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'PrintStyleSheet',
+        priority: 3,
+        effort: 4,
+        impact: 3,
+    },
+    {
+        bestPractice: 'SocialNetworkButton',
+        priority: 4,
+        effort: 4,
+        impact: 4,
+    },
+    {
+        bestPractice: 'StyleSheets',
+        priority: 4,
+        effort: 4,
+        impact: 4,
+    },
+    {
+        bestPractice: 'UseETags',
+        priority: 9,
+        effort: 9,
+        impact: 9,
+    },
+    {
+        bestPractice: 'UseStandardTypefaces',
+        priority: 4,
+        effort: 3,
+        impact: 4,
+    },
+];
+
+module.exports = rules;

@@ -268,6 +268,9 @@
                             <thead class="table-light">
                                 <th scope="col">Règle</th>
                                 <th scope="col">Résultat</th>
+                                <th scope="col">Effort</th>
+                                <th scope="col">Impact</th>
+                                <th scope="col">Priorité</th>
                                 <th scope="col">Note</th>
                             </thead>
                             <tbody>
@@ -295,6 +298,9 @@
                                         {{/comments}}
                                         {{/pages.1}}
                                     </td>
+                                    <td>{{ effort }}</td>
+                                    <td>{{ impact }}</td>
+                                    <td>{{ priority }}</td>
                                     <td class="text-center">
                                         {{^pages.1}}
                                         <div class="{{ notes.0 }}"></div>
@@ -306,6 +312,15 @@
                                         <br />
                                         {{/notes}}
                                         {{/pages.1}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="hiddenRow">
+                                        <div class="collapse" id="{{ id }}">
+                                            <div class="card card-body">
+                                                {{{ errors }}}
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 {{/bestPractices}}
