@@ -453,15 +453,15 @@ Le rapport HTML est composé :
 Exemple d'un rapport :
 - Page globale :
 
-![Page globale du rapport HTML](./docs/rapport-html-global.png)
+![Page globale du rapport HTML](./docs/rapport-html-global.jpeg)
 
 - Page pour un scénario analysé :
 
-![Page d'un scénario analysé dans le rapport HTML](./docs/rapport-html-detail-page.png)
+![Page d'un scénario analysé dans le rapport HTML](./docs/rapport-html-detail-page.jpeg)
 
 - Page pour un scénario analysé incluant un changement de page :
 
-![Page d'un scénario analysé incluant un changement de page dans le rapport HTML](./docs/rapport-html-detail-page-avec-changement-page.png)
+![Page d'un scénario analysé incluant un changement de page dans le rapport HTML](./docs/rapport-html-detail-page-avec-changement-page.jpeg)
 
 #### InfluxDB
 
