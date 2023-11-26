@@ -25,6 +25,12 @@
         />
 
         <style type="text/css">
+            .bi-info {
+                padding: 0.25rem 0.25rem;
+                font-size: 0.875rem;
+                line-height: 0.5;
+            }
+
             .pageRow {
                 background-color: #f0f0f0;
             }
@@ -207,32 +213,50 @@
                     <div class="col col-md-12">
                         <table id="tabPages" class="table table-sm">
                             <thead class="table-light" style="text-align: center; vertical-align: middle">
-                                <th scope="col">Scénario</th>
-                                <th scope="col">Ecoindex</th>
-                                <th scope="col">Part due aux actions</th>
-                                <th scope="col">Eau (cl)</th>
-                                <th scope="col">GES (gCO2e)</th>
-                                <th scope="col">Règles à corriger</th>
+                                <th scope="col" class="col col-md-6">Scénario</th>
+                                <th scope="col" class="col col-md-1">
+                                    <button
+                                        class="btn-primary bi bi-info rounded-circle"
+                                        onclick="alert('La performance environnementale est représentée par un score sur 100 et une note de A à G (plus la note est élévée, mieux c\'est !).\nL\'EcoIndex est celui de la page, actions comprises.');">
+                                    </button>
+                                    &nbsp;Ecoindex
+                                </th>
+                                <th scope="col" class="col col-md-1">
+                                    <button
+                                        class="btn-primary bi bi-info rounded-circle"
+                                        onclick="alert('[EcoIndex à l\'ouverture de la page] - [EcoIndex après l\'excution des actions], cette part est inclue dans l\'EcoIndex');">
+                                    </button>
+                                    &nbsp;Part due aux actions
+                                </th>
+                                <th scope="col" class="col col-md-1">Eau (cl)</th>
+                                <th scope="col" class="col col-md-1">GES (gCO2e)</th>
+                                <th scope="col" class="col col-md-1">
+                                    <button
+                                        class="btn-primary bi bi-info rounded-circle"
+                                        onclick="alert('Nombre de règles d\'écoconception à corriger par page sur les 24 analysées par l\'outil')">
+                                    </button>
+                                    &nbsp;Règles à corriger
+                                </th>
                             </thead>
-                            <tbody style="text-align: center">
+                            <tbody class="text-center">
                                 {{#allReportsVariables}}
-                                    <tr class="{{ cssRowError }}" style="text-align: left">
+                                    <tr class="{{ cssRowError }} text-start">
                                         <td colspan="6">{{{ link }}}</td>
                                     </tr>
                                     {{#pages}}
                                     <tr class="pageRow {{ cssRowError }}">
-                                        <td>{{ name }}</td>
+                                        <td class="col col-md-6 text-start"> > {{ name }}</td>
                                         {{^success}}
                                         <td colspan="4">Erreur</td>
                                         {{/success}}
                                         {{#success}}
-                                        <td>
+                                        <td class="col col-md-1">
                                             {{{ lastEcoIndex }}}&nbsp;<span class="grade {{ lastGrade }}">{{ lastGrade }}</span>
                                         </td>
-                                        <td>&nbsp;{{ deltaEcoIndex }}</td>
-                                        <td>&nbsp;{{ waterConsumption }}</td>
-                                        <td>&nbsp;{{ greenhouseGasesEmission }}</td>
-                                        <td>&nbsp;{{ nbBestPracticesToCorrect }}</td>
+                                        <td class="col col-md-1">{{ deltaEcoIndex }}</td>
+                                        <td class="col col-md-1">{{ waterConsumption }}</td>
+                                        <td class="col col-md-1">{{ greenhouseGasesEmission }}</td>
+                                        <td class="col col-md-1">{{ nbBestPracticesToCorrect }}</td>
                                         {{/success}}
                                     </tr>
                                     {{/pages}}
@@ -278,7 +302,13 @@
                             <tbody>
                                 {{#bestsPractices}}
                                 <tr data-priority="{{ priority }}">
-                                    <td>{{ name }}</td>
+                                    <td title="{{ description }}">
+                                        <button
+                                            class="btn-primary bi bi-info rounded-circle"
+                                            onclick='alert("{{ description }}");'>
+                                        </button>
+                                        <span>{{ name }}</span>
+                                    </td>
                                     <td>{{ effort }}</td>
                                     <td>{{ impact }}</td>
                                     <td>{{ priority }}</td>

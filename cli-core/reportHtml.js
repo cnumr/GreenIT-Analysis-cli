@@ -289,6 +289,7 @@ function constructBestPracticesGlobal(allReportsVariables) {
 
         const bestPracticeGlobal = {
             id: bestPractice.id,
+            description: bestPractice.description,
             name: bestPractice.name,
             comment: bestPractice.comment,
             note: note,
@@ -320,6 +321,7 @@ function extractBestPractices() {
             key: bestPracticeName,
             id: `collapse${index}`,
             name: translator.translateRule(bestPracticeName),
+            description: translator.translateRule(`${bestPracticeName}_DetailDescription`),
             priority: rule.priority,
             impact: rule.impact,
             effort: rule.effort,

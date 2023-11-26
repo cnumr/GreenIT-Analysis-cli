@@ -25,6 +25,11 @@
         />
 
         <style type="text/css">
+            .bi-info {
+                padding: 0.25rem 0.25rem;
+                font-size: 0.875rem;
+                line-height: 0.5;
+            }
             .pageRow {
                 background-color: #f0f0f0;
             }
@@ -228,7 +233,11 @@
                                             <tbody>
                                                 {{#bestPractices}}
                                                 <tr>
-                                                    <td title="{{ info }}">
+                                                    <td title="{{ description }}">
+                                                        <button
+                                                            class="btn-primary bi bi-info rounded-circle"
+                                                            onclick='alert("{{ description }}");'>
+                                                        </button>
                                                         <a data-bs-toggle="collapse" href="#{{ id }}" role="button" aria-expanded="false" aria-controls="{{ id }}">
                                                             <span>{{ name }}</span>
                                                         </a>
@@ -277,6 +286,10 @@
                                 {{#bestPractices}}
                                 <tr>
                                     <td>
+                                        <button
+                                            class="btn-primary bi bi-info rounded-circle"
+                                            onclick='alert("{{ description }}");'>
+                                        </button>
                                         <span>{{ name }}</span>
                                         {{#pages.1}}
                                         <br />
