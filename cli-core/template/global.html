@@ -213,7 +213,7 @@
                     <div class="col col-md-12">
                         <table id="tabPages" class="table table-sm">
                             <thead class="table-light" style="text-align: center; vertical-align: middle">
-                                <th scope="col" class="col col-md-6">Scénario</th>
+                                <th scope="col" class="col col-md-5">Scénario</th>
                                 <th scope="col" class="col col-md-1">
                                     <button
                                         class="btn-primary bi bi-info rounded-circle"
@@ -230,12 +230,12 @@
                                 </th>
                                 <th scope="col" class="col col-md-1">Eau (cl)</th>
                                 <th scope="col" class="col col-md-1">GES (gCO2e)</th>
-                                <th scope="col" class="col col-md-1">
+                                <th scope="col" class="col col-md-2">
                                     <button
                                         class="btn-primary bi bi-info rounded-circle"
-                                        onclick="alert('Nombre de règles d\'écoconception à corriger par page sur les 24 analysées par l\'outil')">
+                                        onclick="alert('Nombre de bonnes pratiques d\'écoconception à mettre en oeuvre par page sur les 24 analysées par l\'outil')">
                                     </button>
-                                    &nbsp;Règles à corriger
+                                    &nbsp;Bonnes pratiques à mettre en oeuvre
                                 </th>
                             </thead>
                             <tbody class="text-center">
@@ -245,7 +245,7 @@
                                     </tr>
                                     {{#pages}}
                                     <tr class="pageRow {{ cssRowError }}">
-                                        <td class="col col-md-6 text-start"> > {{ name }}</td>
+                                        <td class="col col-md-5 text-start"> > {{ name }}</td>
                                         {{^success}}
                                         <td colspan="4">Erreur</td>
                                         {{/success}}
@@ -256,7 +256,7 @@
                                         <td class="col col-md-1">{{ deltaEcoIndex }}</td>
                                         <td class="col col-md-1">{{ waterConsumption }}</td>
                                         <td class="col col-md-1">{{ greenhouseGasesEmission }}</td>
-                                        <td class="col col-md-1">{{ nbBestPracticesToCorrect }}</td>
+                                        <td class="col col-md-2">{{ nbBestPracticesToCorrect }}</td>
                                         {{/success}}
                                     </tr>
                                     {{/pages}}
@@ -293,7 +293,7 @@
                     <div class="col col-md-12">
                         <table id="tabBestPractices" class="table table-sm">
                             <thead class="table-light">
-                                <th scope="col">Règle</th>
+                                <th scope="col">Bonne pratique</th>
                                 <th scope="col">Effort</th>
                                 <th scope="col">Impact</th>
                                 <th scope="col">Priorité</th>
@@ -336,7 +336,7 @@
             <small>
                 <ul>
                     <li>Pour comprendre le calcul de l'EcoIndex : <a class="text-white" href="https://www.ecoindex.fr/comment-ca-marche/">https://www.ecoindex.fr/comment-ca-marche/</a></li>
-                    <li>Parmi les 115 règles d'écoconception, 24 sont vérifiées par l'outil. Pour en savoir plus : <a class="text-white" href="https://github.com/cnumr/best-practices">https://github.com/cnumr/best-practices</a></li>
+                    <li>Parmi les 115 bonnes pratiques d'écoconception, 24 sont vérifiées par l'outil. Pour en savoir plus : <a class="text-white" href="https://github.com/cnumr/best-practices">https://github.com/cnumr/best-practices</a></li>
                 </ul>
             </small>
         </div>

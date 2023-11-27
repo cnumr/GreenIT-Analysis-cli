@@ -42,7 +42,7 @@ async function create_XLSX_report(reportObject, options) {
     globalReport_data.worstPages.forEach((element) => {
         globalSheet_data.push([element.nb, element.url, 'Grade', element.grade, 'EcoIndex', element.ecoIndex]);
     });
-    globalSheet_data.push([], ['Règles à appliquer :']);
+    globalSheet_data.push([], ['Bonnes pratiques à mettre en oeuvre :']);
     globalReport_data.worstRules.forEach((elem) => {
         globalSheet_data.push([elem]);
     });
