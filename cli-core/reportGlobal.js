@@ -1,7 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const ProgressBar = require('progress');
-const axios = require('axios');
 const { getEcoIndexGrade, getGradeEcoIndex, createProgressBar } = require('./utils');
 
 //Path to the url file
