@@ -345,7 +345,7 @@ Paramètres optionnels :
 - `--retry , -r` : Nombre d'essais supplémentaires d'analyse en cas d'echec. (Valeur par défaut : 2)
 - `--timeout , -t` : Nombre de millisecondes maximal pour charger une url. (Valeur par défaut : 180000)
 - `--worst_pages` : Nombre de pages à traiter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
-- `--worst_rules` : Nombre de règles à respecter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
+- `--worst_rules` : Nombre de bonnes pratiques à respecter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
 
 ### Usage avec Docker
 1. Déposer le fichier `<url_input_file>` dans le dossier `/<path>/input`.
@@ -421,7 +421,7 @@ greenit analyse /app/input/url.yaml /app/output/results.xlsx --format=xlsx
 ```
 
 Le rapport Excel est composé :
-- D'un onglet représentant le rapport global : moyenne de l'ecoindex de toutes les URL analysées, les URL prioritaires à corriger, les règles prioritaires à corriger, ...
+- D'un onglet représentant le rapport global : moyenne de l'ecoindex de toutes les URL analysées, les URL prioritaires à corriger, les bonnes pratiques prioritaires à mettre en oeuvre, ...
 - D'un onglet par URL analysée : l'ecoindex de l'URL et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
 
 Exemple d'un rapport :
@@ -447,7 +447,7 @@ greenit analyse /app/input/url.yaml /app/output/global.html --format=html
 ```
 
 Le rapport HTML est composé :
-- D'une page résumé : nombre de scénarios analysés, nombre d'erreur, tableau récapitulatif des scénarios analysés avec leurs indicateurs associés (ecoindex, eau, GES, nombre de règles à corriger). Un scénario débute par l'ouverture d'une page web via son URL, puis réalise un certain nombre d'actions pouvant éventuellement entrainer l'ouverture d'une autre page. Pour accéder au rapport détaillé d'un scénario analysé, il suffit de cliquer sur le nom du scénario. Un tableau récapitulatif des bonnes pratiques non respectées (dans au moins 1 scénario) est aussi présent.
+- D'une page résumé : nombre de scénarios analysés, nombre d'erreur, tableau récapitulatif des scénarios analysés avec leurs indicateurs associés (ecoindex, eau, GES, nombre de bonnes pratiques à mettre en oeuvre). Un scénario débute par l'ouverture d'une page web via son URL, puis réalise un certain nombre d'actions pouvant éventuellement entrainer l'ouverture d'une autre page. Pour accéder au rapport détaillé d'un scénario analysé, il suffit de cliquer sur le nom du scénario. Un tableau récapitulatif des bonnes pratiques non respectées (dans au moins 1 scénario) est aussi présent.
 - D'une page par scénario analysé : total du nombre de requêtes HTTP, taille et poids des pages analysées, ainsi qu'un tableau détaillant page par page, et action par action, les indicateurs tels que l'ecoindex et ses indicateurs ayant servi à le calculer, les indicateurs de consommation d'eau et d'émissions de gaz à effet de serre, le tableau des bonnes pratiques, ...
 
 Exemple d'un rapport :
