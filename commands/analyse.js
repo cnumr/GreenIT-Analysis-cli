@@ -51,7 +51,7 @@ async function analyse_core(options) {
 
     //start browser
     const browser = await puppeteer.launch({
-        headless: options.headless,
+        headless: options.headless === false ? false : 'new',
         args: browserArgs,
         // Keep gpu horsepower in headless
         ignoreDefaultArgs: ['--disable-gpu'],

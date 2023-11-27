@@ -18,14 +18,14 @@
     "@influxdata/influxdb-client": "^1.20.0",
     "@influxdata/influxdb-client-apis": "^1.20.0",
     "concat-files": "^0.1.1",
-    "exceljs": "^4.2.0",
-    "glob": "^7.1.6",
+    "exceljs": "^4.4.0",
+    "glob": "^10.3.10",
     "mustache": "^4.2.0",
     "progress": "^2.0.3",
-    "puppeteer": "^5.5.0",
+    "puppeteer": "^21.5.2",
     "puppeteer-har": "^1.1.2",
-    "sitemapper": "^3.2.6",
-    "yaml": "^2.2.2",
-    "yargs": "^16.2.0"
+    "sitemapper": "^3.2.8",
+    "yaml": "^2.3.4",
+    "yargs": "^17.7.2"
   }
 }
