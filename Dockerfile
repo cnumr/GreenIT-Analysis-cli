@@ -32,7 +32,8 @@ RUN npm i \
 USER pptruser
 
 # To avoid "Error: ENOENT: no such file or directory, open '/app/dist/greenItBundle.js'"
-RUN npm i
+RUN npm i \
+    && node node_modules/puppeteer/install.mjs
 
 ENV URL_PATH="/app/input/url.yaml"
 ENV RESULTS_PATH="/app/output/results.xlsx"
