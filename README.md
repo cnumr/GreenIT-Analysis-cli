@@ -286,6 +286,7 @@ Paramètres obligatoires :
 - `report_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
 
 Paramètres optionnels :
+- `--grafana_link` : Lien du dashboard Grafana à afficher dans le rapport HTML quand le format choisit est `influxdbhtml`. Exemple : `http://localhost:3000/d/YoK0Xjb4k/greenit-analysis?orgId=1`.
 - `--device , -d` : Emulation du terminal d'affichage. (Valeur par défaut : "desktop")
 
   Choix :
@@ -463,13 +464,13 @@ Exemple d'un rapport :
 
 ![Page d'un scénario analysé incluant un changement de page dans le rapport HTML](./docs/rapport-html-detail-page-avec-changement-page.jpeg)
 
-#### InfluxDB
+#### InfluxDB/Grafana
 
 Prérequis :
 
 - Le paramètre suivant est défini : `--format=influxdb` ou `-f=influxdb`
 
-Les données seront envoyées sur influxdb.
+Les données seront envoyées sur influxdb et peuvent être visualisées avec un outil comme Grafana.
 
 Un `docker-compose.yml` avec un exemple de configuration d'influxdb et de grafana est présent dans le projet.
 Lors de la première utilisation, quelques étapes de mise en place sont nécessaires :
@@ -485,10 +486,29 @@ Il faudra toutefois redémarrer au moins le conteneur influxdb avant un test.
 Exemple d'usage :
 
 ```shell
+greenit analyse exampleUrl.yaml /app/output/global.html --format=influxdbhtml --influxdb_hostname http://localhost:8086 --influxdb_org organisation --influxdb_token token --influxdb_bucket db0
+```
+Exemple de dashboard grafana pour un scénario et une action :
+![Exemple de dashboard grafana](./docs/grafana-dashboard.png)
+
+#### InfluxDB/Grafana + HTML
+
+Prérequis :
+
+- Le paramètre suivant est défini : `--format=influxdbhtml` ou `-f=influxdbhtml`
+
+Ce paramètre permet à la fois d'envoyer les données dans InfluxDB, les visualiser dans Grafana, et générer un rapport HTML.
+
+La particularité se trouve dans le rapport HTML généré : une colonne supplémentaire s'affiche dans la page globale pour consulter l'évolution dans le temps des indicateurs d'une page en redirigeant vers le board Grafana.
+
+```shell
 greenit analyse exampleUrl.yaml --format=influxdb --influxdb_hostname http://localhost:8086 --influxdb_org organisation --influxdb_token token --influxdb_bucket db0
 ```
-Exemple de dashboard grafana (l'url testée est celle du site d'[ecoindex](http://ecoindex.fr/))
-![Page d'une URL analysée dans le rapport HTML](./docs/grafana-dashboard.png)
+
+Page globale du rapport HTML généré avec l'option `influxdbhtml` :
+
+![Page globale du rapport HTML généré avec l'option influxdbhtml](./docs/rapport-html-global-avec-influxdb.jpeg)
+
 
 ## ParseSiteMap
 

@@ -1,0 +1,1008 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "iteration": 1701751581813,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 38,
+        "panels": [],
+        "title": "Last analysis",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "text",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 2,
+          "w": 24,
+          "x": 0,
+          "y": 1
+        },
+        "id": 54,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "/^Time$/",
+            "values": false
+          },
+          "text": {},
+          "textMode": "value"
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"date\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Analysis date",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "max": 100,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "#ed2124",
+                  "value": null
+                },
+                {
+                  "color": "#f99839",
+                  "value": 5
+                },
+                {
+                  "color": "#fecd06",
+                  "value": 20
+                },
+                {
+                  "color": "#f6eb15",
+                  "value": 35
+                },
+                {
+                  "color": "#cadb2a",
+                  "value": 50
+                },
+                {
+                  "color": "#51b84b",
+                  "value": 65
+                },
+                {
+                  "color": "#349a47",
+                  "value": 75
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 10,
+          "w": 11,
+          "x": 0,
+          "y": 3
+        },
+        "id": 40,
+        "options": {
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "hide": false,
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"ecoindex\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Ecoindex",
+        "transparent": true,
+        "type": "gauge"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 5,
+          "x": 11,
+          "y": 3
+        },
+        "id": 42,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"ges\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "GES (gC02eq)",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 4,
+          "x": 16,
+          "y": 3
+        },
+        "id": 46,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"nbRequest\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Requests",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "purple",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 4,
+          "x": 20,
+          "y": 3
+        },
+        "id": 50,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"responsesSize\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Response size (Ko)",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "light-blue",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 5,
+          "x": 11,
+          "y": 8
+        },
+        "id": 44,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"water\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Water (cl)",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "yellow",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 4,
+          "x": 16,
+          "y": 8
+        },
+        "id": 48,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"domSize\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "DOM size",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 4,
+          "x": 20,
+          "y": 8
+        },
+        "id": 52,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {},
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"responsesSizeUncompress\")\r\n    |> last()",
+            "refId": "A"
+          }
+        ],
+        "title": "Response size uncompressed (Ko)",
+        "transparent": true,
+        "type": "stat"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 13
+        },
+        "id": 34,
+        "panels": [],
+        "title": "Evolution",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "smooth",
+              "lineStyle": {
+                "fill": "solid"
+              },
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "decimals": 0,
+            "displayName": "Ecoindex (Scenario=${__field.labels.scenarioName}, Action=${__field.labels.actionName})",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 12,
+          "x": 0,
+          "y": 14
+        },
+        "id": 2,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "8.4.3",
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "groupBy": [
+              {
+                "params": [
+                  "$__interval"
+                ],
+                "type": "time"
+              },
+              {
+                "params": [
+                  "null"
+                ],
+                "type": "fill"
+              }
+            ],
+            "measurement": "eco_index",
+            "orderByTime": "ASC",
+            "policy": "default",
+            "query": "from(bucket: v.defaultBucket)\n    |> range(start: $__from/1000, stop: $__to/1000)\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"ecoindex\")",
+            "rawQuery": true,
+            "refId": "A",
+            "resultFormat": "time_series",
+            "select": [
+              [
+                {
+                  "params": [
+                    "EcoIndex"
+                  ],
+                  "type": "field"
+                },
+                {
+                  "params": [],
+                  "type": "mean"
+                }
+              ]
+            ],
+            "tags": []
+          }
+        ],
+        "title": "Eco Index",
+        "transparent": true,
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "smooth",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "decimals": 0,
+            "displayName": "Number of requests HTTP (Scenario=${__field.labels.scenarioName}, Action=${__field.labels.actionName})",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 12,
+          "x": 12,
+          "y": 14
+        },
+        "id": 56,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"nbRequest\")",
+            "refId": "A"
+          }
+        ],
+        "title": "Requests",
+        "transparent": true,
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "smooth",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "decimals": 0,
+            "displayName": "Number of elements in the DOM (Scenario=${__field.labels.scenarioName}, Action=${__field.labels.actionName})",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 12,
+          "x": 0,
+          "y": 21
+        },
+        "id": 58,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"domSize\")",
+            "refId": "A"
+          }
+        ],
+        "title": "Dom size",
+        "transparent": true,
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "PC003803D09A91473"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "Ko",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "displayName": "Response size (Scenario=${__field.labels.scenarioName}, Action=${__field.labels.actionName})",
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 12,
+          "x": 12,
+          "y": 21
+        },
+        "id": 60,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "influxdb",
+              "uid": "PC003803D09A91473"
+            },
+            "query": "from(bucket: v.defaultBucket)\r\n    |> range(start: $__from/1000, stop: $__to/1000)\r\n    |> filter(fn: (r) => r._measurement == \"eco_index\" and r.scenarioName == \"${scenarioName}\" and r.actionName == \"${actionName}\" and r._field == \"responsesSize\")",
+            "refId": "A"
+          }
+        ],
+        "title": "Response size",
+        "transparent": true,
+        "type": "timeseries"
+      }
+    ],
+    "refresh": false,
+    "schemaVersion": 35,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "selected": true,
+            "text": "Collectif GreenIT.fr - remplissage du formulaire de contact",
+            "value": "Collectif GreenIT.fr - remplissage du formulaire de contact"
+          },
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PC003803D09A91473"
+          },
+          "definition": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n    bucket: v.defaultBucket,\r\n    tag: \"scenarioName\",\r\n    start: -1y\r\n)\r\n",
+          "hide": 0,
+          "includeAll": false,
+          "label": "Scenario",
+          "multi": false,
+          "name": "scenarioName",
+          "options": [],
+          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n    bucket: v.defaultBucket,\r\n    tag: \"scenarioName\",\r\n    start: -1y\r\n)\r\n",
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "Chargement de la page",
+            "value": "Chargement de la page"
+          },
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PC003803D09A91473"
+          },
+          "definition": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n    bucket: v.defaultBucket,\n    tag: \"actionName\",\n    predicate: (r) => r._measurement == \"eco_index\" and r.scenarioName == ${scenarioName:doublequote},\n    start: -1y\n)\n",
+          "hide": 0,
+          "includeAll": false,
+          "label": "Action",
+          "multi": false,
+          "name": "actionName",
+          "options": [],
+          "query": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n    bucket: v.defaultBucket,\n    tag: \"actionName\",\n    predicate: (r) => r._measurement == \"eco_index\" and r.scenarioName == ${scenarioName:doublequote},\n    start: -1y\n)\n",
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "time": {
+      "from": "now-12h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "GreenIT-Analysis",
+    "uid": "YoK0Xjb4k",
+    "version": 2,
+    "weekStart": ""
+  }

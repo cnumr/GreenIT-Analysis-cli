@@ -42,7 +42,7 @@ const bestPracticesKey = [
 ];
 
 //create html report for all the analysed pages and recap on the first sheet
-async function create_html_report(reportObject, options) {
+async function create_html_report(reportObject, options, grafanaLinkPresent) {
     const OUTPUT_FILE = path.resolve(options.report_output_file);
     const fileList = reportObject.reports;
     const globalReport = reportObject.globalReport;
@@ -56,14 +56,18 @@ async function create_html_report(reportObject, options) {
     );
 
     // Read all reports
-    const { allReportsVariables, waterTotal, greenhouseGasesEmissionTotal } = readAllReports(fileList);
+    const { allReportsVariables, waterTotal, greenhouseGasesEmissionTotal } = readAllReports(
+        fileList,
+        options.grafana_link
+    );
 
     // Read global report
     const globalReportVariables = readGlobalReport(
         globalReport.path,
         allReportsVariables,
         waterTotal,
-        greenhouseGasesEmissionTotal
+        greenhouseGasesEmissionTotal,
+        grafanaLinkPresent
     );
 
     // write global report
@@ -79,7 +83,7 @@ async function create_html_report(reportObject, options) {
  * @param {*} fileList
  * @returns
  */
-function readAllReports(fileList) {
+function readAllReports(fileList, grafanaLink) {
     // init variables
     const allReportsVariables = [];
     let waterTotal = 0;
@@ -91,7 +95,7 @@ function readAllReports(fileList) {
         const report_data = JSON.parse(fs.readFileSync(file.path).toString());
 
         const hostname = report_data.pageInformations.url.split('/')[2];
-        const pageName = report_data.pageInformations.name || report_data.pageInformations.url;
+        const scenarioName = report_data.pageInformations.name || report_data.pageInformations.url;
         const pageFilename = report_data.pageInformations.name
             ? `${removeForbiddenCharacters(report_data.pageInformations.name)}.html`
             : `${report_data.index}.html`;
@@ -179,6 +183,7 @@ function readAllReports(fileList) {
                 }
                 analyzePage.bestPractices = pageBestPractices;
                 analyzePage.nbBestPracticesToCorrect = nbBestPracticesToCorrect;
+                analyzePage.grafanaLink = `${grafanaLink}&var-scenarioName=${scenarioName}&var-actionName=${analyzePage.name}`;
                 pages.push(analyzePage);
             });
 
@@ -189,10 +194,10 @@ function readAllReports(fileList) {
                 date: report_data.date,
                 success: report_data.success,
                 cssRowError: '',
-                name: pageName,
-                link: `<a href="${pageFilename}">${pageName}</a>`,
+                name: scenarioName,
+                link: `<a href="${pageFilename}">${scenarioName}</a>`,
                 filename: pageFilename,
-                header: `GreenIT-Analysis report > <a class="text-white" href="${report_data.pageInformations.url}">${pageName}</a>`,
+                header: `GreenIT-Analysis report > <a class="text-white" href="${report_data.pageInformations.url}">${scenarioName}</a>`,
                 bigEcoIndex: `${report_data.ecoIndex} <span class="grade big-grade ${report_data.grade}">${report_data.grade}</span>`,
                 smallEcoIndex: `${report_data.ecoIndex} <span class="grade ${report_data.grade}">${report_data.grade}</span>`,
                 grade: report_data.grade,
@@ -206,14 +211,14 @@ function readAllReports(fileList) {
         } else {
             reportVariables = {
                 date: report_data.date,
-                name: pageName,
+                name: scenarioName,
                 filename: pageFilename,
                 success: false,
-                header: `GreenIT-Analysis report > <a class="text-white" href="${report_data.pageInformations.url}">${pageName}</a>`,
+                header: `GreenIT-Analysis report > <a class="text-white" href="${report_data.pageInformations.url}">${scenarioName}</a>`,
                 cssRowError: 'bg-danger',
                 nbRequest: 0,
                 pages: [],
-                link: `<a href="${pageFilename}">${pageName}</a>`,
+                link: `<a href="${pageFilename}">${scenarioName}</a>`,
                 bestPractices: [],
             };
         }
@@ -229,9 +234,10 @@ function readAllReports(fileList) {
  * @param {*} allReportsVariables
  * @param {*} waterTotal
  * @param {*} greenhouseGasesEmissionTotal
+ * @param {*} grafanaLinkPresent
  * @returns
  */
-function readGlobalReport(path, allReportsVariables, waterTotal, greenhouseGasesEmissionTotal) {
+function readGlobalReport(path, allReportsVariables, waterTotal, greenhouseGasesEmissionTotal, grafanaLinkPresent) {
     const globalReport_data = JSON.parse(fs.readFileSync(path).toString());
 
     let ecoIndex = '';
@@ -261,6 +267,7 @@ function readGlobalReport(path, allReportsVariables, waterTotal, greenhouseGases
         nbErrors: globalReport_data.errors.length,
         allReportsVariables,
         bestsPractices: constructBestPracticesGlobal(allReportsVariables),
+        grafanaLinkPresent,
     };
     return globalReportVariables;
 }
