@@ -237,6 +237,9 @@
                                     </button>
                                     &nbsp;Bonnes pratiques à mettre en oeuvre
                                 </th>
+                                {{#grafanaLinkPresent}}
+                                <th scope="col" class="col col-md-1"></th>
+                                {{/grafanaLinkPresent}}
                             </thead>
                             <tbody class="text-center">
                                 {{#allReportsVariables}}
@@ -257,6 +260,11 @@
                                         <td class="col col-md-1">{{ waterConsumption }}</td>
                                         <td class="col col-md-1">{{ greenhouseGasesEmission }}</td>
                                         <td class="col col-md-2">{{ nbBestPracticesToCorrect }}</td>
+                                        {{#grafanaLinkPresent}}
+                                        <td class="col col-md-1">
+                                            <a href="{{grafanaLink}}">Tendance</a>
+                                        </td>
+                                        {{/grafanaLinkPresent}}
                                         {{/success}}
                                     </tr>
                                     {{/pages}}

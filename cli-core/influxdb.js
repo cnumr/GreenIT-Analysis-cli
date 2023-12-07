@@ -31,39 +31,41 @@ async function write(reports, options) {
     const writeApi = client.getWriteApi(options.influxdb_org, options.influxdb_bucket);
 
     // create points from reports
-    const points = reports.map((file) => {
-        let obj = JSON.parse(fs.readFileSync(file.path).toString());
-        let hostname = obj.url.split('/')[2];
-        let point = new Point('eco_index')
-            .tag('pageName', obj.pageInformations.name)
-            .tag('hostname', hostname)
-            .stringField('url', obj.url)
-            .stringField('hostname', hostname)
-            .stringField('grade', obj.grade)
-            .intField('ecoindex', obj.ecoIndex)
-            .floatField('water', obj.waterConsumption)
-            .floatField('ges', obj.greenhouseGasesEmission)
-            .floatField('domSize', obj.domSize)
-            .stringField(
-                'pageSize',
-                `${Math.round(obj.responsesSize / 1000)} (${Math.round(obj.responsesSizeUncompress / 1000)})`
-            )
-            .floatField('nbRequest', obj.nbRequest)
-            .floatField('nbPlugins', obj.pluginsNumber)
-            .floatField('cssFilesNumber', obj.printStyleSheetsNumber)
-            .floatField('cssInlineNumber', obj.inlineStyleSheetsNumber)
-            .floatField('emptySrcTagNumber', obj.emptySrcTagNumber)
-            .floatField('inlineJsScriptsNumber', obj.inlineJsScriptsNumber)
-            .floatField('responsesSize', Math.round(obj.responsesSize / 1000))
-            .floatField('responsesSizeUncompress', Math.round(obj.responsesSizeUncompress / 1000));
+    const points = [];
+    const date = new Date();
+    reports.forEach((file) => {
+        const scenario = JSON.parse(fs.readFileSync(file.path).toString());
+        const scenarioName = scenario.pageInformations.name;
 
-        Object.keys(obj.bestPractices).map((key) =>
-            point.stringField(key, obj.bestPractices[key].complianceLevel || 'A')
-        );
+        if (scenario.pages) {
+            scenario.pages.forEach((page) => {
+                let hostname = scenario.url.split('/')[2];
 
-        if (progressBar) progressBar.tick();
+                page.actions.forEach((action) => {
+                    let point = new Point('eco_index');
+                    point
+                        .tag('scenarioName', scenarioName)
+                        .tag('pageName', page.name)
+                        .tag('hostname', hostname)
+                        .tag('actionName', action.name)
+                        .stringField('url', page.name)
+                        .stringField('hostname', hostname)
+                        .stringField('grade', action.grade)
+                        .intField('ecoindex', action.ecoIndex)
+                        .floatField('water', action.waterConsumption)
+                        .floatField('ges', action.greenhouseGasesEmission)
+                        .floatField('domSize', action.domSize)
+                        .floatField('nbRequest', action.nbRequest)
+                        .floatField('responsesSize', action.responsesSize / 1000)
+                        .floatField('responsesSizeUncompress', action.responsesSizeUncompress / 1000)
+                        .stringField('date', date);
 
-        return point;
+                    points.push(point);
+                });
+
+                if (progressBar) progressBar.tick();
+            });
+        }
     });
 
     //upload points and close connexion

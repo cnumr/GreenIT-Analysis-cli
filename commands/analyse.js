@@ -81,8 +81,12 @@ async function analyse_core(options) {
     }
     //create report
     let reportObj = await create_global_report(reports, { ...options, proxy });
-    if (reportFormat === 'html') {
-        await create_html_report(reportObj, options);
+    if (reportFormat === 'influxdbhtml') {
+        // write in database then generate html report
+        await writeToInflux(reports, options);
+        await create_html_report(reportObj, options, true);
+    } else if (reportFormat === 'html') {
+        await create_html_report(reportObj, options, false);
     } else if (reportFormat === 'influxdb') {
         await writeToInflux(reports, options);
     } else {
@@ -121,7 +125,7 @@ function readHeaders(headersFile) {
 
 function getReportFormat(format, filename) {
     // Check if format is defined
-    const formats = ['xlsx', 'html', 'influxdb'];
+    const formats = ['xlsx', 'html', 'influxdb', 'influxdbhtml'];
     if (format && formats.includes(format.toLowerCase())) {
         return format.toLowerCase();
     }

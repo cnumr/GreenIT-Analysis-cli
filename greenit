@@ -18,6 +18,11 @@ yargs(hideBin(process.argv))
                     describe: 'Report output file path',
                     default: 'results.xlsx',
                 })
+                .option('grafana_link', {
+                    description: 'Grafana link to display in HTML report when using influxdbhtml format',
+                    type: 'string',
+                    default: '',
+                })
                 .option('device', {
                     alias: 'd',
                     description: 'Hardware to simulate',
