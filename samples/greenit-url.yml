@@ -1,0 +1,63 @@
+# Analyse l'URL collectif.greenit.fr
+- name : 'Collectif GreenIT.fr'
+  url : 'https://collectif.greenit.fr/'
+
+# Analyse l'URL collectif.greenit.fr/outils.html en spécifiant une condition d'attente via un sélecteur CSS
+# Réalise une capture d'écran de la page
+- name : 'Les outils du collectif GreenIT.fr avec un waitForSelector'
+  url : 'https://collectif.greenit.fr/outils.html'
+  waitForSelector: '#header'
+
+# Analyse l'URL collectif.greenit.fr/index_en.html en spécifiant une condition d'attente via un XPath
+- name : 'Collectif GreenIT.fr en anglais avec un waitForXPath'
+  url : 'https://collectif.greenit.fr/index_en.html'
+  waitForXPath: '//section[2]/div/h2'
+
+- name : 'Collectif GreenIT.fr avec une action de type clic - Avec changement de page'
+  url : 'https://collectif.greenit.fr/'
+  screenshot: 'output/screenshots/01-scenario-avec-clic-avant-action.png'
+  actions:
+    - name : 'Clic sur Découvrez nos outils'
+      pageChange: true
+      type: 'click'
+      element : 'a[title="Nos outils"]'
+      timeoutBefore: 1000
+      waitForSelector: '#header'
+      screenshot: 'output/screenshots/02-scenario-avec-clic-apres-action.png'
+
+- name : 'Collectif GreenIT.fr avec une action de type clic - Sans changement de page'
+  url : 'https://collectif.greenit.fr/'
+  screenshot: 'output/screenshots/01-scenario-avec-clic-avant-action.png'
+  actions:
+    - name : 'Clic sur Découvrez nos outils'
+      type: 'click'
+      element : 'a[title="Nos outils"]'
+      timeoutBefore: 1000
+      waitForSelector: '#header'
+      screenshot: 'output/screenshots/02-scenario-avec-clic-apres-action.png'
+
+
+- name : 'ecoconceptionweb.com avec une action de type scroll'
+  url : 'https://ecoconceptionweb.com/'
+  actions:
+    - name : "Scroll auto vers le bas de la page"
+      type : 'scroll'
+
+- name : 'ecoconceptionweb.com avec une action de type select'
+  url : 'https://ecoconceptionweb.com/'
+  screenshot: 'output/screenshots/10-scenario-avant-select.png'
+  actions:
+    - name : "Saisie du choix Proposer dans le select Sujet"
+      type : 'select'
+      element : '#subject'
+      values: ['proposer']
+      screenshot: 'output/screenshots/11-scenario-apres-select.png'
+      timeoutBefore: 2000
+
+- name : 'Collectif GreenIT.fr - remplissage du formulaire de contact'
+  url : 'https://collectif.greenit.fr/'
+  actions:
+    - name : "Remplir l'email dans le formulaire de contact"
+      type : 'text'
+      element: '#form_email'
+      content: 'john.doe@mail.com'

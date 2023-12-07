@@ -285,6 +285,8 @@ Paramètres obligatoires :
 - `url_input_file` : Chemin vers le fichier YAML listant toutes les URL à analyser. (Valeur par défaut : "url.yaml")
 - `report_output_file` : Chemin pour le fichier de sortie. (Valeur par défaut : "results.xlsx")
 
+Un exemple de fichier listant les scénarios à analyser se trouvent dans le dossier `samples`.
+
 Paramètres optionnels :
 - `--grafana_link` : Lien du dashboard Grafana à afficher dans le rapport HTML quand le format choisit est `influxdbhtml`. Exemple : `http://localhost:3000/d/YoK0Xjb4k/greenit-analysis?orgId=1`.
 - `--device , -d` : Emulation du terminal d'affichage. (Valeur par défaut : "desktop")
