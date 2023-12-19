@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { getEcoIndexGrade, getGradeEcoIndex, createProgressBar } = require('./utils');
-const translator = require('./translator.js').translator;
 
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
@@ -37,7 +36,7 @@ function handleWorstRule(bestPracticesTotal, number) {
         .map((obj) => obj.name);
 }
 
-async function create_global_report(reports, options) {
+async function create_global_report(reports, options, translator) {
     //Timeout for an analysis
     const TIMEOUT = options.timeout || 'No data';
     //Concurent tab
@@ -51,7 +50,6 @@ async function create_global_report(reports, options) {
 
     const DEVICE = options.device;
     const LANGUAGE = options.language;
-    translator.setLocale(LANGUAGE);
 
     let handleWorstPages = worstPagesHandler(WORST_PAGES);
 

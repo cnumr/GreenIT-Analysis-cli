@@ -5,9 +5,8 @@ const utils = require('./utils');
 const translator = require('./translator.js').translator;
 
 //create xlsx report for all the analysed pages and recap on the first sheet
-async function create_XLSX_report(reportObject, options) {
+async function create_XLSX_report(reportObject, options, translator) {
     const OUTPUT_FILE = path.resolve(options.report_output_file);
-    translator.setLocale(options.language);
     const fileList = reportObject.reports;
     const globalReport = reportObject.globalReport;
 

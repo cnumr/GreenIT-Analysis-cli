@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const Mustache = require('mustache');
-const translator = require('./translator.js').translator;
-
 const rules = require('../conf/rules');
 const utils = require('./utils');
 
@@ -42,9 +40,8 @@ const bestPracticesKey = [
 ];
 
 //create html report for all the analysed pages and recap on the first sheet
-async function create_html_report(reportObject, options, grafanaLinkPresent) {
+async function create_html_report(reportObject, options, translator, grafanaLinkPresent) {
     const OUTPUT_FILE = path.resolve(options.report_output_file);
-    const LANGUAGE = options.language;
     const fileList = reportObject.reports;
     const globalReport = reportObject.globalReport;
 
@@ -60,7 +57,7 @@ async function create_html_report(reportObject, options, grafanaLinkPresent) {
     const { allReportsVariables, waterTotal, greenhouseGasesEmissionTotal } = readAllReports(
         fileList,
         options.grafana_link,
-        LANGUAGE
+        translator
     );
 
     // Read global report
@@ -70,15 +67,15 @@ async function create_html_report(reportObject, options, grafanaLinkPresent) {
         waterTotal,
         greenhouseGasesEmissionTotal,
         grafanaLinkPresent,
-        LANGUAGE
+        translator
     );
 
     // write global report
-    writeGlobalReport(globalReportVariables, OUTPUT_FILE, progressBar, LANGUAGE);
+    writeGlobalReport(globalReportVariables, OUTPUT_FILE, progressBar, translator);
 
     // write all reports
     const outputFolder = path.dirname(OUTPUT_FILE);
-    writeAllReports(allReportsVariables, outputFolder, progressBar, LANGUAGE);
+    writeAllReports(allReportsVariables, outputFolder, progressBar, translator);
 }
 
 /**
@@ -86,7 +83,7 @@ async function create_html_report(reportObject, options, grafanaLinkPresent) {
  * @param {*} fileList
  * @returns
  */
-function readAllReports(fileList, grafanaLink, language) {
+function readAllReports(fileList, grafanaLink, translator) {
     // init variables
     const allReportsVariables = [];
     let waterTotal = 0;
@@ -156,7 +153,7 @@ function readAllReports(fileList, grafanaLink, language) {
                 domSizeTotal += lastAction.domSize;
                 responsesSizeUncompressTotal += lastAction.responsesSizeUncompress;
 
-                const pageBestPractices = extractBestPractices(language);
+                const pageBestPractices = extractBestPractices(translator);
 
                 // Manage best practices
                 let nbBestPracticesToCorrect = 0;
@@ -195,7 +192,7 @@ function readAllReports(fileList, grafanaLink, language) {
             });
 
             // Manage state of global best practices, for each page of the scenario
-            const bestPractices = manageScenarioBestPratices(pages, language);
+            const bestPractices = manageScenarioBestPratices(pages, translator);
 
             reportVariables = {
                 date: report_data.date,
@@ -254,7 +251,7 @@ function readGlobalReport(
     waterTotal,
     greenhouseGasesEmissionTotal,
     grafanaLinkPresent,
-    language
+    translator
 ) {
     const globalReport_data = JSON.parse(fs.readFileSync(path).toString());
 
@@ -284,15 +281,15 @@ function readGlobalReport(
         greenhouseGasesEmissionTotal: Math.round(greenhouseGasesEmissionTotal * 100) / 100,
         nbErrors: globalReport_data.errors.length,
         allReportsVariables,
-        bestsPractices: constructBestPracticesGlobal(allReportsVariables, language),
+        bestsPractices: constructBestPracticesGlobal(allReportsVariables, translator),
         grafanaLinkPresent,
     };
     return globalReportVariables;
 }
 
-function constructBestPracticesGlobal(allReportsVariables, language) {
+function constructBestPracticesGlobal(allReportsVariables, translator) {
     const bestPracticesGlobal = [];
-    const bestPractices = extractBestPractices(language);
+    const bestPractices = extractBestPractices(translator);
 
     bestPractices.forEach((bestPractice) => {
         let note = 'checkmark-success';
@@ -334,8 +331,7 @@ function constructBestPracticesGlobal(allReportsVariables, language) {
  * @param {} bestPracticesFromReport
  * @returns
  */
-function extractBestPractices(language) {
-    translator.setLocale(language);
+function extractBestPractices(translator) {
     let bestPractices = [];
     let bestPractice;
     let rule;
@@ -366,8 +362,8 @@ function extractBestPractices(language) {
  * Manage best practice state for each page
  * @param {*} pages
  */
-function manageScenarioBestPratices(pages, language) {
-    const bestPractices = extractBestPractices(language);
+function manageScenarioBestPratices(pages, translator) {
+    const bestPractices = extractBestPractices(translator);
     // loop over each best practice
     pages.forEach((page) => {
         bestPractices.forEach((bp) => {
@@ -396,7 +392,7 @@ function manageScenarioBestPratices(pages, language) {
 /**
  * Write global report from global template
  */
-function writeGlobalReport(globalReportVariables, outputFile, progressBar) {
+function writeGlobalReport(globalReportVariables, outputFile, progressBar, translator) {
     const globalReportVariablesWithLabels = {
         labels: {
             header: translator.translate('greenItAnalysisReport'),
@@ -446,7 +442,7 @@ function writeGlobalReport(globalReportVariables, outputFile, progressBar) {
 /**
  * Write scenarios report from page template
  */
-function writeAllReports(allReportsVariables, outputFolder, progressBar) {
+function writeAllReports(allReportsVariables, outputFolder, progressBar, translator) {
     const labels = {
         requests: translator.translate('requests'),
         pageSize: translator.translate('pageSize'),

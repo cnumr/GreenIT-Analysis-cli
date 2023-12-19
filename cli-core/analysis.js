@@ -3,14 +3,14 @@ const fs = require('fs');
 const path = require('path');
 const { harFromMessages } = require('chrome-har');
 const sizes = require('../sizes.js');
-const translator = require('./translator.js').translator;
 const { createProgressBar } = require('./utils');
+const { option } = require('yargs');
 
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
 
 //Analyse a scenario
-async function analyseScenario(browser, pageInformations, options) {
+async function analyseScenario(browser, pageInformations, options, translator, pageLoadingLabel) {
     let scenarioResult = {};
 
     const TIMEOUT = options.timeout;
@@ -18,10 +18,10 @@ async function analyseScenario(browser, pageInformations, options) {
     const TRY_NB = options.tryNb || 1;
     const DEVICE = options.device || 'desktop';
     const PROXY = options.proxy;
+    const LANGUAGE = options.language;
 
     try {
         const page = await browser.newPage();
-        translator.setLocale(options.language);
 
         // configure proxy in page browser
         if (PROXY) {
@@ -39,7 +39,7 @@ async function analyseScenario(browser, pageInformations, options) {
         await page.setCacheEnabled(false);
 
         // Execute actions on page (click, text, ...)
-        let pages = await startActions(page, pageInformations, TIMEOUT, translator);
+        let pages = await startActions(page, pageInformations, TIMEOUT, translator, pageLoadingLabel);
 
         scenarioResult.pages = pages;
         scenarioResult.success = true;
@@ -56,7 +56,7 @@ async function analyseScenario(browser, pageInformations, options) {
         scenarioResult.success = false;
     }
     const date = new Date();
-    scenarioResult.date = `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`;
+    scenarioResult.date = `${date.toLocaleDateString(LANGUAGE)} ${date.toLocaleTimeString(LANGUAGE)}`;
     scenarioResult.pageInformations = pageInformations;
     scenarioResult.tryNb = TRY_NB;
     scenarioResult.tabId = TAB_ID;
@@ -95,7 +95,7 @@ function isValidWaitForNavigation(waitUntilParam) {
  * @param {*} name page name
  * @returns
  */
-async function startActions(page, pageInformations, timeout, translator) {
+async function startActions(page, pageInformations, timeout, translator, pageLoadingLabel) {
     //get har file
     const pptrHar = new PuppeteerHar(page);
     await pptrHar.start();
@@ -104,7 +104,6 @@ async function startActions(page, pageInformations, timeout, translator) {
     await doFirstAction(page, pageInformations, timeout);
 
     // do initial snapshot of data before actions
-    const pageLoadingLabel = translator.translate('pageLoading');
     let actionResult = await doAnalysis(page, pptrHar, pageLoadingLabel, translator);
 
     let actionsResultsForAPage = [];
@@ -342,7 +341,7 @@ async function login(browser, loginInformations, options) {
 }
 
 //Core
-async function createJsonReports(browser, pagesInformations, options, proxy, headers) {
+async function createJsonReports(browser, pagesInformations, options, proxy, headers, translator) {
     //Timeout for an analysis
     const TIMEOUT = options.timeout;
     //Concurent tab
@@ -374,18 +373,28 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
         fs.rmSync(SUBRESULTS_DIRECTORY, { recursive: true });
     }
     fs.mkdirSync(SUBRESULTS_DIRECTORY);
+
+    //Set translator language
+    const pageLoadingLabel = translator.translate('pageLoading');
+
     //Asynchronous analysis with MAX_TAB open simultaneously to json
     for (let i = 0; i < MAX_TAB && index < pagesInformations.length; i++) {
         asyncFunctions.push(
-            analyseScenario(browser, pagesInformations[index], {
-                device: DEVICE,
-                timeout: TIMEOUT,
-                tabId: i,
-                proxy: proxy,
-                headers: headers,
-                index: index,
-                language: LANGUAGE,
-            })
+            analyseScenario(
+                browser,
+                pagesInformations[index],
+                {
+                    device: DEVICE,
+                    timeout: TIMEOUT,
+                    tabId: i,
+                    proxy: proxy,
+                    headers: headers,
+                    index: index,
+                    language: LANGUAGE,
+                },
+                translator,
+                pageLoadingLabel
+            )
         );
         index++;
     }
@@ -396,16 +405,22 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
             asyncFunctions.splice(
                 convert[results.tabId],
                 1,
-                analyseScenario(browser, results.pageInformations, {
-                    device: DEVICE,
-                    timeout: TIMEOUT,
-                    tabId: results.tabId,
-                    tryNb: results.tryNb + 1,
-                    proxy: proxy,
-                    headers: headers,
-                    index: results.index,
-                    language: LANGUAGE,
-                })
+                analyseScenario(
+                    browser,
+                    results.pageInformations,
+                    {
+                        device: DEVICE,
+                        timeout: TIMEOUT,
+                        tabId: results.tabId,
+                        tryNb: results.tryNb + 1,
+                        proxy: proxy,
+                        headers: headers,
+                        index: results.index,
+                        language: LANGUAGE,
+                    },
+                    translator,
+                    pageLoadingLabel
+                )
             ); // convert is NEEDED, variable size array
         } else {
             let filePath = path.resolve(SUBRESULTS_DIRECTORY, `${resultId}.json`);
@@ -426,15 +441,21 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
                 asyncFunctions.splice(
                     results.tabId,
                     1,
-                    analyseScenario(browser, pagesInformations[index], {
-                        device: DEVICE,
-                        timeout: TIMEOUT,
-                        tabId: results.tabId,
-                        proxy: proxy,
-                        headers: headers,
-                        index,
-                        language: LANGUAGE,
-                    })
+                    analyseScenario(
+                        browser,
+                        pagesInformations[index],
+                        {
+                            device: DEVICE,
+                            timeout: TIMEOUT,
+                            tabId: results.tabId,
+                            proxy: proxy,
+                            headers: headers,
+                            index,
+                            language: LANGUAGE,
+                        },
+                        translator,
+                        pageLoadingLabel
+                    )
                 ); // No need for convert, fixed size array
                 index++;
             }
