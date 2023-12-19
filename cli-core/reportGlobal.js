@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getEcoIndexGrade, getGradeEcoIndex, createProgressBar } = require('./utils');
+const translator = require('./translator.js').translator;
 
 //Path to the url file
 const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
@@ -43,14 +44,14 @@ async function create_global_report(reports, options) {
     const MAX_TAB = options.max_tab || 'No data';
     //Nb of retry before dropping analysis
     const RETRY = options.retry || 'No data';
-    //Connection type
-    const MOBILE = options.mobile ? 'Mobile' : 'Filaire';
     //Nb of displayed worst pages
     const WORST_PAGES = options.worst_pages;
     //Nb of displayed worst rules
     const WORST_RULES = options.worst_rules;
 
     const DEVICE = options.device;
+    const LANGUAGE = options.language;
+    translator.setLocale(LANGUAGE);
 
     let handleWorstPages = worstPagesHandler(WORST_PAGES);
 
@@ -126,10 +127,10 @@ async function create_global_report(reports, options) {
     const date = new Date();
     eco = reports.length - err.length != 0 ? Math.round(eco / (reports.length - err.length)) : 'No data'; //Average EcoIndex
     let globalSheet_data = {
-        date: `${date.toLocaleDateString('fr')} ${date.toLocaleTimeString('fr')}`,
+        date: `${date.toLocaleDateString(LANGUAGE)} ${date.toLocaleTimeString(LANGUAGE)}`,
         hostname: hostname,
         device: DEVICE,
-        connection: MOBILE,
+        connection: options.mobile ? translator.translate('mobile') : translator.translate('wired'),
         grade: getEcoIndexGrade(eco),
         ecoIndex: eco,
         worstEcoIndexes: worstEcoIndexes,

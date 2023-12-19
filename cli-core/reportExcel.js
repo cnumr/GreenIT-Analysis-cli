@@ -2,10 +2,12 @@ const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
+const translator = require('./translator.js').translator;
 
 //create xlsx report for all the analysed pages and recap on the first sheet
 async function create_XLSX_report(reportObject, options) {
     const OUTPUT_FILE = path.resolve(options.report_output_file);
+    translator.setLocale(options.language);
     const fileList = reportObject.reports;
     const globalReport = reportObject.globalReport;
 
@@ -22,27 +24,34 @@ async function create_XLSX_report(reportObject, options) {
     const globalSheet = wb.addWorksheet(globalReport.name);
     const globalReport_data = JSON.parse(fs.readFileSync(globalReport.path).toString());
     const globalSheet_data = [
-        ['Date', globalReport_data.date],
-        ['Hostname', globalReport_data.hostname],
-        ['Plateforme', globalReport_data.device],
-        ['Connexion', globalReport_data.connection],
-        ['Grade', globalReport_data.grade],
-        ['EcoIndex', globalReport_data.ecoIndex],
-        ['Nombre de pages', globalReport_data.nbPages],
-        ['Timeout', globalReport_data.timeout],
-        ["Nombre d'analyses concurrentes", globalReport_data.maxTab],
-        ["Nombre d'essais supplémentaires en cas d'échec", globalReport_data.retry],
-        ["Nombre d'erreurs d'analyse", globalReport_data.errors.length],
-        ["Erreurs d'analyse :"],
+        [translator.translate('date'), globalReport_data.date],
+        [translator.translate('hostname'), globalReport_data.hostname],
+        [translator.translate('platform'), globalReport_data.device],
+        [translator.translate('connection'), globalReport_data.connection],
+        [translator.translate('grade'), globalReport_data.grade],
+        [translator.translate('ecoIndex'), globalReport_data.ecoIndex],
+        [translator.translate('nbPages'), globalReport_data.nbPages],
+        [translator.translate('timeout'), globalReport_data.timeout],
+        [translator.translate('nbConcAnalysis'), globalReport_data.maxTab],
+        [translator.translate('nbAdditionalAttemps'), globalReport_data.retry],
+        [translator.translate('nbErrors'), globalReport_data.errors.length],
+        [translator.translate('analysisErrors')],
     ];
     globalReport_data.errors.forEach((element) => {
         globalSheet_data.push([element.nb, element.url]);
     });
-    globalSheet_data.push([], ['Pages prioritaires:']);
+    globalSheet_data.push([], [translator.translate('priorityPages')]);
     globalReport_data.worstPages.forEach((element) => {
-        globalSheet_data.push([element.nb, element.url, 'Grade', element.grade, 'EcoIndex', element.ecoIndex]);
+        globalSheet_data.push([
+            element.nb,
+            element.url,
+            translator.translate('grade'),
+            element.grade,
+            translator.translate('ecoIndex'),
+            element.ecoIndex,
+        ]);
     });
-    globalSheet_data.push([], ['Bonnes pratiques à mettre en oeuvre :']);
+    globalSheet_data.push([], [translator.translate('rulesToApply')]);
     globalReport_data.worstRules.forEach((elem) => {
         globalSheet_data.push([elem]);
     });
@@ -67,33 +76,45 @@ async function create_XLSX_report(reportObject, options) {
                 if (page.actions) {
                     // Prepare data
                     sheet_data = [
-                        ['URL', obj.pageInformations.url],
-                        ['Grade', page.actions[page.actions.length - 1].grade],
-                        ['EcoIndex', page.actions[page.actions.length - 1].ecoIndex],
-                        ['Eau (cl)', page.actions[page.actions.length - 1].waterConsumption],
-                        ['GES (gCO2e)', page.actions[page.actions.length - 1].greenhouseGasesEmission],
-                        ['Taille du DOM', page.actions[page.actions.length - 1].domSize],
+                        [translator.translate('url'), obj.pageInformations.url],
+                        [translator.translate('grade'), page.actions[page.actions.length - 1].grade],
+                        [translator.translate('ecoIndex'), page.actions[page.actions.length - 1].ecoIndex],
+                        [translator.translate('water'), page.actions[page.actions.length - 1].waterConsumption],
                         [
-                            'Taille de la page (Ko)',
+                            translator.translate('greenhouseGasesEmission'),
+                            page.actions[page.actions.length - 1].greenhouseGasesEmission,
+                        ],
+                        [translator.translate('domSize'), page.actions[page.actions.length - 1].domSize],
+                        [
+                            translator.translate('pageSize'),
                             `${Math.round(page.actions[page.actions.length - 1].responsesSize / 1000)} (${Math.round(
                                 page.actions[page.actions.length - 1].responsesSizeUncompress / 1000
                             )})`,
                         ],
-                        ['Nombre de requêtes', page.actions[page.actions.length - 1].nbRequest],
-                        ['Nombre de plugins', page.actions[page.actions.length - 1].pluginsNumber],
-                        ['Nombre de fichier CSS', page.actions[page.actions.length - 1].printStyleSheetsNumber],
-                        ['Nombre de "inline" CSS', page.actions[page.actions.length - 1].inlineStyleSheetsNumber],
-                        ['Nombre de tag src vide', page.actions[page.actions.length - 1].emptySrcTagNumber],
-                        ['Nombre de "inline" JS', page.actions[page.actions.length - 1].inlineJsScriptsNumber],
+                        [translator.translate('nbRequests'), page.actions[page.actions.length - 1].nbRequest],
+                        [translator.translate('nbPlugins'), page.actions[page.actions.length - 1].pluginsNumber],
+                        [
+                            translator.translate('nbCssFiles'),
+                            page.actions[page.actions.length - 1].printStyleSheetsNumber,
+                        ],
+                        [
+                            translator.translate('nbInlineCss'),
+                            page.actions[page.actions.length - 1].inlineStyleSheetsNumber,
+                        ],
+                        [translator.translate('nbEmptySrc'), page.actions[page.actions.length - 1].emptySrcTagNumber],
+                        [
+                            translator.translate('nbInlineJs'),
+                            page.actions[page.actions.length - 1].inlineJsScriptsNumber,
+                        ],
                     ];
                 }
 
-                sheet_data.push([], ['Image retaillée dans le navigateur :']);
+                sheet_data.push([], [translator.translate('resizedImage')]);
                 for (let elem in page.actions[page.actions.length - 1].imagesResizedInBrowser) {
                     sheet_data.push([page.actions[page.actions.length - 1].imagesResizedInBrowser[elem].src]);
                 }
 
-                sheet_data.push([], ['Best practices :']);
+                sheet_data.push([], [translator.translate('bestPractices')]);
                 for (let key in page.bestPractices) {
                     sheet_data.push([key, page.bestPractices[key].complianceLevel || 'A']);
                 }
@@ -109,32 +130,23 @@ async function create_XLSX_report(reportObject, options) {
         } else {
             // Prepare data
             const sheet_data = [
-                ['URL', obj.pageInformations.url],
-                ['Grade', obj.grade],
-                ['EcoIndex', obj.ecoIndex],
-                ['Eau (cl)', obj.waterConsumption],
-                ['GES (gCO2e)', obj.greenhouseGasesEmission],
-                ['Taille du DOM', obj.domSize],
+                [translator.translate('url'), obj.pageInformations.url],
+                [translator.translate('grade'), obj.grade],
+                [translator.translate('ecoIndex'), obj.ecoIndex],
+                [translator.translate('water'), obj.waterConsumption],
+                [translator.translate('greenhouseGasesEmission'), obj.greenhouseGasesEmission],
+                [translator.translate('domSize'), obj.domSize],
                 [
-                    'Taille de la page (Ko)',
+                    translator.translate('pageSize'),
                     `${Math.round(obj.responsesSize / 1000)} (${Math.round(obj.responsesSizeUncompress / 1000)})`,
                 ],
-                ['Nombre de requêtes', obj.nbRequest],
-                ['Nombre de plugins', obj.pluginsNumber],
-                ['Nombre de fichier CSS', obj.printStyleSheetsNumber],
-                ['Nombre de "inline" CSS', obj.inlineStyleSheetsNumber],
-                ['Nombre de tag src vide', obj.emptySrcTagNumber],
-                ['Nombre de "inline" JS', obj.inlineJsScriptsNumber],
-                ['Nombre de requêtes', obj.nbRequest],
+                [translator.translate('nbRequests'), obj.nbRequest],
+                [translator.translate('nbPlugins'), obj.pluginsNumber],
+                [translator.translate('nbCssFiles'), obj.printStyleSheetsNumber],
+                [translator.translate('nbInlineCss'), obj.inlineStyleSheetsNumber],
+                [translator.translate('nbEmptySrc'), obj.emptySrcTagNumber],
+                [translator.translate('nbInlineJs'), obj.inlineJsScriptsNumber],
             ];
-            sheet_data.push([], ['Image retaillée dans le navigateur :']);
-            for (let elem in obj.imagesResizedInBrowser) {
-                sheet_data.push([obj.imagesResizedInBrowser[elem].src]);
-            }
-            sheet_data.push([], ['Best practices :']);
-            for (let key in obj.bestPractices) {
-                sheet_data.push([key, obj.bestPractices[key].complianceLevel || 'A']);
-            }
             //Create sheet
             let sheet = wb.addWorksheet(sheet_name);
             sheet.addRows(sheet_data);

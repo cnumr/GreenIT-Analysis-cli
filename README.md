@@ -325,6 +325,7 @@ Paramètres optionnels :
 - `--influxdb_org` : Nom de l'organisation influxdb
 - `--influxdb_token` : Token de connexion pour influxdb
 - `--influxdb_bucket` : Bucket infludb sur lequel envoyer les données
+- `--language` : Langue utilisée dans le rapport. (Valeur par défaut : fr. Valeurs autorisées: fr, en)
 - `--login , -l` : Chemin vers le fichier YAML contenant les informations de connexions.
 
   Exemple de login.yaml :

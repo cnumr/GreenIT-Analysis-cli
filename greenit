@@ -57,6 +57,12 @@ yargs(hideBin(process.argv))
                 .option('influxdb_token', {
                     type: 'string',
                 })
+                .option('language', {
+                    type: 'string',
+                    description: 'Report language : Possible choices: fr, en',
+                    choices: ['fr', 'en'],
+                    default: 'fr',
+                })
                 .option('login', {
                     type: 'string',
                     alias: 'l',

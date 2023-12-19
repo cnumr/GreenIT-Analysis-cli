@@ -143,9 +143,9 @@
     <body>
         <nav class="navbar navbar-success bg-success text-white mb-4">
             <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1" style="font-size: 1rem">{{{ header }}}</span>
+                <span class="navbar-brand mb-0 h1" style="font-size: 1rem">{{{ values.header }}}</span>
                 <div class="d-flex flex-row-reverse">
-                    <div id="date">{{ date }}</div>
+                    <div id="date">{{ values.date }}</div>
                 </div>
             </div>
         </nav>
@@ -154,27 +154,27 @@
                 <div class="row text-center">
                     <div class="col col-md-4">
                         <div class="card mb-4 border-success" style="max-width: 18rem">
-                            <div class="card-header bg-success text-white">Requêtes</div>
+                            <div class="card-header bg-success text-white">{{ labels.requests }}</div>
                             <div class="card-body text-dark">
-                                <h1 id="nbRequest" class="card-title">{{ nbRequest }}</h1>
+                                <h1 id="nbRequest" class="card-title">{{ values.nbRequest }}</h1>
                             </div>
                         </div>
                     </div>
 
                     <div class="col col-md-4">
                         <div class="card mb-4 border-success" style="max-width: 18rem">
-                            <div class="card-header bg-success text-white">Taille de la page (Ko)</div>
+                            <div class="card-header bg-success text-white">{{ labels.pageSize }}</div>
                             <div class="card-body text-dark">
-                                <h1 id="pageSize" class="card-title">{{ pageSize }}</h1>
+                                <h1 id="pageSize" class="card-title">{{ values.pageSize }}</h1>
                             </div>
                         </div>
                     </div>
 
                     <div class="col col-md-4">
                         <div class="card mb-4 border-success" style="max-width: 18rem">
-                            <div class="card-header bg-success text-white">Taille du DOM</div>
+                            <div class="card-header bg-success text-white">{{ labels.domSize }}</div>
                             <div class="card-body text-dark">
-                                <h1 id="domSize" class="card-title">{{ domSize }}</h1>
+                                <h1 id="domSize" class="card-title">{{ values.domSize }}</h1>
                             </div>
                         </div>
                     </div>
@@ -182,21 +182,21 @@
             </div>
 
             <div class="container my-3">
-                <h5 class="mb-3">Etapes</h5>
+                <h5 class="mb-3">{{ labels.steps }}</h5>
                 <div class="row">
                     <div class="col col-md-12">
                         <table id="tabBestPractices" class="table table-sm">
                             <thead class="table-light">
-                                <th scope="col">Etape</th>
-                                <th scope="col">Ecoindex</th>
-                                <th scope="col">Eau (cl)</th>
-                                <th scope="col">GES (gCO2e)</th>
-                                <th scope="col">Nb d'éléments du DOM</th>
-                                <th scope="col">Nombre de requêtes</th>
-                                <th scope="col">Page (Ko)</th>
+                                <th scope="col">{{ labels.step }}</th>
+                                <th scope="col">{{ labels.ecoIndex }}</th>
+                                <th scope="col">{{ labels.water }}</th>
+                                <th scope="col">{{ labels.greenhouseGasesEmission }}</th>
+                                <th scope="col">{{ labels.domSize }}</th>
+                                <th scope="col">{{ labels.requests }}</th>
+                                <th scope="col">{{ labels.pageSize }}</th>
                             </thead>
                             <tbody>
-                                {{#pages}}
+                                {{#values.pages}}
                                 <!-- Empty line -->
                                 <tr class="pageRow">
                                     <td colspan="7"><b>{{ name }} - {{ url }}</b></td>
@@ -218,7 +218,7 @@
                                 <tr class="collapseRow">
                                     <td colspan="7">
                                         <a data-bs-toggle="collapse" href="#rule_{{ id }}" role="button" aria-expanded="false" aria-controls="rule_{{ id }}">
-                                            Bonnes pratiques ({{ nbBestPracticesToCorrect }} à mettre en oeuvre)
+                                            {{ nbBestPracticesToCorrectLabel }}
                                         </a>
                                     </td>
                                 </tr>
@@ -226,9 +226,9 @@
                                     <td colspan="7" class="hiddenRow">
                                         <table id="rule_{{ id }}" class="collapse table table-sm">
                                             <thead class="table-light">
-                                                <th scope="col">Bonne pratique</th>
-                                                <th scope="col">Résultat</th>
-                                                <th scope="col">Note</th>
+                                                <th scope="col">{{ labels.bestPractice }}</th>
+                                                <th scope="col">{{ labels.result }}</th>
+                                                <th scope="col">{{ labels.note }}</th>
                                             </thead>
                                             <tbody>
                                                 {{#bestPractices}}
@@ -262,7 +262,7 @@
                                 <tr>
                                     <td colspan="7"></td>
                                 </tr>
-                                {{/pages}}
+                                {{/values.pages}}
                             </tbody>
                         </table>
                     </div>
@@ -270,20 +270,20 @@
             </div>
 
             <div class="container my-3">
-                <h5 class="mb-3">Bonnes pratiques</h5>
+                <h5 class="mb-3">{{ labels.bestPractices }}</h5>
                 <div class="row">
                     <div class="col col-md-12">
                         <table id="tabBestPractices" class="table table-sm">
                             <thead class="table-light">
-                                <th scope="col">Bonne pratique</th>
-                                <th scope="col">Résultat</th>
-                                <th scope="col">Effort</th>
-                                <th scope="col">Impact</th>
-                                <th scope="col">Priorité</th>
-                                <th scope="col">Note</th>
+                                <th scope="col">{{ labels.bestPractice }}</th>
+                                <th scope="col">{{ labels.result }}</th>
+                                <th scope="col">{{ labels.effort }}</th>
+                                <th scope="col">{{ labels.impact }}</th>
+                                <th scope="col">{{ labels.priority }}</th>
+                                <th scope="col">{{ labels.note }}</th>
                             </thead>
                             <tbody>
-                                {{#bestPractices}}
+                                {{#values.bestPractices}}
                                 <tr>
                                     <td>
                                         <button
@@ -327,7 +327,7 @@
                                         {{/pages.1}}
                                     </td>
                                 </tr>
-                                {{/bestPractices}}
+                                {{/values.bestPractices}}
                             </tbody>
                         </table>
                     </div>
