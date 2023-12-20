@@ -2,7 +2,6 @@ const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
-const translator = require('./translator.js').translator;
 
 //create xlsx report for all the analysed pages and recap on the first sheet
 async function create_XLSX_report(reportObject, options, translator) {
