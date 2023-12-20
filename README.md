@@ -1,4 +1,6 @@
-# GreenIT-Analysis
+[English version](./README_EN.md)
+
+# GreenIT-Analysis-cli
 Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://github.com/cnumr/GreenIT-Analysis).
 
 # Sommaire
@@ -9,14 +11,24 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
     - [Installation](#installation)
   - [Docker](#docker)
     - [Prérequis](#prérequis-1)
-    - [Utilisation](#utilisation)
+    - [Installation](#installation-1)
     - [Configurer un proxy](#configurer-un-proxy)
 - [Usage](#usage)
   - [Analyse](#analyse)
     - [Construction du fichier d'entrée](#construction-du-fichier-dentrée)
+      - [Conditions d'attente](#conditions-dattente)
+      - [Actions](#actions)
+        - [click](#click)
+        - [scroll](#scroll)
+        - [select](#select)
+        - [text](#text)
     - [Commande](#commande)
     - [Usage avec Docker](#usage-avec-docker)
     - [Formats des rapports](#formats-des-rapports)
+      - [Excel (xlsx)](#excel-xlsx)
+      - [HTML](#html)
+      - [InfluxDB/Grafana](#influxdbgrafana)
+      - [InfluxDB/Grafana + HTML](#influxdbgrafana--html)
   - [ParseSiteMap](#parsesitemap)
   - [Flags généraux](#flags-généraux)
 - [Conditions d'utilisation](#conditions-dutilisation)
@@ -105,8 +117,8 @@ Si vous avez besoin de configurer un proxy, il faut :
 1. Modifier le Dockerfile
 
 ```
-# Uncomment if you need to configure proxy.
-# You can init these variables by using --build-arg during docker build
+# Uncomment if you need to configure the proxy.
+# You can init these variables by using --build-arg during the docker build
 # Example : docker build [...] --build-arg http_proxy=http://<user>:<password>@<host>:<port>
 ENV HTTP_PROXY=$http_proxy
 ENV HTTPS_PROXY=$https_proxy
@@ -114,7 +126,7 @@ ENV NO_PROXY=$no_proxy
 
 [...]
 
-# Uncomment if you need to configure proxy.
+# Uncomment if you need to configure the proxy.
 #RUN npm config set proxy $HTTP_PROXY
 ```
 
@@ -306,10 +318,11 @@ Paramètres optionnels :
 
 - `--format , -f` : Format du rapport. Ce paramètre est optionnel : s'il n'est pas défini, alors le format sera déduit en fonction de l'extension du fichier du rapport. Lorsqu'il est défini, le paramètre format est prioritaire vis-à-vis de l'extension.
 
-    Choix :
-    - xlsx
-    - html
-    - influxdb
+Choix :
+- xlsx
+- html
+- influxdb
+- influxdbhtml
 
 - `--headers , -h` : Chemin vers le fichier YAML contenant les headers HTTP configurés pour accéder aux URL à analyser.
 
@@ -319,12 +332,14 @@ Paramètres optionnels :
   accept-encoding: 'gzip, deflate, br'
   accept-language: 'en-US,en;q=0.9,en;q=0.8'
   ```
+
 - `--headless` : Paramètre permettant d'activer ou de désactiver le mode headless. Lorsque ce mode est désactivé, cela permet de visualiser l'automatisation des actions dans le navigateur. Valeurs possibles : [`true`, `false`]. Valeur par défaut : `true`.
 - `--influxdb` : Active l'écriture des données dans une base influxdb
 - `--influxdb_hostname` : URL de la base influxdb
 - `--influxdb_org` : Nom de l'organisation influxdb
 - `--influxdb_token` : Token de connexion pour influxdb
 - `--influxdb_bucket` : Bucket infludb sur lequel envoyer les données
+- `--language` : Langue utilisée dans le rapport. (Valeur par défaut : fr. Valeurs autorisées: fr, en)
 - `--login , -l` : Chemin vers le fichier YAML contenant les informations de connexions.
 
   Exemple de login.yaml :
@@ -337,6 +352,7 @@ Paramètres optionnels :
       value: password
   loginButtonSelector: '#loginButtonId'
   ```
+
   Plus d'informations sur les selectors : https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
 
 - `--max_tab` : Nombre d'URL analysées en "simultané" (asynchronicité). (Valeur par défaut : 40).
@@ -349,6 +365,7 @@ Paramètres optionnels :
   user: "<username>"
   password: "<password>"
   ```
+
 - `--retry , -r` : Nombre d'essais supplémentaires d'analyse en cas d'echec. (Valeur par défaut : 2)
 - `--timeout , -t` : Nombre de millisecondes maximal pour charger une url. (Valeur par défaut : 180000)
 - `--worst_pages` : Nombre de pages à traiter en priorité affichées sur la page de résumé. (Valeur par défaut : 5)
@@ -421,7 +438,7 @@ Prérequis :
 - Soit le paramètre suivant est définit : `--format=xlsx` ou `-f=xlsx`
 - Soit le fichier de sortie doit avoir l'extension `.xlsx`
 
-Exemple de commande :
+Exemple :
 
 ```
 greenit analyse /app/input/url.yaml /app/output/results.xlsx --format=xlsx
@@ -443,11 +460,10 @@ Exemple d'un rapport :
 #### HTML
 
 Prérequis :
-Prérequis :
 - Soit le paramètre suivant est définit : `--format=html` ou `-f=html`
 - Soit le fichier de sortie doit avoir l'extension `.html`
 
-Exemple de commande :
+Exemple :
 
 ```
 greenit analyse /app/input/url.yaml /app/output/global.html --format=html

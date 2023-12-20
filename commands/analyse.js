@@ -8,6 +8,7 @@ const create_global_report = require('../cli-core/reportGlobal.js').create_globa
 const create_XLSX_report = require('../cli-core/reportExcel.js').create_XLSX_report;
 const create_html_report = require('../cli-core/reportHtml.js').create_html_report;
 const writeToInflux = require('../cli-core/influxdb').write;
+const translator = require('../cli-core/translator.js').translator;
 
 //launch core
 async function analyse_core(options) {
@@ -56,6 +57,10 @@ async function analyse_core(options) {
         // Keep gpu horsepower in headless
         ignoreDefaultArgs: ['--disable-gpu'],
     });
+
+    // init translator
+    translator.setLocale(options.language);
+
     //handle analyse
     let reports;
     try {
@@ -70,27 +75,26 @@ async function analyse_core(options) {
                     error.linePos
                 )}.`;
             }
-            //console.log(loginInfos)
             await login(browser, loginInfos, options);
         }
         //analyse
-        reports = await createJsonReports(browser, pagesInformations, options, proxy, headers);
+        reports = await createJsonReports(browser, pagesInformations, options, proxy, headers, translator);
     } finally {
         //close browser
         await browser.close();
     }
     //create report
-    let reportObj = await create_global_report(reports, { ...options, proxy });
+    let reportObj = await create_global_report(reports, { ...options, proxy }, translator);
     if (reportFormat === 'influxdbhtml') {
         // write in database then generate html report
         await writeToInflux(reports, options);
-        await create_html_report(reportObj, options, true);
+        await create_html_report(reportObj, options, translator, true);
     } else if (reportFormat === 'html') {
-        await create_html_report(reportObj, options, false);
+        await create_html_report(reportObj, options, translator, false);
     } else if (reportFormat === 'influxdb') {
         await writeToInflux(reports, options);
     } else {
-        await create_XLSX_report(reportObj, options);
+        await create_XLSX_report(reportObj, options, translator);
     }
 }
 

@@ -157,30 +157,30 @@
             }
         </script>
 
-        <title>GreenIT-Analysis report</title>
+        <title>{{ labels.header }}</title>
     </head>
 
     <body>
         <nav class="navbar navbar-success bg-success text-white mb-4">
             <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1" style="font-size: 1rem">GreenIT-Analysis report</span>
+                <span class="navbar-brand mb-0 h1" style="font-size: 1rem">{{ labels.header }}</span>
             </div>
         </nav>
         <div class="container">
             <div class="container">
                 <table id="tabInformations" class="table table-bordered text-center my-3">
                     <thead class="table-light">
-                        <th scope="col">Date d'exécution</th>
-                        <th scope="col">Hostname</th>
-                        <th scope="col">Plateforme</th>
-                        <th scope="col">Type de connexion</th>
+                        <th scope="col">{{ labels.executionDate }}</th>
+                        <th scope="col">{{ labels.hostname }}</th>
+                        <th scope="col">{{ labels.platform }}</th>
+                        <th scope="col">{{ labels.connection }}</th>
                     </thead>
                     <tbody>
                         <tr>
-                            <td id="date">{{ date }}</td>
-                            <td id="hostname">{{ hostname }}</td>
-                            <td id="device">{{ device }}</td>
-                            <td id="connection">{{ connection }}</td>
+                            <td id="date">{{ values.date }}</td>
+                            <td id="hostname">{{ values.hostname }}</td>
+                            <td id="device">{{ values.device }}</td>
+                            <td id="connection">{{ values.connection }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -190,18 +190,18 @@
                 <div class="row text-center justify-content-center">
                     <div class="col col-md-3">
                         <div class="card mb-3 border-primary" style="max-width: 18rem">
-                            <div class="card-header bg-primary text-white">Scénario(s)</div>
+                            <div class="card-header bg-primary text-white">{{ labels.scenarios }}</div>
                             <div class="card-body text-dark">
-                                <h1 id="nbScenarios" class="card-title" style="height: 45px">{{{ nbScenarios }}}</h1>
+                                <h1 id="nbScenarios" class="card-title" style="height: 45px">{{{ values.nbScenarios }}}</h1>
                             </div>
                         </div>
                     </div>
 
                     <div class="col col-md-3">
                         <div class="card mb-3 border-danger" style="max-width: 18rem">
-                            <div class="card-header bg-danger text-white">Erreur(s)</div>
+                            <div class="card-header bg-danger text-white">{{ labels.errors }}</div>
                             <div class="card-body text-dark">
-                                <h1 id="nbErrors" class="card-title">{{ nbErrors }}</h1>
+                                <h1 id="nbErrors" class="card-title">{{ values.nbErrors }}</h1>
                             </div>
                         </div>
                     </div>
@@ -213,36 +213,36 @@
                     <div class="col col-md-12">
                         <table id="tabPages" class="table table-sm">
                             <thead class="table-light" style="text-align: center; vertical-align: middle">
-                                <th scope="col" class="col col-md-5">Scénario</th>
+                                <th scope="col" class="col col-md-5">{{ labels.scenario }}</th>
                                 <th scope="col" class="col col-md-1">
                                     <button
                                         class="btn-primary bi bi-info rounded-circle"
-                                        onclick="alert('La performance environnementale est représentée par un score sur 100 et une note de A à G (plus la note est élévée, mieux c\'est !).\nL\'EcoIndex est celui de la page, actions comprises.');">
+                                        onclick='alert("{{ tooltips.ecoIndex }}");'>
                                     </button>
-                                    &nbsp;Ecoindex
+                                    &nbsp;{{ labels.ecoIndex }}
                                 </th>
                                 <th scope="col" class="col col-md-1">
                                     <button
                                         class="btn-primary bi bi-info rounded-circle"
-                                        onclick="alert('[EcoIndex à l\'ouverture de la page] - [EcoIndex après l\'excution des actions], cette part est inclue dans l\'EcoIndex');">
+                                        onclick='alert("{{ tooltips.shareDueToActions }}");'>
                                     </button>
-                                    &nbsp;Part due aux actions
+                                    &nbsp;{{ labels.shareDueToActions }}
                                 </th>
-                                <th scope="col" class="col col-md-1">Eau (cl)</th>
-                                <th scope="col" class="col col-md-1">GES (gCO2e)</th>
+                                <th scope="col" class="col col-md-1">{{ labels.water }}</th>
+                                <th scope="col" class="col col-md-1">{{ labels.greenhouseGasesEmission }}</th>
                                 <th scope="col" class="col col-md-2">
                                     <button
                                         class="btn-primary bi bi-info rounded-circle"
-                                        onclick="alert('Nombre de bonnes pratiques d\'écoconception à mettre en oeuvre par page sur les 24 analysées par l\'outil')">
+                                        onclick='alert("{{ tooltips.bestPracticesToImplement }}");'>
                                     </button>
-                                    &nbsp;Bonnes pratiques à mettre en oeuvre
+                                    &nbsp;{{ labels.bestPracticesToImplement }}
                                 </th>
-                                {{#grafanaLinkPresent}}
+                                {{#values.grafanaLinkPresent}}
                                 <th scope="col" class="col col-md-1"></th>
-                                {{/grafanaLinkPresent}}
+                                {{/values.grafanaLinkPresent}}
                             </thead>
                             <tbody class="text-center">
-                                {{#allReportsVariables}}
+                                {{#values.allReportsVariables}}
                                     <tr class="{{ cssRowError }} text-start">
                                         <td colspan="6">{{{ link }}}</td>
                                     </tr>
@@ -250,7 +250,7 @@
                                     <tr class="pageRow {{ cssRowError }}">
                                         <td class="col col-md-5 text-start"> > {{ name }}</td>
                                         {{^success}}
-                                        <td colspan="4">Erreur</td>
+                                        <td colspan="4">{{ labels.error }}</td>
                                         {{/success}}
                                         {{#success}}
                                         <td class="col col-md-1">
@@ -260,15 +260,15 @@
                                         <td class="col col-md-1">{{ waterConsumption }}</td>
                                         <td class="col col-md-1">{{ greenhouseGasesEmission }}</td>
                                         <td class="col col-md-2">{{ nbBestPracticesToCorrect }}</td>
-                                        {{#grafanaLinkPresent}}
+                                        {{#values.grafanaLinkPresent}}
                                         <td class="col col-md-1">
-                                            <a href="{{grafanaLink}}">Tendance</a>
+                                            <a href="{{grafanaLink}}">{{ labels.trend }}</a>
                                         </td>
-                                        {{/grafanaLinkPresent}}
+                                        {{/values.grafanaLinkPresent}}
                                         {{/success}}
                                     </tr>
                                     {{/pages}}
-                                {{/allReportsVariables}}
+                                {{/values.allReportsVariables}}
                             </tbody>
                         </table>
                     </div>
@@ -276,39 +276,39 @@
             </div>
 
             <div class="container my-3">
-                <h5 class="mb-3">Bonnes pratiques</h5>
+                <h5 class="mb-3">{{ labels.bestPractices }}</h5>
                 <div style="margin-bottom: 10px">
                     <button type="button" class="btn btn-outline-primary" onclick="setTablePriority(5)">
-                        Priorité 5/5
+                        {{ labels.priority }} 5/5
                     </button>
                     <button type="button" class="btn btn-outline-secondary" onclick="setTablePriority(4)">
-                        Priorité 4/5
+                        {{ labels.priority }} 4/5
                     </button>
                     <button type="button" class="btn btn-outline-success" onclick="setTablePriority(3)">
-                        Priorité 3/5
+                        {{ labels.priority }} 3/5
                     </button>
                     <button type="button" class="btn btn-outline-danger" onclick="setTablePriority(2)">
-                        Priorité 2/5
+                        {{ labels.priority }} 2/5
                     </button>
                     <button type="button" class="btn btn-outline-warning" onclick="setTablePriority(1)">
-                        Priorité 1/5
+                        {{ labels.priority }} 1/5
                     </button>
                     <button type="button" class="btn btn-outline-info" onclick="setTablePriority('all')">
-                        Toutes les priorités
+                        {{ labels.allPriorities }}
                     </button>
                 </div>
                 <div class="row">
                     <div class="col col-md-12">
                         <table id="tabBestPractices" class="table table-sm">
                             <thead class="table-light">
-                                <th scope="col">Bonne pratique</th>
-                                <th scope="col">Effort</th>
-                                <th scope="col">Impact</th>
-                                <th scope="col">Priorité</th>
-                                <th scope="col">Note</th>
+                                <th scope="col">{{ labels.bestPractice }}</th>
+                                <th scope="col">{{ labels.effort }}</th>
+                                <th scope="col">{{ labels.impact }}</th>
+                                <th scope="col">{{ labels.priority }}</th>
+                                <th scope="col">{{ labels.note }}</th>
                             </thead>
                             <tbody>
-                                {{#bestsPractices}}
+                                {{#values.bestsPractices}}
                                 <tr data-priority="{{ priority }}">
                                     <td title="{{ description }}">
                                         <button
@@ -333,7 +333,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                {{/bestsPractices}}
+                                {{/values.bestsPractices}}
                             </tbody>
                         </table>
                     </div>
@@ -343,8 +343,8 @@
         <div class="card-footer bg-success text-white">
             <small>
                 <ul>
-                    <li>Pour comprendre le calcul de l'EcoIndex : <a class="text-white" href="https://www.ecoindex.fr/comment-ca-marche/">https://www.ecoindex.fr/comment-ca-marche/</a></li>
-                    <li>Parmi les 115 bonnes pratiques d'écoconception, 24 sont vérifiées par l'outil. Pour en savoir plus : <a class="text-white" href="https://github.com/cnumr/best-practices">https://github.com/cnumr/best-practices</a></li>
+                    <li>{{ labels.footerEcoIndex }} <a class="text-white" href="https://www.ecoindex.fr/comment-ca-marche/">https://www.ecoindex.fr/comment-ca-marche/</a></li>
+                    <li>{{ labels.footerBestPractices }} <a class="text-white" href="https://github.com/cnumr/best-practices">https://github.com/cnumr/best-practices</a></li>
                 </ul>
             </small>
         </div>
