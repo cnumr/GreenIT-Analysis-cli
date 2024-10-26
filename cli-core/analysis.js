@@ -73,6 +73,8 @@ async function waitPageLoading(page, pageInformations, TIMEOUT) {
         await page.waitForXPath(pageInformations.waitForXPath, { visible: true, timeout: TIMEOUT });
     } else if (isValidWaitForNavigation(pageInformations.waitForNavigation)) {
         await page.waitForNavigation({ waitUntil: pageInformations.waitForNavigation, timeout: TIMEOUT });
+    } else if (pageInformations.waitForTimeout) {
+        await page.waitForTimeout(pageInformations.waitForTimeout)
     }
 }
 
@@ -324,11 +326,16 @@ async function login(browser, loginInformations, options) {
     await page.goto(loginInformations.url);
     //ensure page is loaded
     await page.waitForSelector(loginInformations.loginButtonSelector);
+    //simulate user waiting before typing login and password
+    await page.waitForTimeout(1000);
     //complete fields
     for (let index = 0; index < loginInformations.fields.length; index++) {
         let field = loginInformations.fields[index];
         await page.type(field.selector, field.value);
+        await page.waitForTimeout(500);
     }
+    //simulate user waiting before clicking on button
+    await page.waitForTimeout(1000);
     //click login button
     await page.click(loginInformations.loginButtonSelector);
 

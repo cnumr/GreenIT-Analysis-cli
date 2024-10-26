@@ -160,9 +160,10 @@ Sa structure est la suivante :
 | `name`              | string | No          | Name of the page to analyze displayed in the report                  |
 | `waitForSelector`   | string | No          | Waits for the HTML element defined by the CSS selector to be visible |
 | `waitForXPath`      | string | No          | Waits for the HTML element defined by the CSS selector to be visible |
-| `waitForNavigation` | string | No          | Waits for the page to finish loading. 4 possible values: `load`, `domcontentloaded`, `networkidle0`, `networkidle2`                                                                  |
-| `screenshot`        | string | No         | Takes a screenshot of the page to analyze. The value to enter is the name of the screenshot. The screenshot is taken even if the page loads in error.                                            |
-| `actions`           | list   | No         | Perform a series of actions before analyzing the page                 |
+| `waitForNavigation` | string | No          | Waits for the page to finish loading. 4 possible values: `load`, `domcontentloaded`, `networkidle0`, `networkidle2`                                                                                      |
+| `waitForTimeout`    | int    | No          | Wait X ms, X being equal to the value of the parameter               |
+| `screenshot`        | string | No          | Takes a screenshot of the page to analyze. The value to enter is the name of the screenshot. The screenshot is taken even if the page loads in error.                                                |
+| `actions`           | list   | No          | Perform a series of actions before analyzing the page                |
 
 #### Waiting conditions
 The `waitForNavigation` parameter uses Puppeteer features to detect the end of loading a page without using a CSS selector or an XPath :
@@ -209,6 +210,7 @@ It is possible to define a list of actions through the `actions` field which is 
 | `waitForSelector`   | string | No        | Waits for the HTML element defined by the CSS selector to be visible        |
 | `waitForXPath`      | string | No        | Waits for the HTML element defined by the XPath to be visible               |
 | `waitForNavigation` | string | No        | Waits for the page to finish loading. 4 possible values: `load`, `domcontentloaded`, `networkidle0`, `networkidle2`                                                                       |
+| `waitForTimeout`    | int    | No        | Wait X ms, X being equal to the value of the parameter               |
 | `screenshot`       | string | No         | Take a screenshot of the page, after performing the action. The value to enter is the name of the screenshot. The screenshot is taken even if the action is in error.                                   |
 
 Conditions of type `waitFor` can be reused to define a wait condition after the execution of the action. They remain optional. The screenshot, if applicable, is taken after this wait condition.
@@ -353,6 +355,7 @@ Choice :
     - selector: "#passwordFieldId"
       value: password
   loginButtonSelector: "#loginButtonId"
+  waitForTimeout: 2000
   ```
 
   More information on selectors: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
