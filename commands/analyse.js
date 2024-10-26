@@ -56,6 +56,7 @@ async function analyse_core(options) {
         args: browserArgs,
         // Keep gpu horsepower in headless
         ignoreDefaultArgs: ['--disable-gpu'],
+        ignoreHTTPSErrors: true,
     });
 
     // init translator
