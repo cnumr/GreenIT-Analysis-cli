@@ -203,7 +203,7 @@ It is possible to define a list of actions through the `actions` field which is 
 | Parameter           | Type   | Mandatory | Description                                                                 |
 | ------------------- | ------ | --------- | --------------------------------------------------------------------------- |
 | `name`              | string | No        | No action                                                                   |
-| `type`              | string | Yes       | Action type: `click`, `scroll`, `select`, `text`                            |
+| `type`              | string | Yes       | Action type: `click`, `press`, `scroll`, `select`, `text`                            |
 | `element`           | string | No        | Element of the DOM on which the action must be executed. CSS selector type  |
 | `pageChange`        | boolean | No       | If `true`, indicates that the action triggers a page change. Allows you to have a calculation of indicators dedicated to the new page. Default value: `false`. |
 | `timeoutBefore`     | string | No        | Time to stop before executing the action (in milliseconds). Default value: 1000 |
@@ -223,8 +223,8 @@ This type of action allows you to simulate a click on an element on the page.
 This type of action requires the additional parameters:
 
 | Parameter | Type   | Mandatory | Description                                                         |
-| --------- | ------ | ----------- | ------------------------------------------------------------------- |
-| `element` | string | Yes         | Element of the DOM on which the click is made. CSS selector type |
+| --------- | ------ | ----------| ------------------------------------------------------------------- |
+| `element` | string | Yes       | Element of the DOM on which the click is made. CSS selector type |
 
 Example :
 ```yaml
@@ -236,6 +236,26 @@ Example :
       element : "a[title="Nos outils"]"
       timeoutBefore: 1000
       waitForSelector: "#header"
+```
+
+##### press
+This type of action allows you to simulate a user pressing a key on their keyboard.
+
+This type of action requires the additional parameters:
+
+| Parameter | Type   | Mandatory | Description                                                         |
+| --------- | ------ | --------- | ------------------------------------------------------------------- |
+| `key`     | string | Yes       | Key on a keyboard. The value must be recognized by Puppeteer.       |
+
+Exemple :
+```yaml
+- name : 'GreenIT.fr collective ecoindex'
+  url : 'https://collectif.greenit.fr/'
+  actions:
+    - name : 'Press the Enter key'
+      type: 'press'
+      key : 'Enter'
+      waitForTimeout: '1500'
 ```
 
 ##### scroll

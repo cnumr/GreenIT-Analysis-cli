@@ -211,6 +211,9 @@ async function doAction(page, action, actionName, timeout) {
     } else if (action.type === 'scroll') {
         await scrollToBottom(page);
         await waitPageLoading(page, action, timeout);
+    } else if (action.type === 'press') {
+        await page.keyboard.press(action.key);
+        await waitPageLoading(page, action, timeout);
     } else {
         console.log("Unknown action for '" + actionName + "' : " + action.type);
     }
