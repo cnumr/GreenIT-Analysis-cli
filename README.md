@@ -199,7 +199,7 @@ Il est possible de définir une liste d'actions à travers le champ `actions` qu
 | Paramètre           | Type    | Obligatoire | Description                                                                 |
 | ------------------- | ------- | ----------- | --------------------------------------------------------------------------- |
 | `name`              | string  | Non         | Non de l'action                                                             |
-| `type`              | string  | Oui         | Type de l'action : `click`, `scroll`, `select`, `text`                      |
+| `type`              | string  | Oui         | Type de l'action : `click`, `press`, `scroll`, `select`, `text`                      |
 | `element`           | string  | Non         | Element du DOM sur lequel l'action doit être exécutée. De type CSS selector |
 | `pageChange`        | boolean | Non         | Si `true`, indique que l'action déclenche un changement de page. Permet d'avoir un calcul des indicateurs dédié à la nouvelle page. Valeur par défaut : `false`. |
 | `timeoutBefore`     | string  | Non         | Temps d'arrêt avant d'exécuter l'action (en millisecondes). Valeur par défaut : 1000 |
@@ -234,6 +234,26 @@ Exemple :
       pageChange: true
       timeoutBefore: 1000
       waitForSelector: '#header'
+```
+
+##### press
+Ce type d'action permet de simuler un utilisateur qui appuie sur une touche de son clavier.
+
+Ce type d'action nécessite les paramètres supplémentaires :
+
+| Paramètre | Type   | Obligatoire | Description                                                         |
+| --------- | ------ | ----------- | ------------------------------------------------------------------- |
+| `key`     | string | Oui         | Touche d'un clavier. La valeur doit être reconnue par Pupeeteer.    |
+
+Exemple :
+```yaml
+- name : 'Collectif GreenIT.fr écoindex'
+  url : 'https://collectif.greenit.fr/'
+  actions:
+    - name : 'Appuie sur la touche Entrée'
+      type: 'press'
+      key : 'Enter'
+      waitForTimeout: '1500'
 ```
 
 ##### scroll
