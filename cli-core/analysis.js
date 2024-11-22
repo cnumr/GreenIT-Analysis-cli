@@ -68,14 +68,18 @@ async function analyseScenario(browser, pageInformations, options, translator, p
 
 async function waitPageLoading(page, pageInformations, TIMEOUT) {
     if (pageInformations.waitForSelector) {
-        await page.waitForSelector(pageInformations.waitForSelector, { visible: true, timeout: TIMEOUT });
+        await page.locator(pageInformations.waitForSelector).setTimeout(TIMEOUT).wait();
     } else if (pageInformations.waitForXPath) {
-        await page.waitForXPath(pageInformations.waitForXPath, { visible: true, timeout: TIMEOUT });
+        await page.locator(`::-p-xpath(${pageInformations.waitForXPath})`).setTimeout(TIMEOUT).wait();
     } else if (isValidWaitForNavigation(pageInformations.waitForNavigation)) {
         await page.waitForNavigation({ waitUntil: pageInformations.waitForNavigation, timeout: TIMEOUT });
     } else if (pageInformations.waitForTimeout) {
-        await page.waitForTimeout(pageInformations.waitForTimeout)
+        await waitForTimeout(pageInformations.waitForTimeout);
     }
+}
+
+function waitForTimeout(milliseconds) {
+    return new Promise((r) => setTimeout(r, milliseconds));
 }
 
 function isValidWaitForNavigation(waitUntilParam) {
@@ -128,7 +132,7 @@ async function startActions(page, pageInformations, timeout, translator, pageLoa
             // Add some wait in order to prevent green-it script to cancel future measure
             // default timeout : 1000ms
             let timeoutBefore = action.timeoutBefore > 0 ? action.timeoutBefore : 1000;
-            await page.waitForTimeout(timeoutBefore);
+            await waitForTimeout(timeoutBefore);
 
             currentPage.url = page.url();
 
@@ -330,15 +334,15 @@ async function login(browser, loginInformations, options) {
     //ensure page is loaded
     await page.waitForSelector(loginInformations.loginButtonSelector);
     //simulate user waiting before typing login and password
-    await page.waitForTimeout(1000);
+    await waitForTimeout(1000);
     //complete fields
     for (let index = 0; index < loginInformations.fields.length; index++) {
         let field = loginInformations.fields[index];
         await page.type(field.selector, field.value);
-        await page.waitForTimeout(500);
+        await waitForTimeout(500);
     }
     //simulate user waiting before clicking on button
-    await page.waitForTimeout(1000);
+    await waitForTimeout(1000);
     //click login button
     await page.click(loginInformations.loginButtonSelector);
 
