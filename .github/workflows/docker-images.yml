@@ -41,4 +41,3 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/greenit-analysis-cli:latest
             ${{ secrets.DOCKER_USERNAME }}/greenit-analysis-cli:${{ steps.extract_version.outputs.VERSION }}
-            ${{ secrets.DOCKER_USERNAME }}/greenit-analysis-cli:${{ github.ref }}
