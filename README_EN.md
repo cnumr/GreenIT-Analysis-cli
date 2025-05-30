@@ -12,8 +12,8 @@ This tool is based on the GreenIT-Analysis Chrome extension (https://github.com/
     - [Installation](#installation)
   - [Docker](#docker)
     - [Prerequisites](#prerequisites-1)
-    - [Installation](#installation-1)
-    - [Configure a proxy](#configure-a-proxy)
+    - [First solution: pull the docker image](#first-solution-pull-the-docker-image)
+    - [Second solution: build the docker image](#second-solution-build-the-docker-image)
 - [Usage](#usage)
   - [Analysis](#analysis)
     - [Construction of the input file](#construction-of-the-input-file)
@@ -75,10 +75,14 @@ npm link
 
 ## Docker
 
+There are two solutions to use the tool with Docker:
+- Pull the docker image from Docker Hub
+- Build the docker image
+
 ### Prerequisites
  - Docker
 
-### Installation
+Also, please perform the following actions that will be required when using the tool:
 
 1. Create the `/<path>/input` folder which will allow you to make the `<url_input_file>` file available to the container :
  ```
@@ -96,15 +100,27 @@ npm link
  ```
  chmod 777 /<path>/output
  ```
-5. Get the source code :
+
+### First solution: pull the docker image
+
+Docker images are pushed into this registry: https://hub.docker.com/repository/docker/jpreisner/greenit-analysis-cli/
+
+To push the latest version of the docker image, you have to execute this command:
+ ```
+docker pull jpreisner/greenit-analysis-cli:latest
+ ```
+
+### Second solution: build the docker image
+
+1. Get the source code :
  ```
  git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
  ```
-6. Position yourself in the GreenIT-Analysis-cli directory :
+2. Position yourself in the GreenIT-Analysis-cli directory :
  ```
  cd GreenIT-Analysis-cli
  ```
-7. Build the Docker image :
+3. Build the Docker image :
  ```
  docker build -t greenit-analysis-cli .
  ```
@@ -113,8 +129,7 @@ npm link
  docker build --platform=linux/amd64 -t greenit-analysis-cli .
  ```
 
-### Configure a proxy
-If you need to configure a proxy, you must:
+Also, if you need to configure a proxy, you must:
 
 1. Edit the Dockerfile
 

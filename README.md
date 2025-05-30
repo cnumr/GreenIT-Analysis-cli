@@ -11,8 +11,8 @@ Cette application est basée sur l'extension Chrome GreenIT-Analysis (https://gi
     - [Installation](#installation)
   - [Docker](#docker)
     - [Prérequis](#prérequis-1)
-    - [Installation](#installation-1)
-    - [Configurer un proxy](#configurer-un-proxy)
+    - [Première possibilité : télécharger l'image docker](#première-possibilité--télécharger-limage-docker)
+    - [Seconde possibilité : construire l'image docker](#seconde-possibilité--construire-limage-docker)
 - [Usage](#usage)
   - [Analyse](#analyse)
     - [Construction du fichier d'entrée](#construction-du-fichier-dentrée)
@@ -73,10 +73,14 @@ npm link
 
 ## Docker
 
+Il existe deux possibilités pour utiliser l'outil avec Docker :
+- En téléchargeant l'image docker depuis le Docker Hub
+- En construisant l'image docker
+
 ### Prérequis
  - Docker
 
-### Installation
+Par ailleurs, veuillez exécuter les actions suivantes utiles lors de l'utilisation de l'outil :
 
 1. Créer le dossier `/<path>/input` qui vous permettra de mettre à disposition le fichier `<url_input_file>` au conteneur :
  ```
@@ -94,15 +98,27 @@ npm link
  ```
  chmod 777 /<path>/output
  ```
-5. Récupérer le code source :
+
+### Première possibilité : télécharger l'image docker
+
+Les images docker sont poussés dans le registry suivant : https://hub.docker.com/repository/docker/jpreisner/greenit-analysis-cli/
+
+Pour télécharger la dernière version de l'image docker, vous pouvez exécuter la commande suivante :
+ ```
+docker pull jpreisner/greenit-analysis-cli:latest
+ ```
+
+### Seconde possibilité : construire l'image docker
+
+1. Récupérer le code source :
  ```
  git clone https://github.com/cnumr/GreenIT-Analysis-cli.git
  ```
-6. Se positionner dans le répertoire GreenIT-Analysis-cli :
+2. Se positionner dans le répertoire GreenIT-Analysis-cli :
  ```
  cd GreenIT-Analysis-cli
  ```
-7. Construire l'image Docker :
+3. Construire l'image Docker :
  ```
  docker build -t greenit-analysis-cli .
  ```
@@ -111,8 +127,7 @@ npm link
  docker build --platform=linux/amd64 -t greenit-analysis-cli .
  ```
 
-### Configurer un proxy
-Si vous avez besoin de configurer un proxy, il faut :
+Par ailleurs, si vous avez besoin de configurer un proxy, il faut :
 
 1. Modifier le Dockerfile
 
