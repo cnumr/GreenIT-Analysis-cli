@@ -39,5 +39,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/monapp:latest
-            ${{ secrets.DOCKER_USERNAME }}/monapp:${{ github.ref }}
+            ${{ secrets.DOCKER_USERNAME }}/greenit-analysis-cli:latest
+            ${{ secrets.DOCKER_USERNAME }}/greenit-analysis-cli:${{ steps.extract_version.outputs.VERSION }}
+            ${{ secrets.DOCKER_USERNAME }}/greenit-analysis-cli:${{ github.ref }}
