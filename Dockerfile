@@ -1,5 +1,5 @@
 # See : https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker
-FROM node:16-slim
+FROM node:24-slim
 
 # Uncomment if you need to configure proxy.
 # You can init these variables by using --build-args during docker build
@@ -36,5 +36,5 @@ RUN npm i \
     && node node_modules/puppeteer/install.mjs
 
 ENV URL_PATH="/app/input/url.yaml"
-ENV RESULTS_PATH="/app/output/results.xlsx"
+ENV RESULTS_PATH="/app/output/results.html"
 CMD greenit analyse $URL_PATH $RESULTS_PATH
