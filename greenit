@@ -2,7 +2,8 @@
 'use strict';
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
-const sizes = require('./sizes.js');
+const sizes = require('./src/conf/sizes.js');
+const analyse_core = require('./src/commands/analyse.js').analyse_core;
 
 yargs(hideBin(process.argv))
     .command(
@@ -107,7 +108,7 @@ yargs(hideBin(process.argv))
                 });
         },
         (argv) => {
-            require('./commands/analyse.js')(argv);
+            analyse_core(argv);
         }
     )
     .command(
@@ -124,7 +125,7 @@ yargs(hideBin(process.argv))
                 });
         },
         (argv) => {
-            require('./commands/sitemapParser.js')(argv);
+            require('./src/commands/sitemapParser.js')(argv);
         }
     )
     .option('ci', {

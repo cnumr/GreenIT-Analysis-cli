@@ -2,8 +2,9 @@
 .vscode
 node_modules/
 dist/
-results/
-results_test/
+**/results/
+**/results_test/
+**/output/
 *.xlsx
 *.yaml
 !docker-compose.yaml

@@ -2,12 +2,9 @@ const PuppeteerHar = require('puppeteer-har');
 const fs = require('fs');
 const path = require('path');
 const { harFromMessages } = require('chrome-har');
-const sizes = require('../sizes.js');
-const { createProgressBar } = require('./utils');
+const sizes = require('../conf/sizes.js');
+const { createProgressBar } = require('./utils.js');
 const { option } = require('yargs');
-
-//Path to the url file
-const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
 
 //Analyse a scenario
 async function analyseScenario(browser, pageInformations, options, translator, pageLoadingLabel) {
@@ -246,7 +243,7 @@ async function doAnalysis(page, pptrHar, name, translator) {
 
     //add script, get run, then remove it to not interfere with the analysis
     const script = await page.addScriptTag({
-        path: path.join(__dirname, '../dist/greenItBundle.js'),
+        path: path.join(__dirname, '../../dist/greenItBundle.js'),
     });
     await script.evaluate((x) => x.remove());
 
@@ -366,6 +363,8 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
     const DEVICE = options.device;
     //Language
     const LANGUAGE = options.language;
+    // JSON output directory
+    const JSON_SUBRESULTS_DIRECTORY = path.join(__dirname, '../../', path.dirname(options.report_output_file), 'json');
 
     //initialise progress bar
     const progressBar = createProgressBar(options, pagesInformations.length + 2, 'Analysing', 'Analysing ...');
@@ -383,10 +382,10 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
     }
 
     //create directory for subresults
-    if (fs.existsSync(SUBRESULTS_DIRECTORY)) {
-        fs.rmSync(SUBRESULTS_DIRECTORY, { recursive: true });
+    if (fs.existsSync(JSON_SUBRESULTS_DIRECTORY)) {
+        fs.rmSync(JSON_SUBRESULTS_DIRECTORY, { recursive: true });
     }
-    fs.mkdirSync(SUBRESULTS_DIRECTORY);
+    fs.mkdirSync(JSON_SUBRESULTS_DIRECTORY, { recursive: true });
 
     //Set translator language
     const pageLoadingLabel = translator.translate('pageLoading');
@@ -437,7 +436,7 @@ async function createJsonReports(browser, pagesInformations, options, proxy, hea
                 )
             ); // convert is NEEDED, variable size array
         } else {
-            let filePath = path.resolve(SUBRESULTS_DIRECTORY, `${resultId}.json`);
+            let filePath = path.resolve(JSON_SUBRESULTS_DIRECTORY, `${resultId}.json`);
             writeList.push(fs.promises.writeFile(filePath, JSON.stringify(results)));
             reports.push({ name: `${resultId}`, path: filePath });
             if (progressBar) {
