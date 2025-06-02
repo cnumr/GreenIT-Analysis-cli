@@ -149,4 +149,7 @@ function analyse(options) {
     analyse_core(options).catch((e) => console.error('ERROR : \n', e));
 }
 
-module.exports = analyse;
+module.exports = {
+    analyse,
+    analyse_core
+};

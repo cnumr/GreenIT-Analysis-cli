@@ -2,9 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { getEcoIndexGrade, getGradeEcoIndex, createProgressBar } = require('./utils');
 
-//Path to the url file
-const SUBRESULTS_DIRECTORY = path.join(__dirname, '../results');
-
 // keep track of worst pages based on ecoIndex
 function worstPagesHandler(number) {
     return (obj, table) => {
@@ -47,6 +44,8 @@ async function create_global_report(reports, options, translator) {
     const WORST_PAGES = options.worst_pages;
     //Nb of displayed worst rules
     const WORST_RULES = options.worst_rules;
+    // JSON output directory
+    const JSON_SUBRESULTS_DIRECTORY = path.join(__dirname, '../../', path.dirname(options.report_output_file), 'json');
 
     const DEVICE = options.device;
     const LANGUAGE = options.language;
@@ -145,7 +144,7 @@ async function create_global_report(reports, options, translator) {
     if (progressBar) progressBar.tick();
 
     //save report
-    let filePath = path.join(SUBRESULTS_DIRECTORY, 'globalReport.json');
+    let filePath = path.join(JSON_SUBRESULTS_DIRECTORY, 'globalReport.json');
     try {
         fs.writeFileSync(filePath, JSON.stringify(globalSheet_data));
     } catch (error) {
