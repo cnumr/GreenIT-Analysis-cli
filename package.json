@@ -23,7 +23,7 @@
         "glob": "^10.3.10",
         "mustache": "^4.2.0",
         "progress": "^2.0.3",
-        "puppeteer": "^23.9.0",
+        "puppeteer": "^24.9.0",
         "puppeteer-har": "^1.1.2",
         "sitemapper": "^3.2.8",
         "tough-cookie": "^4.1.3",
