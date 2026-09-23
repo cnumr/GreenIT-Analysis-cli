@@ -1,4 +1,5 @@
 const ProgressBar = require('progress');
+const reference = require('ecoindex_reference/ecoindex_reference.json');
 
 /**
  * Initialize new progress bar
@@ -25,24 +26,15 @@ function createProgressBar(options, total, progressText, defaultText) {
 
 //EcoIndex -> Grade
 function getEcoIndexGrade(ecoIndex) {
-    if (ecoIndex > 75) return 'A';
-    if (ecoIndex > 65) return 'B';
-    if (ecoIndex > 50) return 'C';
-    if (ecoIndex > 35) return 'D';
-    if (ecoIndex > 20) return 'E';
-    if (ecoIndex > 5) return 'F';
-    return 'G';
+    const sortedGrades = reference.grades.toSorted((a, b) => b.value - a.value);
+    const found = sortedGrades.find(grade => ecoIndex > grade.value);
+    return found ? found.grade : 'G';
 }
 
 //Grade -> EcoIndex
 function getGradeEcoIndex(grade) {
-    if (grade == 'A') return 75;
-    if (grade == 'B') return 65;
-    if (grade == 'C') return 50;
-    if (grade == 'D') return 35;
-    if (grade == 'E') return 20;
-    if (grade == 'F') return 5;
-    return 0;
+    const found = reference.grades.find(g => g.grade === grade);
+    return found ? found.value : 0;
 }
 
 module.exports = {
