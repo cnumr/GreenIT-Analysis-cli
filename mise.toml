@@ -1,0 +1,16 @@
+[settings]
+experimental = true
+lockfile = true
+
+[tools]
+node = "24"
+
+[deps.npm]
+auto = true
+
+[tasks.build]
+run = "node builder.js"
+
+[tasks.test]
+run = "npm exec jest"
+depends = ["build"]
